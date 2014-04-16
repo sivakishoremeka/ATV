@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.obs.androidiptv"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="11"
+        android:targetSdkVersion="19" />
+
+     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application
+        android:name="MyApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:logo="@drawable/ic_launcher"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.obs.androidiptv.AuthenticationAcitivity"
+            android:label="@string/app_name"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
+        </activity>
+        <activity
+            android:name="com.obs.androidiptv.NetworkCheckActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/app_name"
+            android:launchMode="singleInstance"
+            android:screenOrientation="landscape"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Dialog" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.obs.androidiptv.MainActivity"
+            android:label=""
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name="com.obs.androidiptv.RegisterActivity"
+            android:label=""
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name="com.obs.androidiptv.PlanActivity"
+            android:label=""
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name="com.obs.androidiptv.ChannelsActivity"
+            android:label=""
+            android:launchMode="singleTask"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="landscape" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.obs.androidiptv.MainActivity" />
+        </activity>
+        <activity
+            android:name="com.obs.androidiptv.IPTVActivity"
+            android:label=""
+            android:parentActivityName=".ChannelsActivity"
+            android:screenOrientation="landscape" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.obs.androidiptv.MainActivity" />
+        </activity>
+        <activity
+            android:name="com.obs.androidiptv.VodActivity"
+            android:label=""
+            android:launchMode="singleTask"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="landscape" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.obs.androidiptv.MainActivity" />
+        </activity>
+        <activity
+            android:name="com.obs.androidiptv.VodMovieDetailsActivity"
+            android:label=""
+            android:parentActivityName=".VodActivity"
+            android:screenOrientation="landscape" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.obs.androidiptv.VodActivity" />
+        </activity>
+        <activity
+            android:name="com.obs.androidiptv.VideoPlayerActivity"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name="com.obs.androidiptv.MXPlayerActivity"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name="com.obs.androidiptv.MyAccountActivity"
+            android:label=""
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape" >
+        </activity>
+
+        <service android:name="com.obs.service.ScheduleService" />
+        <service android:name="com.obs.service.NotifyService" />
+
+        <receiver android:name="com.obs.receiver.BootReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="com.obs.service.ScheduleAfterBootService" />
+        </application>
+
+</manifest>

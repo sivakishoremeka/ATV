@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_gv_item_bg"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <com.obs.imagehandler.SquareImageView
+        android:id="@+id/vod_gv_item_img"
+        android:layout_width="90dp"
+        android:layout_height="115dp"
+        android:layout_margin="3dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/default_img" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="2dp"
+        android:background="#FF7c00"
+        android:gravity="center" >
+
+        <RatingBar
+            android:id="@+id/vod_gv_item_rating_bar"
+            style="@style/RatingBarSmallAppTheme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:isIndicator="true"
+            android:numStars="5" />
+    </LinearLayout>
+
+</LinearLayout>

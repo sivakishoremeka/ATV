@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="8"
+        android:background="#FF7C00"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/a_my_acc_tv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/my_account"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="92"
+        android:baselineAligned="false" >
+
+        <ListView
+            android:id="@+id/a_my_acc_lv_menu"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="25"
+            android:divider="#B5B5B5"
+            android:dividerHeight="1dp" >
+        </ListView>
+
+        <LinearLayout
+            android:id="@+id/a_my_acc_llayout_border"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#FF7C00"
+            android:orientation="vertical" >
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/a_my_acc_frag_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="74"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="4dip" />
+    </LinearLayout>
+
+</LinearLayout>

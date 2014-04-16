@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="3dp" >
+
+        <TextView
+            android:id="@+id/f_my_pkgs_pkg_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:text="GoldenP"
+            android:textColor="#000000"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/f_my_pkgs_actvtd_on"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="2014-03-03"
+            android:textColor="#000000"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/f_my_pkgs_valid_till"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="2014-03-03"
+            android:textColor="#000000"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/f_my_pkgs_btn_renewel"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="27dp"
+            android:textSize="13sp"
+            android:text="RENEWAL"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:visibility="invisible"
+            android:background="@drawable/selector_btn_renewal" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/f_my_profile_hr_line1"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="3dp"
+        android:background="#C3C1C2" />
+
+</LinearLayout>

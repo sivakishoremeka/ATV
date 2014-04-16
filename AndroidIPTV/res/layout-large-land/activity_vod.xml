@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="8"
+        android:background="#FF7C00"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/a_iptv_tv_iptv_channels"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="VOD"
+            android:textColor="#FFFFFF"
+            android:textSize="23sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="92"
+        android:baselineAligned="false" >
+
+        <ListView
+            android:id="@+id/a_vod_lv_category"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="18"
+            android:divider="#B5B5B5"
+            android:dividerHeight="1dp" >
+        </ListView>
+
+        <LinearLayout
+            android:id="@+id/a_vod_llayout_category"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#FF7C00"
+            android:orientation="vertical" >
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="81"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="4dip" >
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/a_vod_pager"
+                android:layout_width="match_parent"
+                android:layout_height="0px"
+                android:layout_weight="1" >
+            </android.support.v4.view.ViewPager>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:background="#FFFFFF"
+                android:gravity="center"
+                android:measureWithLargestChild="true"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/a_vod_btn_first"
+                    android:layout_width="80dp"
+                    android:layout_height="35dp"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginRight="3dp"
+                    android:background="@drawable/img_btn_vod_first" >
+                </Button>
+
+                <Button
+                    android:id="@+id/a_vod_btn_pgno"
+                    android:layout_width="25dp"
+                    android:layout_height="35dp"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginRight="3dp"
+                    android:background="@drawable/shape_current_page_btn_bg"
+                    android:text="1"
+                    android:textColor="#FFFFFF" >
+                </Button>
+
+                <Button
+                    android:id="@+id/a_vod_btn_last"
+                    android:layout_width="80dp"
+                    android:layout_height="35dp"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginRight="3dp"
+                    android:background="@drawable/img_btn_vod_last" >
+                </Button>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

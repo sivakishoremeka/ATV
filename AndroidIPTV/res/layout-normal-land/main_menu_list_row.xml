@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="16dp"
+    android:background="@drawable/selector_vod_lv_categ_row" >
+
+    <ImageView
+        android:id="@+id/main_menu_list_row_iv_menu_image"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
+        android:padding="3dp"
+        android:src="@drawable/img_menu_live_tv" />
+
+    <TextView
+        android:id="@+id/main_menu_list_row_tv_menu_name"
+        style="@android:style/TextAppearance.Large"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/main_menu_list_row_iv_menu_image"
+        android:ellipsize="end"
+        android:textColor="@drawable/selector_vod_lv_categ_row_text"
+        android:textSize="11sp"
+        android:textStyle="bold" />
+
+</RelativeLayout>

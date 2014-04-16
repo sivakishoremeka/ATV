@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:orientation="vertical" >
+
+    <GridView
+        android:id="@+id/f_category_gv_movies"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:columnWidth="98dp"
+        android:paddingTop="30dp"
+        android:gravity="center"
+        android:horizontalSpacing="10dp"
+        android:numColumns="5"
+        android:stretchMode="spacingWidthUniform"
+        android:listSelector="@drawable/gv_img_selector"
+        android:verticalSpacing="30dp">
+    </GridView>
+
+</RelativeLayout>

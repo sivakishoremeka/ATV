@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="30dp"
+    android:background="@drawable/selector_vod_lv_categ_row" >
+
+    <TextView
+        android:id="@+id/vod_categ_list_row_tv_name"
+        style="@android:style/TextAppearance.Medium"
+        android:layout_width="fill_parent"
+        android:layout_height="30dp"
+        android:gravity="center"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:duplicateParentState="true"
+        android:textSize="8sp"
+        android:textColor="@drawable/selector_vod_lv_categ_row_text" /> 
+</RelativeLayout>

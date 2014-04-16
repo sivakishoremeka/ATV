@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="account">Account</string>
+    <string name="account_no">Account No</string>
+    <string name="action_account">Account</string>
+    <string name="action_guide">Guide</string>
+    <string name="action_home">Home</string>
+    <string name="action_live_tv">Live TV</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="action_bar_search">Search</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_vod">VOD</string>
+    <string name="action_wish_list">Wish List</string>
+    <string name="active_from">Active From</string>
+    <string name="actvtd_on">Activated On</string>
+    <string name="app_name">AndroidIPTV</string>
+    <string name="balance">Balance</string>
+    <string name="basic_auth">Basic YWRtaW46b2JzQDEyMw==</string> <!-- Spark  admin/obs@123 -->
+    <string name="basic_auth_">Basic YmlsbGluZzpwYXNzd29yZA==</string> <!-- Peter  billing/password -->
+    <string name="cast_crew">Cast &amp; Crew</string>
+    <string name="client_data">Client Data</string>
+    <string name="client_pkg_data">Client Package Data</string>
+    <string name="content_type">application/json</string>
+    <string name="crash_toast_text">Application get Crashed,Choose mail to send crash report</string>
+    <string name="country">Country</string>
+    <string name="description">Media Controls</string>
+    <string name="duration">Duration</string>
+    <string name="email_id">Email Id</string>
+    <string name="error_network">Communication Error. Please Check the Network</string>
+    <string name="first_name">First Name</string>
+    <string name="home">Home</string>
+    <string name="header_title">Communication Error</string>
+    <string name="language">Language</string>
+    <string name="last_name">Last Name</string>
+    <string name="live_tv">Live TV</string>
+    <string name="mobile_no">Mobile No</string>
+    <string name="movie_descr">Movie Description</string>
+    <string name="movie_details">Movie Details</string>
+    <string name="my_account">My Account</string>
+    <string name="name">Name</string>
+    <string name="new_pkg_data">New Package Data</string>
+    <string name="own_buy">Own / Buy :</string>
+    <string name="package_name">Package Name</string>
+    <string name="remind_me">Remind Me</string>
+    <string name="reg_acc">Register your account</string>
+    <string name="release">Release</string>
+    <string name="rental">Rental :</string>
+    <string name="reg_note">Mobile TV allows user with Mobile Phones, Smart Phones &amp; Tablets
+         to enjoy premium digital TV signals on their devices.</string>
+    <string name="sel_country">Select Country </string>
+    <string name="sel_pkg">Select Package</string>
+    <string name="serialno">Serial No</string>
+    <string name="server_url_">https://192.168.1.104:8443/obsplatform/api/v1</string> <!-- Spark -->
+    <string name="server_url">https://demo.openbillingsystem.com/obsplatform/api/v1</string> <!-- Spark -->
+    <string name="server_url_uyh">https://192.168.1.100:8443/obsplatform/api/v1</string> <!-- kiran -->
+    <string name="server_url_yu">https://188.138.84.29:8443/obsplatform/api/v1</string> <!-- Yusuf -->
+    <string name="server_url_p">https://46.21.175.210:8443/obsplatform/api/v1</string> <!-- Peter -->
+    <string name="server_url_q">https://80.82.222.173:8443/obsplatform/api/v1</string> <!-- Quasay -->
+    <string name="tenent_id">default</string>
+    <string name="user_name">User Name</string>
+    <string name="user_reg">User Registration</string>
+    <string name="valid_till">Valid Till</string>
+    <string name="vod">VOD</string>
+    <string name="watch">  Watch  </string>
+    <!-- String Arrays -->
+    <string-array name="arrMainMenu">
+        <item>Live TV</item>
+        <item>VOD</item>
+        <item>Music</item>
+        <item>Games</item>
+    </string-array>
+    <string-array name="arrMenuImageNames">
+        <item>live_tv</item>
+        <item>vod</item>
+        <item>music</item>
+        <item>games</item>
+    </string-array>
+    <string-array name="arrMyAccMenu">
+        <item>New Package</item>
+        <item>My Packages</item>
+        <item>My Profile</item>
+        <item>History</item>
+    </string-array>
+    <string-array name="arrMyAccImageNames">
+        <item>new_package</item>
+        <item>my_packages</item>
+        <item>my_profile</item>
+        <item>history</item>
+    </string-array>
+    <string-array name="arrLangauges">
+        <item>Telugu</item>
+        <item>English</item>
+        <item>Hindi</item>
+    </string-array>
+    <string-array name="arrMovCategNames">
+        <item>New Movies</item>
+        <item>High Rating</item>
+        <item>Coming Soon</item>
+        <item>All Movies</item>
+    </string-array>
+    <string-array name="arrMovCategValues">
+        <item>RELEASE</item>
+        <item>RATING</item>
+        <item>COMING</item>
+        <item>ALL</item>
+    </string-array>
+
+</resources>
