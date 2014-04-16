@@ -108,14 +108,15 @@ public class VideoPlayerActivity extends Activity implements
 	}
 
 	private int getChannelIndexByChannelId(int channelId) {
+		int idx =-1;
 		if (null != mserviceList) {
 			for (int i = 0; i < mserviceList.size(); i++) {
-				if (mserviceList.get(i).getClientId() == channelId) {
-					return i;
+				if (mserviceList.get(i).getServiceId() == channelId) {
+					idx = i;
 				}
 			}
 		}
-		return -1;
+		return idx;
 	}
 
 	@Override
@@ -424,6 +425,7 @@ public class VideoPlayerActivity extends Activity implements
 			}
 		} else if (keyCode == 19 || keyCode == 20) {
 			if (null != player) {
+
 				if (mserviceList != null && mChannelId != -1) {
 					mChannelIndex = getChannelIndexByChannelId(mChannelId);
 					if (keyCode == 19) {
