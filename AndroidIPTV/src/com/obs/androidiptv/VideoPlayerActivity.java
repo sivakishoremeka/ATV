@@ -61,7 +61,7 @@ public class VideoPlayerActivity extends Activity implements
 			decorView.setSystemUiVisibility(uiOptions);
 		}
 
-		//prepareChannelsList();
+		// prepareChannelsList();
 		videoSurface = (SurfaceView) findViewById(R.id.videoSurface);
 		SurfaceHolder videoHolder = videoSurface.getHolder();
 		videoHolder.addCallback(this);
@@ -108,7 +108,7 @@ public class VideoPlayerActivity extends Activity implements
 	}
 
 	private int getChannelIndexByChannelId(int channelId) {
-		int idx =-1;
+		int idx = -1;
 		if (null != mserviceList) {
 			for (int i = 0; i < mserviceList.size(); i++) {
 				if (mserviceList.get(i).getServiceId() == channelId) {
@@ -262,16 +262,6 @@ public class VideoPlayerActivity extends Activity implements
 		 */
 		return true;
 
-	}
-
-	@Override
-	public void onBackPressed() {
-
-		if (player != null && player.isPlaying())
-			player.stop();
-		player.release();
-		player = null;
-		// finish();
 	}
 
 	// End MediaPlayer.OnPreparedListener
@@ -495,27 +485,19 @@ public class VideoPlayerActivity extends Activity implements
 		rlayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 	}
 
-	/*private void prepareChannelsList() {
-
-		SharedPreferences mPrefs = ((MyApplication) getApplicationContext())
-				.getPrefs();
-		String sChannelDtls = mPrefs.getString(
-				ChannelsActivity.IPTV_CHANNELS_DETAILS, "");
-		if (sChannelDtls.length() != 0) {
-			JSONObject json_ch_dtls = null;
-			String channel_details = null;
-			try {
-				json_ch_dtls = new JSONObject(sChannelDtls);
-				channel_details = json_ch_dtls.getString("Channels");
-			} catch (JSONException e1) {
-				e1.printStackTrace();
-			}
-			if (channel_details.length() != 0) {
-
-				mserviceList = getServiceListFromJSON(channel_details);
-			}
-		}
-	}*/
+	/*
+	 * private void prepareChannelsList() {
+	 * 
+	 * SharedPreferences mPrefs = ((MyApplication) getApplicationContext())
+	 * .getPrefs(); String sChannelDtls = mPrefs.getString(
+	 * ChannelsActivity.IPTV_CHANNELS_DETAILS, ""); if (sChannelDtls.length() !=
+	 * 0) { JSONObject json_ch_dtls = null; String channel_details = null; try {
+	 * json_ch_dtls = new JSONObject(sChannelDtls); channel_details =
+	 * json_ch_dtls.getString("Channels"); } catch (JSONException e1) {
+	 * e1.printStackTrace(); } if (channel_details.length() != 0) {
+	 * 
+	 * mserviceList = getServiceListFromJSON(channel_details); } } }
+	 */
 
 	private ArrayList<ServiceDatum> getServiceListFromJSON(String json) {
 		java.lang.reflect.Type t = new TypeToken<ArrayList<ServiceDatum>>() {

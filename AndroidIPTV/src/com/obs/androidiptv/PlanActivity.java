@@ -23,6 +23,8 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnGroupClickListener;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.obs.adapter.CustomExpandableListAdapter;
@@ -56,7 +58,6 @@ public class PlanActivity extends Activity {
 		mApplication = ((MyApplication) getApplicationContext());
 		mExecutorService = Executors.newCachedThreadPool();
 		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
-
 		fetchAndBuildPlanList();
 	}
 
@@ -127,6 +128,32 @@ public class PlanActivity extends Activity {
 		expListView = (ExpandableListView) findViewById(R.id.a_exlv_plans_services);
 		listAdapter = new CustomExpandableListAdapter(this, mPlans);
 		expListView.setAdapter(listAdapter);
+		expListView.setOnGroupClickListener(new OnGroupClickListener() {
+			@Override
+			public boolean onGroupClick(ExpandableListView parent, View v,
+					int groupPosition, long id) {
+
+				RadioButton rb1 = (RadioButton) v
+						.findViewById(R.id.plan_list_plan_rb);
+				if (null != rb1 && (!rb1.isChecked())) {
+					//rb1.setChecked(true);
+					PlanActivity.selectedGroupItem = groupPosition;
+
+				/*	for (int i = 0; i < parent.getChildCount(); i++) {
+						RadioButton rb = (RadioButton) parent.getChildAt(i)
+								.findViewById(R.id.plan_list_plan_rb);
+						if (null != rb && groupPosition != i) {
+							rb.setChecked(false);
+						}
+					}*/
+				} else {
+				//	rb1.setChecked(false);
+					PlanActivity.selectedGroupItem = -1;
+				}
+				return false;
+			}
+		});
+
 	}
 
 	public void btnSubmit_onClick(View v) {

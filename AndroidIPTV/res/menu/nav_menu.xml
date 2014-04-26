@@ -52,14 +52,13 @@
          android:visible="false"/>
     <item
         android:id="@+id/action_search"
-        android:actionViewClass="android.widget.SearchView"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/ic_action_search_icon"
         android:orderInCategory="2"
         android:showAsAction="always"
         android:title="@string/action_bar_search"/>
     <item
         android:id="@+id/action_refresh"
-        android:icon="@drawable/ic_stat_navigation_refresh"
+        android:icon="@drawable/ic_action_refresh_icon"
         android:orderInCategory="4"
         android:showAsAction="always"
         android:title="@string/action_refresh"

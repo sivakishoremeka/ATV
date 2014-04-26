@@ -72,12 +72,12 @@ public class MyAccountMenuAdapter extends BaseAdapter {
 		states.addState(
 				new int[] { android.R.attr.state_selected },
 				activity.getResources().getDrawable(
-						activity.getResources().getIdentifier(imgName,
+						activity.getResources().getIdentifier(imgNameSel,
 								"drawable", "com.obs.androidiptv")));
 		states.addState(
-				new int[] { android.R.attr.state_pressed },
+				new int[] { android.R.attr.state_pressed,android.R.attr.state_selected },
 				activity.getResources().getDrawable(
-						activity.getResources().getIdentifier(imgNameSel,
+						activity.getResources().getIdentifier(imgName,
 								"drawable", "com.obs.androidiptv")));
 		states.addState(
 				new int[] {},

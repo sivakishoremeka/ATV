@@ -33,7 +33,7 @@ public class ClientDatum {
 	}
 
 	public void setBalanceAmount(float balanceAmount) {
-		this.balanceAmount = -balanceAmount;
+		this.balanceAmount = balanceAmount;
 	}
 
 	public String getHwSerialNumber() {

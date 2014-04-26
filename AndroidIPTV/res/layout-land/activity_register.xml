@@ -1,14 +1,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#FF7C00"
+    android:background="@drawable/shape_a_ch_bg"
     android:orientation="vertical" >
 
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" >
 
-         <LinearLayout
+        <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:orientation="vertical" >
@@ -48,9 +48,9 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginBottom="4dp"
                     android:background="@drawable/img_et_reg"
-                    android:maxLength="16"
                     android:hint="@string/mobile_no"
                     android:inputType="phone"
+                    android:maxLength="16"
                     android:paddingLeft="3dp"
                     android:textSize="10sp" >
 
@@ -110,8 +110,16 @@
                         android:layout_marginLeft="3dp"
                         android:layout_marginRight="3dp"
                         android:layout_weight="1"
-                        android:background="@drawable/selector_btn_cancel"
-                        android:onClick="btnCancel_onClick" />
+                        android:background="@drawable/selector_btn"
+                        android:nextFocusDown="@+id/a_reg_btn_submit"
+                        android:nextFocusLeft="@+id/a_reg_et_email_id"
+                        android:nextFocusRight="@+id/a_reg_btn_submit"
+                        android:nextFocusUp="@+id/a_reg_et_email_id"
+                        android:onClick="btnCancel_onClick"
+                        android:text="@string/cancel"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
 
                     <Button
                         android:id="@+id/a_reg_btn_submit"
@@ -120,8 +128,14 @@
                         android:layout_marginLeft="3dp"
                         android:layout_marginRight="3dp"
                         android:layout_weight="1"
-                        android:background="@drawable/selector_btn_submit"
-                        android:onClick="btnSubmit_onClick" />
+                        android:background="@drawable/selector_btn"
+                        android:nextFocusLeft="@+id/a_reg_btn_cancel"
+                        android:nextFocusUp="@+id/a_reg_btn_cancel"
+                        android:onClick="btnSubmit_onClick"
+                        android:text="@string/submit"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <TextView

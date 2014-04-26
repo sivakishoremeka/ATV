@@ -10,7 +10,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:background="#FF7C00" >
+          android:background="@drawable/shape_a_ch_bg">
 
         <TextView
             android:id="@+id/a_vod_mov_dtls_tv_mov_dtls"
@@ -40,39 +40,34 @@
             <com.obs.imagehandler.SquareImageView
                 android:id="@+id/a_vod_mov_dtls_iv_mov_img"
                 android:layout_width="210dp"
-                android:layout_height="340dp"
-                android:layout_above="@+id/a_vod_mov_dtls_tv_mov_title"
-                android:layout_alignParentTop="true"
+                android:layout_height="280dp"
                 android:scaleType="fitXY"
                 android:src="@drawable/default_img" />
-
-            <RatingBar
-                android:id="@+id/a_vod_mov_dtls_rating_bar"
-                style="@style/RatingBarSmallAppTheme"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="25dp"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:isIndicator="true"
-                android:numStars="5" />
 
             <TextView
                 android:id="@+id/a_vod_mov_dtls_tv_mov_title"
                 android:layout_width="210dp"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/a_vod_mov_dtls_rating_bar"
-                android:layout_alignParentRight="true"
+                android:layout_below="@+id/a_vod_mov_dtls_iv_mov_img"
+                android:layout_centerHorizontal="true"
                 android:layout_margin="10dp"
-                android:layout_marginBottom="16dp"
                 android:ellipsize="marquee"
                 android:gravity="center"
                 android:singleLine="true"
                 android:textColor="#FFFFFF"
                 android:textSize="19sp" />
 
+            <RatingBar
+                android:id="@+id/a_vod_mov_dtls_rating_bar"
+                style="@style/RatingBarSmallAppTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_below="@+id/a_vod_mov_dtls_tv_mov_title"
+                android:layout_centerHorizontal="true"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:isIndicator="true"
+                android:numStars="5" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -159,7 +154,7 @@
                     android:layout_toRightOf="@+id/a_vod_mov_dtls_tv_lang_title"
                     android:paddingLeft="6dp"
                     android:textColor="#FFFFFF"
-                    android:textSize="12sp" />
+                    android:textSize="11sp" />
 
                 <TextView
                     android:id="@+id/a_vod_mov_dtls_tv_durn_title"
@@ -181,7 +176,7 @@
                     android:layout_below="@+id/a_vod_mov_dtls_tv_lang_value"
                     android:paddingLeft="6dp"
                     android:textColor="#FFFFFF"
-                    android:textSize="12sp" />
+                    android:textSize="11sp" />
 
                 <TextView
                     android:id="@+id/a_vod_mov_dtls_tv_release_title"
@@ -193,7 +188,7 @@
                     android:paddingLeft="3dp"
                     android:text="@string/release"
                     android:textColor="#FFFFFF"
-                    android:textSize="12sp" />
+                    android:textSize="9sp" />
 
                 <TextView
                     android:id="@+id/a_vod_mov_dtls_tv_release_value"
@@ -204,7 +199,7 @@
                     android:layout_marginTop="3dp"
                     android:paddingLeft="6dp"
                     android:textColor="#FFFFFF"
-                    android:textSize="15sp" />
+                    android:textSize="11sp" />
             </RelativeLayout>
         </RelativeLayout>
 
@@ -264,7 +259,6 @@
                     android:layout_height="32dp"
                     android:layout_margin="5dp"
                     android:background="@drawable/selector_vod_mov_dtls_btn_hdx"
-                    android:onClick="btnOnClick"
                     android:padding="5dp"
                     android:text="HDX $5.00"
                     android:textColor="#FFFFFF"
@@ -277,7 +271,6 @@
                     android:layout_height="32dp"
                     android:layout_margin="5dp"
                     android:background="@drawable/selector_vod_mov_dtls_btn_hd"
-                    android:onClick="ButtonOnClick"
                     android:padding="5dp"
                     android:text="HD $2.50"
                     android:textColor="#FFFFFF"
@@ -290,7 +283,6 @@
                     android:layout_height="32dp"
                     android:layout_margin="5dp"
                     android:background="@drawable/selector_vod_mov_dtls_btn_hd"
-                    android:onClick="ButtonOnClick"
                     android:padding="5dp"
                     android:text="SD $1.50"
                     android:textColor="#FFFFFF"
@@ -325,7 +317,6 @@
                     android:layout_height="32dp"
                     android:layout_margin="5dp"
                     android:background="@drawable/selector_vod_mov_dtls_btn_hdx"
-                    android:onClick="ButtonOnClick"
                     android:padding="5dp"
                     android:text="HDX $5.00"
                     android:textColor="#FFFFFF"
@@ -338,7 +329,6 @@
                     android:layout_height="32dp"
                     android:layout_margin="5dp"
                     android:background="@drawable/selector_vod_mov_dtls_btn_hd"
-                    android:onClick="ButtonOnClick"
                     android:padding="5dp"
                     android:text="HD $2.50"
                     android:textColor="#FFFFFF"
@@ -351,7 +341,6 @@
                     android:layout_height="32dp"
                     android:layout_margin="5dp"
                     android:background="@drawable/selector_vod_mov_dtls_btn_hd"
-                    android:onClick="ButtonOnClick"
                     android:padding="5dp"
                     android:text="HDX $2.50"
                     android:textColor="#FFFFFF"
@@ -360,5 +349,4 @@
             </LinearLayout>
         </RelativeLayout>
     </RelativeLayout>
-
-</RelativeLayout>
+</RelativeLayout>

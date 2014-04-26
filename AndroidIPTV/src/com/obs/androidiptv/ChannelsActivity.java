@@ -5,8 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,42 +18,65 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.SearchManager;
+import android.app.LoaderManager.LoaderCallbacks;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
-import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.GridView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.obs.adapter.ChannelGridViewAdapter;
+import com.obs.adapter.ChannelListAdapter;
+import com.obs.data.DeviceDatum;
+import com.obs.data.EPGData;
+import com.obs.data.EpgDatum;
 import com.obs.data.ServiceDatum;
+import com.obs.database.ServiceProvider;
 import com.obs.retrofit.OBSClient;
 
-public class ChannelsActivity extends Activity {
+public class ChannelsActivity extends Activity implements
+		SurfaceHolder.Callback, MediaPlayer.OnPreparedListener,
+		MediaPlayer.OnErrorListener, AdapterView.OnItemSelectedListener,
+		AdapterView.OnItemClickListener, LoaderCallbacks<Cursor> {
+	private SharedPreferences mPrefs;
+	private ProgressDialog mProgressDialog;
+	private Editor mPrefsEditor;
 
-	private final String TAG = ChannelsActivity.this.getClass().getName();
 	public final static String CHANNEL_EPG = "Channel Epg";
 	public final static String IPTV_CHANNELS_DETAILS = "IPTV Channels Details";
 	public final static String CHANNELS_UPDATED_AT = "Updated At";
 	public final static String CHANNELS_LIST = "Channels";
-	private SharedPreferences mPrefs;
-	private ProgressDialog mProgressDialog;
-	private Editor mPrefsEditor;
-	GridView gridView;
-	ChannelGridViewAdapter adapter;
+	public final static String CHANNEL_URL = "URL";
+
+	public static String mDate;
+	ListView mListView;
 	ArrayList<ServiceDatum> mServiceList = new ArrayList<ServiceDatum>();
 
 	MyApplication mApplication = null;
@@ -61,9 +84,17 @@ public class ChannelsActivity extends Activity {
 	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 
-	boolean isLiveDataReq = false;
-	boolean isBalCheckReq;
-	Double bal;
+	boolean mIsLiveDataReq = false;
+	int mReqType = ServiceProvider.ALLSERVICES;
+	boolean mIsBalCheckReq;
+	float mBalance;
+
+	String mSearchString;
+
+	SurfaceView videoSurface;
+	MediaPlayer player;
+	VideoControllerView controller;
+	ServiceDatum mService;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,61 +103,90 @@ public class ChannelsActivity extends Activity {
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+					WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		} else {
+			View decorView = getWindow().getDecorView();
+			int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+					| View.SYSTEM_UI_FLAG_LOW_PROFILE;
+			decorView.setSystemUiVisibility(uiOptions);
+		}
+
 		mApplication = ((MyApplication) getApplicationContext());
 		mExecutorService = Executors.newCachedThreadPool();
 		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
-		mPrefs = ChannelsActivity.this.getSharedPreferences(
-				mApplication.PREFS_FILE, Activity.MODE_PRIVATE);
-		isBalCheckReq = mApplication.isBalCheckReq;
-		gridView = (GridView) (findViewById(R.id.a_gv_channels));
+		mPrefs = mApplication.getPrefs();
+		mIsBalCheckReq = mApplication.isBalCheckReq;
 
-		Log.d(TAG, "onCreate");
+		Calendar c = Calendar.getInstance();
+		mDate = mApplication.df.format(c.getTime()); // dt is now the new date
 
-		// getData();
+		mListView = (ListView) findViewById(R.id.a_channels_lv);
+
+		videoSurface = (SurfaceView) findViewById(R.id.a_channels_videoSurface);
+		SurfaceHolder videoHolder = videoSurface.getHolder();
+		videoHolder.addCallback(this);
+		player = new MediaPlayer();
+		initiallizeUI();
 	}
 
 	@Override
-	protected void onPause() {
-		if (adapter != null) {
-			mServiceList.clear();
-			adapter.notifyDataSetChanged();
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		Log.d("onNewIntent", "onNewIntent");
+		if (null != intent && null != intent.getAction()
+				&& intent.getAction().equals(Intent.ACTION_SEARCH)) {
+
+			// initiallizing req criteria
+			mReqType = ServiceProvider.SEARCH;
+			mSearchString = intent.getStringExtra(SearchManager.QUERY);
+			CheckBalancenGetData();
 		}
-		super.onPause();
 	}
 
 	@Override
-	protected void onResume() {
-		getData();
-		super.onResume();
-	}
-
-	private void getData() {
-		if (isBalCheckReq) {
-			if (isLiveDataReq)
-				GetChannelsFromServer();
-			else if (mApplication.getBalance() >= 0)
-				Toast.makeText(ChannelsActivity.this,
-						"Insufficient Balance.Please Make a Payment.",
-						Toast.LENGTH_LONG).show();
-			else
-				CheckCacheForChannelsList();
-		} else {
-			CheckCacheForChannelsList();
+	protected void onDestroy() {
+		Log.d("onDestroy", "onDestroy");
+		if (player != null) {
+			if (player.isPlaying())
+				player.stop();
+			player.release();
 		}
-
+		super.onDestroy();
 	}
 
-	private void GetChannelsFromServer() {
+	private void initiallizePlayer() {
+		if (player == null)
+			player = new MediaPlayer();
+	}
 
-		Log.d(TAG, "GetChannelsFromServer");
+	private void initiallizeUI() {
+		CheckBalancenGetData();
+	}
 
-		if (mProgressDialog != null) {
+	private void CheckBalancenGetData() {
+		if (mIsBalCheckReq)
+			validateDevice();
+		else
+			getServices();
+	}
+
+	private void getServices() {
+		getLoaderManager().restartLoader(mReqType, null, this);
+	}
+
+	/** Validating Customer balance */
+	private void validateDevice() {
+		if (mProgressDialog != null && mProgressDialog.isShowing()) {
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
 		}
+
 		mProgressDialog = new ProgressDialog(ChannelsActivity.this,
 				ProgressDialog.THEME_HOLO_DARK);
-		mProgressDialog.setMessage("Retriving Detials");
+		mProgressDialog.setMessage("Connectiong to Server...");
 		mProgressDialog.setCanceledOnTouchOutside(false);
 		mProgressDialog.setOnCancelListener(new OnCancelListener() {
 
@@ -140,17 +200,38 @@ public class ChannelsActivity extends Activity {
 			}
 		});
 		mProgressDialog.show();
-		mOBSClient.getPlanServices(mApplication.getClientId(),
-				getPlanServicesCallBack);
+
+		String androidId = Settings.Secure.getString(getApplicationContext()
+				.getContentResolver(), Settings.Secure.ANDROID_ID);
+		mOBSClient.getMediaDevice(androidId, deviceCallBack);
 	}
 
-	final Callback<ArrayList<ServiceDatum>> getPlanServicesCallBack = new Callback<ArrayList<ServiceDatum>>() {
+	final Callback<DeviceDatum> deviceCallBack = new Callback<DeviceDatum>() {
+
+		@Override
+		public void success(DeviceDatum device, Response arg1) {
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+					mProgressDialog = null;
+				}
+				if (device != null) {
+					mApplication.setBalance(mBalance = device
+							.getBalanceAmount());
+					if (mBalance >= 0)
+						Toast.makeText(ChannelsActivity.this,
+								"Insufficient Balance.Please Make a Payment.",
+								Toast.LENGTH_LONG).show();
+					else {
+						getServices();
+					}
+				}
+			}
+		}
+
 		@Override
 		public void failure(RetrofitError retrofitError) {
 			if (!mIsReqCanceled) {
-
-				Log.d(TAG, "failure");
-
 				if (mProgressDialog != null) {
 					mProgressDialog.dismiss();
 					mProgressDialog = null;
@@ -177,50 +258,13 @@ public class ChannelsActivity extends Activity {
 				}
 			}
 		}
-
-		@Override
-		public void success(ArrayList<ServiceDatum> serviceList,
-				Response response) {
-			if (!mIsReqCanceled) {
-
-				Log.d(TAG, "success");
-
-				if (mProgressDialog != null) {
-					mProgressDialog.dismiss();
-					mProgressDialog = null;
-				}
-				if (serviceList != null && serviceList.size() > 0) {
-
-					/** saving channel details to preferences */
-
-					mPrefsEditor = mPrefs.edit();
-					Date date = new Date();
-					String formattedDate = mApplication.df.format(date);
-					JSONObject json = null;
-					try {
-						json = new JSONObject();
-						json.put(CHANNELS_UPDATED_AT, formattedDate);
-						json.put(CHANNELS_LIST, new Gson().toJson(serviceList));
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-					mPrefsEditor.putString(IPTV_CHANNELS_DETAILS,
-							json.toString());
-					mPrefsEditor.commit();
-
-					/** updating gridview **/
-					updateChannels(serviceList);
-
-				}
-			}
-		}
 	};
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.nav_menu, menu);
 		MenuItem searchItem = menu.findItem(R.id.action_search);
-		searchItem.setVisible(false);
+		searchItem.setVisible(true);
 		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
 		refreshItem.setVisible(true);
 		return true;
@@ -236,13 +280,19 @@ public class ChannelsActivity extends Activity {
 		case R.id.action_home:
 			NavUtils.navigateUpFromSameTask(this);
 			break;
+		case R.id.action_account:
+			startActivity(new Intent(this, MyAccountActivity.class));
+			break;
 		case R.id.action_refresh:
-			isLiveDataReq = true;
-			if (adapter != null) {
-				mServiceList.clear();
-				adapter.notifyDataSetChanged();
-			}
-			getData();
+			// initiallizing req criteria
+			mReqType = ServiceProvider.ALLSERVICES_ON_REFRESH;
+			mSearchString = null;
+			CheckBalancenGetData();
+			break;
+		case R.id.action_search:
+			// The searchbar is initiated programmatically with a call to your
+			// Activity’s onSearchRequested method.
+			onSearchRequested();
 			break;
 		default:
 			break;
@@ -250,106 +300,367 @@ public class ChannelsActivity extends Activity {
 		return true;
 	}
 
-	private void CheckCacheForChannelsList() {
-
-		Log.d(TAG, "CheckCacheForChannelsList");
-
-		String ch_dtls_res = null;
-		if (!isLiveDataReq) {
-			String sChannelDtls = mPrefs.getString(IPTV_CHANNELS_DETAILS, "");
-			if (sChannelDtls.length() != 0) {
-				JSONObject json_ch_dtls = null;
-				try {
-					json_ch_dtls = new JSONObject(sChannelDtls);
-					ch_dtls_res = json_ch_dtls.getString(CHANNELS_LIST);
-				} catch (JSONException e1) {
-					e1.printStackTrace();
-				}
-				if (ch_dtls_res != null && ch_dtls_res.length() != 0) {
-					String sDate = "";
-
-					try {
-						sDate = (String) json_ch_dtls.get(CHANNELS_UPDATED_AT);
-						SimpleDateFormat df = new SimpleDateFormat(
-								"yyyy-MM-dd", new Locale("en"));
-						Calendar c = Calendar.getInstance();
-						String currDate = df.format(c.getTime());
-						Date d1 = null, d2 = null;
-						try {
-							d1 = df.parse(sDate);
-							d2 = df.parse(currDate);
-						} catch (ParseException e) {
-							e.printStackTrace();
-						}
-						if ((sDate.length() != 0) && (d1.compareTo(d2) == 0)) {
-							isLiveDataReq = false;
-						} else {
-							isLiveDataReq = true;
-						}
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-				} else {
-					isLiveDataReq = true;
-				}
+	public void CheckCacheForEpgDetails(String channelName) {
+		String Epg_Dtls_key = channelName + "_EPG_Details";
+		String Epg_Dtls_value = mPrefs.getString(Epg_Dtls_key, "");
+		String req_date_Dtls = null;
+		boolean getServerData = false;
+		getServerData = mIsLiveDataReq;
+		if (!mIsLiveDataReq) {
+			if (Epg_Dtls_value.length() == 0) {
+				getServerData = true;
 			} else {
-				isLiveDataReq = true;
+				JSONObject json = null;
+				try {
+					json = new JSONObject(Epg_Dtls_value);
+					req_date_Dtls = json.getString(mDate);
+				} catch (JSONException e) {
+					req_date_Dtls = "";
+					e.printStackTrace();
+				}
+				if (req_date_Dtls == null || req_date_Dtls.length() == 0) {
+					getServerData = true;
+				} else {
+					getServerData = false;
+				}
 			}
 		}
-		if (isLiveDataReq) {
-			GetChannelsFromServer();
+		if (getServerData) {
+			try {
+				getEpgDetailsFromServer(channelName);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		} else {
-			updateChannels(getServiceListFromJSON(ch_dtls_res));
+			updateEPGDetails(getEPGListFromJSON(req_date_Dtls));
 		}
 	}
 
-	private List<ServiceDatum> getServiceListFromJSON(String json) {
-		java.lang.reflect.Type t = new TypeToken<List<ServiceDatum>>() {
+	private List<EpgDatum> getEPGListFromJSON(String json) {
+		java.lang.reflect.Type t = new TypeToken<List<EpgDatum>>() {
 		}.getType();
-		List<ServiceDatum> serviceList = new Gson().fromJson(json, t);
-		return serviceList;
+		List<EpgDatum> EPGList = new Gson().fromJson(json, t);
+		return EPGList;
+	}
+
+	private void getEpgDetailsFromServer(String channelName) {
+
+		mOBSClient.getEPGDetails(channelName, mDate, getEPGDetailsCallBack);
+
+	}
+
+	final Callback<EPGData> getEPGDetailsCallBack = new Callback<EPGData>() {
+		@Override
+		public void failure(RetrofitError retrofitError) {
+			Log.e("EPGDetails",
+					(null != retrofitError.getMessage() ? retrofitError
+							.getMessage() : "Error On Epg details"));
+		}
+
+		@Override
+		public void success(EPGData data, Response response) {
+			List<EpgDatum> ProgGuideList = null;
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+					mProgressDialog = null;
+				}
+
+				if (data != null)
+					ProgGuideList = data.getEpgData();
+				if (ProgGuideList != null && ProgGuideList.size() > 0) {
+
+					/** saving epg details to preferences */
+					mPrefsEditor = mPrefs.edit();
+					String Epg_Dtls_key = mService.getChannelName()
+							+ "_EPG_Details";
+					String Epg_Dtls_value = mPrefs.getString(Epg_Dtls_key, "");
+					JSONObject json = null, jsonReq = null;
+					try {
+						if (Epg_Dtls_value.length() == 0) {
+							json = new JSONObject();
+						} else {
+							json = new JSONObject(Epg_Dtls_value);
+							jsonReq = new JSONObject();
+							Calendar c = Calendar.getInstance();
+							Calendar curr = Calendar.getInstance();
+							Date cDate = MyApplication.df
+									.parse(MyApplication.df.format(curr
+											.getTime()));
+							Date keyDate = null;
+							Iterator<String> i = json.keys();
+							while (i.hasNext()) {
+								String key = i.next();
+								c.setTime(MyApplication.df.parse(key));
+								keyDate = c.getTime();
+								if (keyDate.compareTo(cDate) != -1) {
+									jsonReq.put(key, json.get(key));
+								}
+							}
+							json = jsonReq;
+						}
+						json.put(mDate, new Gson().toJson(ProgGuideList));
+						Epg_Dtls_value = json.toString();
+					} catch (JSONException e) {
+						e.printStackTrace();
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+					mPrefsEditor.putString(Epg_Dtls_key, Epg_Dtls_value);
+					mPrefsEditor.commit();
+
+					/** updating fragment **/
+					updateEPGDetails(ProgGuideList);
+				}/*
+				 * else { mErrDialog.setMessage("EPG Data is not Available");
+				 * mErrDialog.show(); }
+				 */
+			}
+		}
+	};
+
+	public void updateEPGDetails(final List<EpgDatum> mProgGuideList) {
+
+		if (mProgGuideList != null && mProgGuideList.size() > 0) {
+			int currProgIdx = -1;
+			for (int i = 0; i < mProgGuideList.size(); i++) {
+
+				EpgDatum data = mProgGuideList.get(i);
+				if (isCurrentProgramme(data)) {
+					currProgIdx = i;
+				}
+			}
+
+			if (currProgIdx != -1) {
+				LinearLayout container = (LinearLayout) findViewById(R.id.a_Epg_container_ll);
+				container.removeAllViews();
+				for (int i = currProgIdx; i < mProgGuideList.size()
+						&& i < currProgIdx + 5; i++) {
+					EpgDatum data = mProgGuideList.get(i);
+
+					LayoutInflater inflater = (LayoutInflater) mApplication
+							.getApplicationContext().getSystemService(
+									Context.LAYOUT_INFLATER_SERVICE);
+
+					View child = inflater.inflate(
+							R.layout.ch_epg_details_list_row, null);
+					((TextView) child
+							.findViewById(R.id.a_ch_epg_details_list_row_tv_start_time))
+							.setText(data.getStartTime());
+					((TextView) child
+							.findViewById(R.id.a_ch_epg_details_list_row_tv_prog_title))
+							.setText(data.getProgramTitle());
+					container.addView(child);
+				}
+			}
+		}
+
+	}
+
+	private boolean isCurrentProgramme(EpgDatum data) {
+
+		String progStartTime = data.getStartTime();
+		String progStopTime = data.getStopTime();
+		SimpleDateFormat tf = new SimpleDateFormat("HH:mm:ss");
+		Date time1 = null, time2 = null;
+		Date time3 = new Date();
+		String t3 = tf.format(time3);
+
+		try {
+			time1 = tf.parse(progStartTime);
+			time2 = tf.parse(progStopTime);
+			if (time1.compareTo(time2) > 0)
+				time2 = tf.parse("24:00:00");
+			time3 = tf.parse(t3);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if ((time3.compareTo(time1) > 0 || time3.compareTo(time1) == 0)
+				&& (time3.compareTo(time2) < 0 || time3.compareTo(time2) == 0)) {
+			return true;
+		}
+		return false;
+	}
+
+	private void updateChannels(final ArrayList<ServiceDatum> list) {
+		mServiceList = list;
+		if (list != null && list.size() > 0) {
+			ChannelListAdapter adapter = new ChannelListAdapter(list, this);
+			mListView.setAdapter(adapter);
+			mListView.setSelection(0);
+			mListView.setOnItemClickListener(this);
+			mListView.setOnItemSelectedListener(this);
+			OnChannelSelection(list.get(0));
+
+		}
+		else
+			mListView.setAdapter(null);
+	}
+
+	private void OnChannelSelection(ServiceDatum serviceDatum) {
+		mService = serviceDatum;
+		if (player.isPlaying())
+			player.stop();
+		player.reset();
+
+		player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+		player.setVolume(1.0f, 1.0f);
+		try {
+			player.setDataSource(this, Uri.parse(serviceDatum.getUrl()));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		player.setOnPreparedListener(this);
+		player.setOnErrorListener(this);
+		player.prepareAsync();
+
+		CheckCacheForEpgDetails(serviceDatum.getChannelName());
 	}
 
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-
-		if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == 4) {
-			if (mProgressDialog != null) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}
-			mIsReqCanceled = true;
-			mExecutorService.shutdownNow();
-			this.finish();
-		} else if (keyCode == 23) {
-			View focusedView = getWindow().getCurrentFocus();
-			focusedView.performClick();
-		}
-		return super.onKeyDown(keyCode, event);
+	public void onPrepared(MediaPlayer mp) {
+		mp.start();
 	}
 
-	private void updateChannels(final List<ServiceDatum> list) {
+	@Override
+	public boolean onError(MediaPlayer mp, int what, int extra) {
 
-		Log.d(TAG, "updateChannels :" + list.size());
+		if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == -2147483648) {
 
-		if (list != null && list.size() > 0) {
-			final GridView gridView = (GridView) (findViewById(R.id.a_gv_channels));
-			gridView.setAdapter(new ChannelGridViewAdapter(list,
-					ChannelsActivity.this));
-			gridView.setDrawSelectorOnTop(true);
-			gridView.setOnItemClickListener(new OnItemClickListener() {
+			Toast.makeText(
+					getApplicationContext(),
+					"Incorrect URL or Unsupported Media Format.Media player closed.",
+					Toast.LENGTH_SHORT).show();
 
-				@Override
-				public void onItemClick(AdapterView<?> parent, View imageVw,
-						int position, long arg3) {
-					ServiceDatum service = list.get(position);
-					startActivity(new Intent(ChannelsActivity.this,
-							IPTVActivity.class)
-							.putExtra(IPTVActivity.CHANNEL_NAME,
-									service.getChannelName()).putExtra(
-									IPTVActivity.CHANNEL_URL, service.getUrl()));
-				}
-			});
+			// finish();
+		} else if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == -1004) {
+
+			Toast.makeText(
+					getApplicationContext(),
+					"Invalid Stream for this channel... Please try other channel",
+					Toast.LENGTH_SHORT).show();
+
+			// finish();
+		} else {
+			if (null != mService && null != mp)
+				OnChannelSelection(mService);
 		}
+
+		return true;
+	}
+
+	@Override
+	public void surfaceCreated(SurfaceHolder holder) {
+		initiallizePlayer();
+		player.setDisplay(holder);
+	}
+
+	@Override
+	public void surfaceChanged(SurfaceHolder holder, int format, int width,
+			int height) {
+	}
+
+	@Override
+	public void surfaceDestroyed(SurfaceHolder holder) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		playChannel(mServiceList.get(position));
+	}
+
+	private void playChannel(ServiceDatum service) {
+		Intent intent = new Intent();
+		intent.putExtra("VIDEOTYPE", "LIVETV");
+		intent.putExtra(CHANNEL_URL, service.getUrl());
+		intent.putExtra("CHANNELID", service.getClientId());
+		intent.putParcelableArrayListExtra("SERVICELIST", mServiceList);
+		mApplication.startPlayer(intent, ChannelsActivity.this);
+	}
+
+	@Override
+	public void onItemSelected(AdapterView<?> parent, View view, int position,
+			long id) {
+		if(null!= mServiceList && mServiceList.size()>0)
+		OnChannelSelection(mServiceList.get(position));
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> parent) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		if (mProgressDialog != null && mProgressDialog.isShowing()) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+		mProgressDialog = new ProgressDialog(ChannelsActivity.this,
+				ProgressDialog.THEME_HOLO_DARK);
+		mProgressDialog.setMessage("Connectiong to Server...");
+		mProgressDialog.setCanceledOnTouchOutside(false);
+		mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+			public void onCancel(DialogInterface arg0) {
+				if (mProgressDialog.isShowing())
+					mProgressDialog.dismiss();
+			}
+		});
+		mProgressDialog.show();
+
+		CursorLoader loader = null;
+		if (id == ServiceProvider.ALLSERVICES) {
+			loader = new CursorLoader(this, ServiceProvider.ALLSERVICES_URI,
+					null, null, null, null);
+		}
+		if (id == ServiceProvider.ALLSERVICES_ON_REFRESH) {
+			loader = new CursorLoader(this,
+					ServiceProvider.ALLSERVICES_ONREFREFRESH_URI, null, null,
+					null, null);
+		}
+		if (id == ServiceProvider.SEARCH) {
+			if (null == mSearchString) {
+				mSearchString = "";
+			}
+			loader = new CursorLoader(this, ServiceProvider.SEARCH_URI, null,
+					null, new String[] { mSearchString }, null);
+		}
+		return loader;
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+
+		if (mProgressDialog != null && mProgressDialog.isShowing()) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+
+		int svcIdIdx = cursor.getColumnIndexOrThrow(ServiceProvider.SERVICE_ID);
+		int chNameIdx = cursor.getColumnIndexOrThrow(ServiceProvider.CHANNEL_NAME);
+		int imgIdx = cursor.getColumnIndexOrThrow(ServiceProvider.IMAGE);
+		int urlIdx = cursor.getColumnIndexOrThrow(ServiceProvider.URL);
+		ArrayList<ServiceDatum> serviceList = new ArrayList<ServiceDatum>();
+		while (cursor.moveToNext()) {
+			ServiceDatum service = new ServiceDatum();
+			service.setServiceId(Integer.parseInt(cursor.getString(svcIdIdx)));
+			service.setClientId(Integer.parseInt(cursor.getString(svcIdIdx)));
+			service.setChannelName(cursor.getString(chNameIdx));
+			service.setImage(cursor.getString(imgIdx));
+			service.setUrl(cursor.getString(urlIdx));
+			serviceList.add(service);
+		}
+		updateChannels(serviceList);
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+
 	}
 }

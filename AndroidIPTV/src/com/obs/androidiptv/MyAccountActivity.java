@@ -29,15 +29,13 @@ public class MyAccountActivity extends Activity {
 		listView = (ListView) findViewById(R.id.a_my_acc_lv_menu);
 		MyAccountMenuAdapter menuAdapter = new MyAccountMenuAdapter(this);
 		listView.setAdapter(menuAdapter);
-		listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-		listView.setItemChecked(0, true);
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
 
 				switch (arg2) {
-				case 0:
+				case 9:
 					Fragment newPackageFrag = new NewPackageFragment();
 					FragmentTransaction transaction = getFragmentManager()
 							.beginTransaction();
@@ -45,7 +43,7 @@ public class MyAccountActivity extends Activity {
 							newPackageFrag, FRAG_TAG);
 					transaction.commit();
 					break;
-				case 1:
+				case 0:
 					Fragment myPackageFrag = new MyPakagesFragment();
 					FragmentTransaction transaction1 = getFragmentManager()
 							.beginTransaction();
@@ -54,7 +52,7 @@ public class MyAccountActivity extends Activity {
 					transaction1.commit();
 					break;
 
-				case 2:
+				case 1:
 					Fragment myProfileFrag = new MyProfileFragment();
 					FragmentTransaction transaction2 = getFragmentManager()
 							.beginTransaction();
@@ -65,10 +63,10 @@ public class MyAccountActivity extends Activity {
 				}
 			}
 		});
-		Fragment newPackageFrag = new NewPackageFragment();
+		Fragment myPackageFrag = new MyPakagesFragment();
 		FragmentTransaction transaction = getFragmentManager()
 				.beginTransaction();
-		transaction.add(R.id.a_my_acc_frag_container, newPackageFrag, FRAG_TAG);
+		transaction.add(R.id.a_my_acc_frag_container, myPackageFrag, FRAG_TAG);
 		transaction.commit();
 	}
 

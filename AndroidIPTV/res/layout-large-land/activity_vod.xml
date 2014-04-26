@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="8"
-        android:background="#FF7C00"
+        android:background="@drawable/shape_a_ch_bg"
         android:orientation="vertical" >
 
         <TextView
@@ -33,7 +33,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="18"
-            android:divider="#B5B5B5"
+            android:divider="@color/default_blue"
             android:dividerHeight="1dp" >
         </ListView>
 
@@ -42,7 +42,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="#FF7C00"
+            android:background="@color/selected_blue"
             android:orientation="vertical" >
         </LinearLayout>
 
@@ -76,7 +76,11 @@
                     android:layout_height="35dp"
                     android:layout_marginLeft="3dp"
                     android:layout_marginRight="3dp"
-                    android:background="@drawable/img_btn_vod_first" >
+                    android:background="@drawable/selector_btn"
+                    android:text="@string/first"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold" >
                 </Button>
 
                 <Button
@@ -96,7 +100,11 @@
                     android:layout_height="35dp"
                     android:layout_marginLeft="3dp"
                     android:layout_marginRight="3dp"
-                    android:background="@drawable/img_btn_vod_last" >
+                    android:background="@drawable/selector_btn"
+                    android:text="@string/last"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold" >
                 </Button>
             </LinearLayout>
         </LinearLayout>

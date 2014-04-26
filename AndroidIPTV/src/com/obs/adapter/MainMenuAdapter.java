@@ -57,9 +57,15 @@ public class MainMenuAdapter extends BaseAdapter {
 		StateListDrawable states = new StateListDrawable();
 
 		states.addState(
-				new int[] { android.R.attr.state_pressed },
+				new int[] { android.R.attr.state_selected },
 				activity.getResources().getDrawable(
 						activity.getResources().getIdentifier(imgNameSel,
+								"drawable", "com.obs.androidiptv")));
+		
+		states.addState(
+				new int[] { android.R.attr.state_pressed, android.R.attr.state_selected },
+				activity.getResources().getDrawable(
+						activity.getResources().getIdentifier(imgName,
 								"drawable", "com.obs.androidiptv")));
 		states.addState(
 				new int[] {},

@@ -1,54 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
-    android:orientation="vertical" >
+    android:background="@drawable/shape_a_ch_bg"
+    android:orientation="horizontal" >
 
-    <View
-        android:id="@+id/a_ch_iv_lf_line"
-        android:layout_width="2dp"
-        android:layout_height="fill_parent"
-        android:layout_alignParentLeft="true"
-        android:background="#FF7c00" />
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="5" >
 
-    <View
-        android:id="@+id/a_ch_iv_rgt_line"
-        android:layout_width="2dp"
-        android:layout_height="fill_parent"
-        android:layout_alignParentRight="true"
-        android:background="#FF7c00" />
+        <ListView
+            android:id="@+id/a_channels_lv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:listSelector="@drawable/selector_a_ch_list_item" >
+        </ListView>
+    </LinearLayout>
 
-    <View
-        android:id="@+id/a_ch_iv_btm_line"
-        android:layout_width="fill_parent"
-        android:layout_height="2dp"
-        android:layout_alignParentBottom="true"
-        android:background="#FF7c00" />
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="5"
+        android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/a_ch_tv_channels"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:background="#FF7c00"
-        android:gravity="center"
-        android:text="Channels"
-        android:textColor="#FFFFFF"
-        android:textSize="23sp"
-        android:textStyle="bold" />
+        <RelativeLayout
+            android:id="@+id/a_channels_video_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="5dp"
+            android:layout_weight="5"
+            android:background="@drawable/shape_a_ch_bg_player"
+            android:keepScreenOn="true"
+            android:padding="5dp" >
 
-    <GridView
-        android:id="@+id/a_gv_channels"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/a_ch_iv_btm_line"
-        android:layout_below="@+id/a_ch_tv_channels"
-        android:layout_toLeftOf="@+id/a_ch_iv_rgt_line"
-        android:layout_toRightOf="@+id/a_ch_iv_lf_line"
-        android:numColumns="6">
-    </GridView>
+            <SurfaceView
+                android:id="@+id/a_channels_videoSurface"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
 
-</RelativeLayout>
+        <LinearLayout
+            android:id="@+id/a_Epg_container_ll"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="5"
+            android:orientation="vertical" >
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

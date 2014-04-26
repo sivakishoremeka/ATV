@@ -1,7 +1,8 @@
 package com.obs.adapter;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -21,13 +22,12 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
 	private Context _context;
 	private List<PlanDatum> _planData;
-	private ArrayList<RadioButton> _arrRadioButton;
-	private int rb_seed = 9001;
+	private Map<Integer, RadioButton> _mapRButton;
 
 	public CustomExpandableListAdapter(Context context, List<PlanDatum> planData) {
 		this._context = context;
 		this._planData = planData;
-		this._arrRadioButton = new ArrayList<RadioButton>();
+		this._mapRButton = new HashMap<Integer, RadioButton>();
 	}
 
 	@Override
@@ -82,8 +82,8 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public View getGroupView(final int groupPosition, boolean isExpanded,
-			View convertView, ViewGroup parent) {
-		String headerTitle = (String) getGroup(groupPosition);
+			View convertView, final ViewGroup parent) {
+		final String headerTitle = (String) getGroup(groupPosition);
 		if (convertView == null) {
 			LayoutInflater infalInflater = (LayoutInflater) this._context
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -96,19 +96,30 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
 		RadioButton rb1 = (RadioButton) convertView
 				.findViewById(R.id.plan_list_plan_rb);
-		rb1.setTag(rb_seed + groupPosition);
-		_arrRadioButton.add(rb1);
 		rb1.setFocusable(false);
-
+		if (PlanActivity.selectedGroupItem == groupPosition) {
+			rb1.setChecked(true);
+		}
+		else
+		{
+			rb1.setChecked(false);
+		}
+		rb1.setTag(groupPosition);
+		_mapRButton.put(groupPosition, rb1);
 		rb1.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				for (RadioButton rb : _arrRadioButton) {
-					if (rb.getTag() != v.getTag()) {
-						rb.setChecked(false);
+				if (((RadioButton) v).isChecked()) {
+					for (int i = 0; i < _mapRButton.size(); i++) {
+						RadioButton rb = _mapRButton.get(i);
+						int tag = (Integer) ((RadioButton) v).getTag();
+						if (null != rb && tag!=i) {
+							rb.setChecked(false);
+						}
 					}
+					PlanActivity.selectedGroupItem = (Integer) ((RadioButton) v)
+							.getTag();
 				}
-				PlanActivity.selectedGroupItem = groupPosition;
 			}
 		});
 		return convertView;

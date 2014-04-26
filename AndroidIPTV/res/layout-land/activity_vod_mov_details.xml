@@ -10,7 +10,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:background="#FF7C00" >
+          android:background="@drawable/shape_a_ch_bg">
 
         <TextView
             android:id="@+id/a_vod_mov_dtls_tv_mov_dtls"

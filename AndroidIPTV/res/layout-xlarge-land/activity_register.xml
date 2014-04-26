@@ -1,7 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#FF7C00"
+    android:background="@drawable/shape_a_ch_bg"
     android:orientation="vertical" >
 
     <ScrollView
@@ -112,12 +112,16 @@
                         android:layout_marginLeft="6dp"
                         android:layout_marginRight="6dp"
                         android:layout_weight="1"
-                        android:background="@drawable/selector_btn_cancel"
+                        android:background="@drawable/selector_btn"
                         android:nextFocusDown="@+id/a_reg_btn_submit"
                         android:nextFocusLeft="@+id/a_reg_et_email_id"
                         android:nextFocusRight="@+id/a_reg_btn_submit"
                         android:nextFocusUp="@+id/a_reg_et_email_id"
-                        android:onClick="btnCancel_onClick" />
+                        android:onClick="btnCancel_onClick"
+                        android:text="@string/cancel"
+                        android:textColor="@color/white"
+                        android:textSize="19sp"
+                        android:textStyle="bold" />
 
                     <Button
                         android:id="@+id/a_reg_btn_submit"
@@ -126,10 +130,14 @@
                         android:layout_marginLeft="6dp"
                         android:layout_marginRight="6dp"
                         android:layout_weight="1"
-                        android:background="@drawable/selector_btn_submit"
+                        android:background="@drawable/selector_btn"
                         android:nextFocusLeft="@+id/a_reg_btn_cancel"
                         android:nextFocusUp="@+id/a_reg_btn_cancel"
-                        android:onClick="btnSubmit_onClick" />
+                        android:onClick="btnSubmit_onClick"
+                        android:text="@string/submit"
+                        android:textColor="@color/white"
+                        android:textSize="19sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <TextView

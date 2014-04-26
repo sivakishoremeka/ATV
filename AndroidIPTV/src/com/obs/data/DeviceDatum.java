@@ -6,6 +6,7 @@ public class DeviceDatum {
 	private long clientId;
 	private String clientType;
 	private long clientTypeId;
+	private float balanceAmount;
 
 	public long getDeviceId() {
 		return deviceId;
@@ -37,5 +38,12 @@ public class DeviceDatum {
 
 	public void setClientTypeId(long clientTypeId) {
 		this.clientTypeId = clientTypeId;
+	}
+	public float getBalanceAmount() {
+		return balanceAmount;
+	}
+
+	public void setBalanceAmount(float balanceAmount) {
+		this.balanceAmount = balanceAmount;
 	}
 }

@@ -15,7 +15,7 @@
         android:horizontalSpacing="5dp"
         android:numColumns="4"
         android:stretchMode="spacingWidthUniform"
-        android:listSelector="@drawable/gv_img_selector"
+        android:listSelector="@drawable/ch_lv_gv_img_selector"
         android:verticalSpacing="20dp">
     </GridView>
 

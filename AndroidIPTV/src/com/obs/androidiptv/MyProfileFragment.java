@@ -197,7 +197,7 @@ public class MyProfileFragment extends Fragment {
 			((TextView) mRootView.findViewById(R.id.f_my_profile_serial_value))
 					.setText(":   "+client.getHwSerialNumber());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_balance_value))
-					.setText(":   "+Float.toString(client.getBalanceAmount()));
+					.setText(":   "+Float.toString(-client.getBalanceAmount()));
 		}
 	}
 

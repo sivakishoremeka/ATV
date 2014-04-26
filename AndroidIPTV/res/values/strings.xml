@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="account">Account</string>
     <string name="account_no">Account No</string>
     <string name="action_account">Account</string>
@@ -15,8 +16,11 @@
     <string name="actvtd_on">Activated On</string>
     <string name="app_name">AndroidIPTV</string>
     <string name="balance">Balance</string>
-    <string name="basic_auth">Basic YWRtaW46b2JzQDEyMw==</string> <!-- Spark  admin/obs@123 -->
-    <string name="basic_auth_">Basic YmlsbGluZzpwYXNzd29yZA==</string> <!-- Peter  billing/password -->
+    <string name="basic_auth">Basic YWRtaW46b2JzQDEyMw==</string>
+ <!-- Spark  admin/obs@123 -->
+    <string name="basic_auth_">Basic YmlsbGluZzpwYXNzd29yZA==</string>
+ <!-- Peter  billing/password -->
+    <string name="cancel"> Cancel </string>
     <string name="cast_crew">Cast &amp; Crew</string>
     <string name="client_data">Client Data</string>
     <string name="client_pkg_data">Client Package Data</string>
@@ -27,10 +31,13 @@
     <string name="duration">Duration</string>
     <string name="email_id">Email Id</string>
     <string name="error_network">Communication Error. Please Check the Network</string>
+    <string name="first"> First </string>
     <string name="first_name">First Name</string>
     <string name="home">Home</string>
     <string name="header_title">Communication Error</string>
+    <string name="iptv_search_hint">Channel Name</string>
     <string name="language">Language</string>
+    <string name="last"> Last </string>
     <string name="last_name">Last Name</string>
     <string name="live_tv">Live TV</string>
     <string name="mobile_no">Mobile No</string>
@@ -47,15 +54,21 @@
     <string name="rental">Rental :</string>
     <string name="reg_note">Mobile TV allows user with Mobile Phones, Smart Phones &amp; Tablets
          to enjoy premium digital TV signals on their devices.</string>
+    <string name="search">Search</string>
     <string name="sel_country">Select Country </string>
     <string name="sel_pkg">Select Package</string>
     <string name="serialno">Serial No</string>
-    <string name="server_url_">https://192.168.1.104:8443/obsplatform/api/v1</string> <!-- Spark -->
-    <string name="server_url">https://demo.openbillingsystem.com/obsplatform/api/v1</string> <!-- Spark -->
-    <string name="server_url_uyh">https://192.168.1.100:8443/obsplatform/api/v1</string> <!-- kiran -->
-    <string name="server_url_yu">https://188.138.84.29:8443/obsplatform/api/v1</string> <!-- Yusuf -->
-    <string name="server_url_p">https://46.21.175.210:8443/obsplatform/api/v1</string> <!-- Peter -->
-    <string name="server_url_q">https://80.82.222.173:8443/obsplatform/api/v1</string> <!-- Quasay -->
+    <string name="server_url">https://demo.openbillingsystem.com/obsplatform/api/v1</string>
+ <!-- Spark -->
+    <string name="server_url_">https://188.138.84.29:8443/obsplatform/api/v1</string>
+ <!-- Yusuf -->
+    <string name="server_url_p">https://46.21.175.210:8443/obsplatform/api/v1</string>
+ <!-- Peter -->
+    <string name="server_url_q">https://80.82.222.173:8443/obsplatform/api/v1</string>
+ <!-- Quasay -->
+    <string name="server_url_stro">https://provisioning.storm-media.net:8443/obsplatform/api/v1</string>
+ <!-- strom -->
+    <string name="submit"> Submit </string>
     <string name="tenent_id">default</string>
     <string name="user_name">User Name</string>
     <string name="user_reg">User Registration</string>
@@ -76,13 +89,15 @@
         <item>games</item>
     </string-array>
     <string-array name="arrMyAccMenu">
-        <item>New Package</item>
+
+        <!-- <item>New Package</item> -->
         <item>My Packages</item>
         <item>My Profile</item>
         <item>History</item>
     </string-array>
     <string-array name="arrMyAccImageNames">
-        <item>new_package</item>
+
+        <!-- <item>new_package</item> -->
         <item>my_packages</item>
         <item>my_profile</item>
         <item>history</item>

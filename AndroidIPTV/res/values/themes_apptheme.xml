@@ -3,13 +3,24 @@
 <!-- Generated with http://android-holo-colors.com -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="AppTheme" parent="android:Theme.Light">
-        <item name="android:radioButtonStyle">@style/RadioButtonAppTheme</item>
-        <item name="android:listViewStyle">@style/ListViewAppTheme</item>
-        <item name="android:listViewWhiteStyle">@style/ListViewAppTheme.White</item>
-        <item name="android:spinnerItemStyle">@style/SpinnerItemAppTheme</item>
-        <item name="android:ratingBarStyleSmall">@style/RatingBarSmallAppTheme</item>
-        <item name="android:ratingBarStyleIndicator">@style/RatingBarBigAppTheme</item>
-    </style>
+  <style name="AppTheme" parent="@style/_AppTheme"/>
+
+  <style name="_AppTheme" parent="Theme.AppCompat.Light">
+
+    <item name="android:radioButtonStyle">@style/RadioButtonAppTheme</item>
+
+    <item name="android:ratingBarStyle">@style/RatingBarAppTheme</item>
+
+    <item name="android:ratingBarStyleIndicator">@style/RatingBarBigAppTheme</item>
+
+    <item name="android:ratingBarStyleSmall">@style/RatingBarSmallAppTheme</item>
+
+    <item name="android:listViewStyle">@style/ListViewAppTheme</item>
+
+    <item name="android:listViewWhiteStyle">@style/ListViewAppTheme.White</item>
+
+    <item name="android:spinnerItemStyle">@style/SpinnerItemAppTheme</item>
+
+  </style>
 
 </resources>

@@ -8,8 +8,10 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import android.app.ActionBar;
 import android.app.ProgressDialog;
+import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
@@ -19,7 +21,6 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,10 +28,8 @@ import android.view.View.OnClickListener;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.obs.adapter.MyFragmentPagerAdapter;
@@ -38,8 +37,10 @@ import com.obs.adapter.VodCategoryAdapter;
 import com.obs.data.MediaDetailRes;
 import com.obs.retrofit.OBSClient;
 
-public class VodActivity extends FragmentActivity implements
-		SearchView.OnQueryTextListener {
+public class VodActivity extends FragmentActivity 
+//implements
+//		SearchView.OnQueryTextListener
+{
 	private static final String TAG = VodActivity.class.getName();
 	public static int ITEMS;
 	private final static String CATEGORY = "CATEGORY";
@@ -47,7 +48,7 @@ public class VodActivity extends FragmentActivity implements
 	ViewPager mPager;
 	private SharedPreferences mPrefs;
 	private Editor mPrefsEditor;
-	private SearchView mSearchView;
+
 	ListView listView;
 	private ProgressDialog mProgressDialog;
 
@@ -55,6 +56,8 @@ public class VodActivity extends FragmentActivity implements
 	OBSClient mOBSClient;
 	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
+	
+	String mSearchString;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -92,24 +95,6 @@ public class VodActivity extends FragmentActivity implements
 				setPageCountAndGetDetails();
 			}
 		});
-		listView.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1,
-					int arg2, long arg3) {
-				((AbsListView) arg0).setItemChecked(arg2, true);
-				String[] arrMovCategValues = getResources().getStringArray(
-						R.array.arrMovCategValues);
-				mPrefsEditor.putString(CATEGORY, arrMovCategValues[arg2]);
-				mPrefsEditor.commit();
-				setPageCountAndGetDetails();
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				// Doing nothing
-			}
-		});
 		setPageCountAndGetDetails();
 		mPager = (ViewPager) findViewById(R.id.a_vod_pager);
 		mPager.setOnPageChangeListener(new OnPageChangeListener() {
@@ -142,10 +127,23 @@ public class VodActivity extends FragmentActivity implements
 		});
 	}
 
+	@Override
+	protected void onNewIntent(Intent intent) {		
+		super.onNewIntent(intent);
+		Log.d("onNewIntent", "onNewIntent");
+		if(null!=intent.getAction()&&intent.getAction().equals(Intent.ACTION_SEARCH)){
+			Log.d(intent.getStringExtra(SearchManager.QUERY),"onNewIntent");
+			mSearchString = intent.getStringExtra(SearchManager.QUERY);
+			listView.clearChoices();
+			mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
+			mPrefsEditor = mPrefs.edit();
+			mPrefsEditor.putString(CATEGORY, mSearchString);
+			mPrefsEditor.commit();
+			setPageCountAndGetDetails();
+		}
+	}
+	
 	protected void setPageCountAndGetDetails() {
-
-		Log.d(TAG, "setPageCountAndGetDetails");
-
 		mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
 		String category = mPrefs.getString(CATEGORY, "");
 
@@ -223,10 +221,9 @@ public class VodActivity extends FragmentActivity implements
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.nav_menu, menu);
 		MenuItem searchItem = menu.findItem(R.id.action_search);
-		mSearchView = (SearchView) searchItem.getActionView();
-		setupSearchView(searchItem);
-		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
-		refreshItem.setVisible(true);
+	    searchItem.setVisible(true);
+	    MenuItem refreshItem = menu.findItem(R.id.action_refresh);
+	    refreshItem.setVisible(true);
 		return true;
 	}
 
@@ -240,6 +237,12 @@ public class VodActivity extends FragmentActivity implements
 		case R.id.action_home:
 			NavUtils.navigateUpFromSameTask(this);
 			break;
+		case R.id.action_account:
+			startActivity(new Intent(this, MyAccountActivity.class));
+			break;
+		case R.id.action_search:
+			onSearchRequested();
+		break;
 		case R.id.action_refresh:
 			setPageCountAndGetDetails();
 			break;
@@ -247,48 +250,5 @@ public class VodActivity extends FragmentActivity implements
 			break;
 		}
 		return true;
-	}
-
-	private void setupSearchView(MenuItem searchItem) {
-		mSearchView.setOnQueryTextListener(this);
-	}
-
-	protected boolean isAlwaysExpanded() {
-		return false;
-	}
-
-	@Override
-	public boolean onQueryTextChange(String arg0) {
-		return false;
-	}
-
-	@Override
-	public boolean onQueryTextSubmit(String movieName) {
-		mSearchView.clearFocus();
-		listView.clearChoices();
-		mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
-		mPrefsEditor = mPrefs.edit();
-		mPrefsEditor.putString(CATEGORY, movieName);
-		mPrefsEditor.commit();
-		setPageCountAndGetDetails();
-		return false;
-	}
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-
-		if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == 4) {
-			if (mProgressDialog != null) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}
-			mIsReqCanceled = true;
-			mExecutorService.shutdownNow();
-			this.finish();
-		} else if (keyCode == 23) {
-			View focusedView = getWindow().getCurrentFocus();
-			focusedView.performClick();
-		}
-		return super.onKeyDown(keyCode, event);
 	}
 }

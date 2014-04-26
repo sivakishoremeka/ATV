@@ -58,7 +58,6 @@ public class MyApplication extends Application {
 	public boolean isBalCheckReq = false;
 	public boolean D = true; // need to delete this variable
 	public Player player = Player.NATIVE_PLAYER;
-	
 
 	@Override
 	public void onCreate() {
@@ -72,6 +71,7 @@ public class MyApplication extends Application {
 				.showImageOnLoading(R.drawable.ic_default_ch)
 				.showImageForEmptyUri(R.drawable.ic_default_ch)
 				.showImageOnFail(R.drawable.ic_default_ch).cacheInMemory(true)
+				// .displayer(new RoundedBitmapDisplayer(10))
 				.cacheOnDisc(true).bitmapConfig(Bitmap.Config.RGB_565).build();
 
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
@@ -147,7 +147,7 @@ public class MyApplication extends Application {
 				.setLogLevel(RestAdapter.LogLevel.FULL)
 				.setExecutors(mExecutorService, new MainThreadExecutor())
 				.setClient(
-						new  com.obs.retrofit.CustomUrlConnectionClient(
+						new com.obs.retrofit.CustomUrlConnectionClient(
 								tenentId, basicAuth, contentType)).build();
 		return restAdapter.create(OBSClient.class);
 	}
@@ -214,19 +214,19 @@ public class MyApplication extends Application {
 
 	public float getBalance() {
 		if (balance == 0) {
-			balance = getPrefs().getFloat("BALANCE",0);
+			balance = getPrefs().getFloat("BALANCE", 0);
 		}
 		return balance;
 	}
 
 	public void setBalance(float balance) {
-		getEditor().putFloat("BALANCE", balance);
-		this.balance = balance;
+		getEditor().putFloat("BALANCE", -balance);
+		this.balance = -balance;
 	}
 
 	public String getClientId() {
-		if (clientId == null ||clientId.length()==0) {
-			clientId = getPrefs().getString("CLIENTID","");
+		if (clientId == null || clientId.length() == 0) {
+			clientId = getPrefs().getString("CLIENTID", "");
 		}
 		return clientId;
 	}

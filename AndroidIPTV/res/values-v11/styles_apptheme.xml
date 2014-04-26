@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Generated with http://android-holo-colors.com -->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <style name="RatingBarAppTheme" parent="android:Widget.Holo.Light.RatingBar">
+      <item name="android:progressDrawable">@drawable/apptheme_ratingbar_full_holo_light</item>
+      <item name="android:indeterminateDrawable">@drawable/apptheme_ratingbar_full_holo_light</item>
+  </style>
+
+  <style name="RatingBarBigAppTheme" parent="android:Widget.Holo.Light.RatingBar.Indicator">
+      <item name="android:progressDrawable">@drawable/apptheme_ratingbar_holo_light</item>
+      <item name="android:indeterminateDrawable">@drawable/apptheme_ratingbar_holo_light</item>
+  </style>
+
+  <style name="RatingBarSmallAppTheme" parent="android:Widget.Holo.Light.RatingBar.Small">
+      <item name="android:progressDrawable">@drawable/apptheme_ratingbar_small_holo_light</item>
+      <item name="android:indeterminateDrawable">@drawable/apptheme_ratingbar_small_holo_light</item>
+  </style>
+
+</resources>

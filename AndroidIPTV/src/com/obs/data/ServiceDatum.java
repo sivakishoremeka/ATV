@@ -77,6 +77,8 @@ public class ServiceDatum implements Parcelable {
 		}
 	};
 
+	public ServiceDatum(){}
+	
 	// Parcelling part
 	public ServiceDatum(Parcel in) {
 		int[] intData = new int[2];
