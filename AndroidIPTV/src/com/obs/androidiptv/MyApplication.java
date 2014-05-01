@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,11 +22,13 @@ import retrofit.client.Response;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -35,11 +39,13 @@ import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.obs.data.ServiceDatum;
+import com.obs.database.DBHelper;
 import com.obs.imagehandler.AuthImageDownloader;
 import com.obs.retrofit.OBSClient;
 
 @ReportsCrashes(formKey = "", // will not be used
-mailTo = "kishoremekas@gmail.com", // my email here
+mailTo = "shiva@openbillingsystem.com", // my email here
 mode = ReportingInteractionMode.TOAST, resToastText = R.string.crash_toast_text)
 public class MyApplication extends Application {
 	public static String TAG = MyApplication.class.getName();
@@ -141,7 +147,6 @@ public class MyApplication extends Application {
 
 	public OBSClient getOBSClient(Context context,
 			ExecutorService mExecutorService) {
-		mExecutorService = Executors.newCachedThreadPool();
 		RestAdapter restAdapter = new RestAdapter.Builder()
 				.setEndpoint(API_URL)
 				.setLogLevel(RestAdapter.LogLevel.FULL)
@@ -150,6 +155,52 @@ public class MyApplication extends Application {
 						new com.obs.retrofit.CustomUrlConnectionClient(
 								tenentId, basicAuth, contentType)).build();
 		return restAdapter.create(OBSClient.class);
+	}
+	
+	public void PullnInsertServices() {
+		ExecutorService mExecutorService = Executors.newCachedThreadPool();
+		OBSClient mOBSClient = getOBSClient(this, mExecutorService);
+		prefs = getPrefs();
+		editor = getEditor();
+		DBHelper openHelper = new DBHelper(this);
+		SQLiteDatabase db = openHelper.getWritableDatabase();
+		ArrayList<ServiceDatum> serviceList = mOBSClient
+				.getPlanServicesSync(this.getClientId());
+		if (serviceList != null && serviceList.size() > 0) {
+			/** saving channel details to preferences */
+			Date date = new Date();
+			String formattedDate = this.df.format(date);
+			editor.putString(getResources().getString(R.string.channels_updated_at), formattedDate);
+			editor.commit();
+			// Begin the transaction
+			db.beginTransaction();
+			try {
+				for (ServiceDatum service : serviceList) {
+					String nullColumnHack = null;
+					ContentValues values = new ContentValues();
+					values.put(DBHelper.SERVICE_KEY_SERVICE_ID,
+							service.getServiceId());
+					values.put(DBHelper.SERVICE_KEY_CLIENT_ID,
+							service.getClientId());
+					values.put(DBHelper.SERVICE_KEY_CHANNEL_NAME,
+							service.getChannelName());
+					values.put(DBHelper.SERVICE_KEY_IMAGE,
+							service.getImage());
+					values.put(DBHelper.SERVICE_KEY_URL, service.getUrl());
+					db.insert(DBHelper.TABLE_SERVICES, nullColumnHack,
+							values);
+				}
+				// Transaction is successful and all the records have been
+				// inserted
+				db.setTransactionSuccessful();
+			} catch (Exception e) {
+				Log.e("Error in transaction", e.toString());
+			} finally {
+				// End the transaction
+				db.endTransaction();
+			}
+
+		}
 	}
 
 	public AlertDialog getConfirmDialog(final Context context) {

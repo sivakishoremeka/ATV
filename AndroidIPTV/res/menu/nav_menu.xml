@@ -63,5 +63,4 @@
         android:showAsAction="always"
         android:title="@string/action_refresh"
         android:visible="false"/>
-
 </menu>

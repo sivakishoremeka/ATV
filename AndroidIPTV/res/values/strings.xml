@@ -4,7 +4,8 @@
     <string name="account">Account</string>
     <string name="account_no">Account No</string>
     <string name="action_account">Account</string>
-    <string name="action_guide">Guide</string>
+    <string name="action_channels">Channels</string>
+    <string name="action_favourites">Favourites</string>
     <string name="action_home">Home</string>
     <string name="action_live_tv">Live TV</string>
     <string name="action_refresh">Refresh</string>
@@ -22,6 +23,7 @@
  <!-- Peter  billing/password -->
     <string name="cancel"> Cancel </string>
     <string name="cast_crew">Cast &amp; Crew</string>
+    <string name="channels_updated_at">channels updated at</string>
     <string name="client_data">Client Data</string>
     <string name="client_pkg_data">Client Package Data</string>
     <string name="content_type">application/json</string>

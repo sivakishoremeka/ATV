@@ -5,8 +5,12 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.app.LoaderManager.LoaderCallbacks;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.Loader;
+import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -23,14 +27,14 @@ import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.obs.data.ServiceDatum;
+import com.obs.database.DBHelper;
+import com.obs.database.ServiceProvider;
 
 public class VideoPlayerActivity extends Activity implements
 		SurfaceHolder.Callback, MediaPlayer.OnPreparedListener,
 		MediaPlayer.OnInfoListener, MediaPlayer.OnErrorListener,
-		VideoControllerView.MediaPlayerControl {
+		VideoControllerView.MediaPlayerControl, LoaderCallbacks<Cursor> {
 
 	public static String TAG = VideoPlayerActivity.class.getName();
 	public static int mChannelId = -1;
@@ -41,7 +45,7 @@ public class VideoPlayerActivity extends Activity implements
 	VideoControllerView controller;
 	private ProgressDialog mProgressDialog;
 	private boolean isLiveController;
-	private ArrayList<ServiceDatum> mserviceList = null;
+	private ArrayList<ServiceDatum> mserviceList = new ArrayList<ServiceDatum>();
 	private String mVideoType = null;
 
 	@Override
@@ -72,11 +76,9 @@ public class VideoPlayerActivity extends Activity implements
 			isLiveController = true;
 			VideoControllerView.sDefaultTimeout = 3000;
 			mChannelId = getIntent().getIntExtra("CHANNELID", -1);
-			mserviceList = getIntent().getParcelableArrayListExtra(
-					"SERVICELIST");
 			if (mChannelId != -1) {
 				mChannelIndex = getChannelIndexByChannelId(mChannelId);
-				Log.d("mChannelIndex", "" + mChannelIndex);
+				// Log.d("mChannelIndex", "" + mChannelIndex);
 			}
 		} else if (mVideoType.equalsIgnoreCase("VOD")) {
 			isLiveController = false;
@@ -89,8 +91,8 @@ public class VideoPlayerActivity extends Activity implements
 			player.setVolume(1.0f, 1.0f);
 			player.setDataSource(this,
 					Uri.parse(getIntent().getStringExtra("URL")));
-			Log.d("VideoPlayerActivity", "VideoURL:"
-					+ getIntent().getStringExtra("URL"));
+			// Log.d("VideoPlayerActivity", "VideoURL:"+
+			// getIntent().getStringExtra("URL"));
 			player.setOnPreparedListener(this);
 			player.setOnInfoListener(this);
 			player.setOnErrorListener(this);
@@ -105,6 +107,8 @@ public class VideoPlayerActivity extends Activity implements
 		} catch (Exception e) {
 			Log.d(TAG, e.getMessage());
 		}
+		getLoaderManager().initLoader(getIntent().getIntExtra("REQTYPE", 1),
+				null, this);
 	}
 
 	private int getChannelIndexByChannelId(int channelId) {
@@ -121,7 +125,7 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		Log.d(TAG, "onTouchEvent" + event.getAction());
+		// Log.d(TAG, "onTouchEvent" + event.getAction());
 		controller.show();
 		return false;
 	}
@@ -135,7 +139,7 @@ public class VideoPlayerActivity extends Activity implements
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 
-		Log.d("surfaceCreated", "surfaceCreated");
+		// Log.d("VideoPlayerActivity", "surfaceCreated");
 
 		player.setDisplay(holder);
 		player.prepareAsync();
@@ -159,6 +163,21 @@ public class VideoPlayerActivity extends Activity implements
 	}
 
 	@Override
+	protected void onPause() {
+		// Log.d("VideoPlayerActivity", "surfaceDestroyed");
+		if (player != null && player.isPlaying()) {
+			controller.hide();
+			player.stop();
+			player.release();
+			player = null;
+			finish();
+		} else {
+
+		}
+		super.onPause();
+	}
+
+	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 
 	}
@@ -169,7 +188,7 @@ public class VideoPlayerActivity extends Activity implements
 	@Override
 	public void onPrepared(MediaPlayer mp) {
 
-		Log.d("onPrepared", "onPrepared");
+		// Log.d("VideoPlayerActivity", "onPrepared");
 
 		controller.setMediaPlayer(this);
 		RelativeLayout rlayout = (RelativeLayout) findViewById(R.id.video_container);
@@ -188,7 +207,8 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra) {
-		Log.d(TAG, "Media player Error is...what:" + what + " Extra:" + extra);
+		// Log.d(TAG, "Media player Error is...what:" + what + " Extra:" +
+		// extra);
 
 		if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == -2147483648) {
 
@@ -196,16 +216,12 @@ public class VideoPlayerActivity extends Activity implements
 					getApplicationContext(),
 					"Incorrect URL or Unsupported Media Format.Media player closed.",
 					Toast.LENGTH_LONG).show();
-
-			finish();
 		} else if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == -1004) {
 
 			Toast.makeText(
 					getApplicationContext(),
 					"Invalid Stream for this channel... Please try other channel",
 					Toast.LENGTH_LONG).show();
-
-			finish();
 		} else {
 			controller.mHandler.removeMessages(controller.SHOW_PROGRESS);
 			controller.mHandler.removeMessages(controller.FADE_OUT);
@@ -222,44 +238,32 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public boolean onInfo(MediaPlayer mp, int what, int extra) {
-
-		if (Build.VERSION.SDK_INT >= 17) {
-			if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
-				if (mProgressDialog != null && mProgressDialog.isShowing()) {
-					mProgressDialog.dismiss();
-					mProgressDialog = null;
-				}
-			}
-		}
-		if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
-			if (mProgressDialog != null && mProgressDialog.isShowing()) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}
-			mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
-					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Buffering");
-			// mProgressDialog.setCancelable(true);
-			mProgressDialog.setCanceledOnTouchOutside(false);
-			mProgressDialog.setOnCancelListener(new OnCancelListener() {
-
-				public void onCancel(DialogInterface arg0) {
-					if (mProgressDialog.isShowing())
-						mProgressDialog.dismiss();
-					finish();
-				}
-			});
-			mProgressDialog.show();
-		} else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
-			if (mProgressDialog != null && mProgressDialog.isShowing()) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}
-		} /*
-		 * else if (what == MediaPlayer.MEDIA_ERROR_TIMED_OUT) { if
-		 * (mProgressDialog.isShowing()) { mProgressDialog.dismiss(); }
-		 * Log.d(TAG, "Request timed out.Closing MediaPlayer"); finish(); }
-		 */
+		/*
+		 * if (Build.VERSION.SDK_INT >= 17) { if (what ==
+		 * MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) { if (mProgressDialog
+		 * != null && mProgressDialog.isShowing()) { mProgressDialog.dismiss();
+		 * mProgressDialog = null; } } } if (what ==
+		 * MediaPlayer.MEDIA_INFO_BUFFERING_START) { if (mProgressDialog != null
+		 * && mProgressDialog.isShowing()) { mProgressDialog.dismiss();
+		 * mProgressDialog = null; } mProgressDialog = new
+		 * ProgressDialog(VideoPlayerActivity.this,
+		 * ProgressDialog.THEME_HOLO_DARK);
+		 * mProgressDialog.setMessage("Buffering"); //
+		 * mProgressDialog.setCancelable(true);
+		 * mProgressDialog.setCanceledOnTouchOutside(false);
+		 * mProgressDialog.setOnCancelListener(new OnCancelListener() {
+		 * 
+		 * public void onCancel(DialogInterface arg0) { if
+		 * (mProgressDialog.isShowing()) mProgressDialog.dismiss(); finish(); }
+		 * }); mProgressDialog.show(); } else if (what ==
+		 * MediaPlayer.MEDIA_INFO_BUFFERING_END) { if (mProgressDialog != null
+		 * && mProgressDialog.isShowing()) { mProgressDialog.dismiss();
+		 * mProgressDialog = null; } }
+		 *//*
+			 * else if (what == MediaPlayer.MEDIA_ERROR_TIMED_OUT) { if
+			 * (mProgressDialog.isShowing()) { mProgressDialog.dismiss(); }
+			 * Log.d(TAG, "Request timed out.Closing MediaPlayer"); finish(); }
+			 */
 		return true;
 
 	}
@@ -329,34 +333,37 @@ public class VideoPlayerActivity extends Activity implements
 	 */
 
 	// End VideoMediaController.MediaPlayerControl
+
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		Log.d("onKeyDown", keyCode + "");
+		// Log.d("onKeyDown", keyCode + "");
 		if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == 4) {
 
-			Log.d("onKeyDown", "KeyCodeback");
+			// Log.d("onKeyDown", "KeyCodeback");
 
-			if (player != null && player.isPlaying()) {
-				controller.hide();
-				player.stop();
+			if (player != null) {
+				if (player.isPlaying()) {
+					controller.hide();
+					player.stop();
+				}
 				player.release();
 				player = null;
-				finish();
-			} else {
-				finish();
-			} /*
-			 * } else if (keyCode == 85) { controller.show(); if
-			 * (player.isPlaying()) { player.pause(); } else { player.start(); }
-			 * } else if (keyCode == 23) { controller.show(); player.pause(); }
-			 * else if (keyCode == 19) { controller.show(); player.seekTo(0);
-			 * player.start(); } else if (keyCode == 89) { controller.show(); if
-			 * (player.getCurrentPosition() - 120000 > 0 &&
-			 * (player.isPlaying())) { player.seekTo(player.getCurrentPosition()
-			 * - 120000); player.start(); } } else if (keyCode == 90) {
-			 * controller.show(); if (player.getCurrentPosition() + 120000 <
-			 * player.getDuration() && (player.isPlaying())) {
-			 * player.seekTo(player.getCurrentPosition() + 120000);
-			 * player.start(); }
-			 */
+			}
+			finish(); /*
+					 * } else if (keyCode == 85) { controller.show(); if
+					 * (player.isPlaying()) { player.pause(); } else {
+					 * player.start(); } } else if (keyCode == 23) {
+					 * controller.show(); player.pause(); } else if (keyCode ==
+					 * 19) { controller.show(); player.seekTo(0);
+					 * player.start(); } else if (keyCode == 89) {
+					 * controller.show(); if (player.getCurrentPosition() -
+					 * 120000 > 0 && (player.isPlaying())) {
+					 * player.seekTo(player.getCurrentPosition() - 120000);
+					 * player.start(); } } else if (keyCode == 90) {
+					 * controller.show(); if (player.getCurrentPosition() +
+					 * 120000 < player.getDuration() && (player.isPlaying())) {
+					 * player.seekTo(player.getCurrentPosition() + 120000);
+					 * player.start(); }
+					 */
 		} else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
 				|| keyCode == KeyEvent.KEYCODE_VOLUME_UP
 				|| keyCode == KeyEvent.KEYCODE_VOLUME_MUTE
@@ -378,7 +385,7 @@ public class VideoPlayerActivity extends Activity implements
 				return super.dispatchKeyEvent(event);
 			}
 		} else if (keyCode == KeyEvent.KEYCODE_MENU) {
-			Log.d(TAG, "onMenuKeyDownEvent" + event.getAction());
+			// Log.d(TAG, "onMenuKeyDownEvent" + event.getAction());
 			controller.show();
 			return true;
 			/*
@@ -443,9 +450,9 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public void changeChannel(Uri uri, int channelId) {
-		Log.d(TAG, "mChannelIndex: " + mChannelIndex);
-		Log.d(TAG, "channelId: " + channelId);
-		Log.d(TAG, "ChangeChannel: " + uri);
+		// Log.d(TAG, "mChannelIndex: " + mChannelIndex);
+		// Log.d(TAG, "channelId: " + channelId);
+		// Log.d(TAG, "ChangeChannel: " + uri);
 		mChannelId = channelId;
 		mChannelUri = uri;
 		{
@@ -485,24 +492,74 @@ public class VideoPlayerActivity extends Activity implements
 		rlayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 	}
 
-	/*
-	 * private void prepareChannelsList() {
-	 * 
-	 * SharedPreferences mPrefs = ((MyApplication) getApplicationContext())
-	 * .getPrefs(); String sChannelDtls = mPrefs.getString(
-	 * ChannelsActivity.IPTV_CHANNELS_DETAILS, ""); if (sChannelDtls.length() !=
-	 * 0) { JSONObject json_ch_dtls = null; String channel_details = null; try {
-	 * json_ch_dtls = new JSONObject(sChannelDtls); channel_details =
-	 * json_ch_dtls.getString("Channels"); } catch (JSONException e1) {
-	 * e1.printStackTrace(); } if (channel_details.length() != 0) {
-	 * 
-	 * mserviceList = getServiceListFromJSON(channel_details); } } }
-	 */
-
-	private ArrayList<ServiceDatum> getServiceListFromJSON(String json) {
-		java.lang.reflect.Type t = new TypeToken<ArrayList<ServiceDatum>>() {
-		}.getType();
-		ArrayList<ServiceDatum> serviceList = new Gson().fromJson(json, t);
-		return serviceList;
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		CursorLoader loader = null;
+		if (id == ServiceProvider.SERVICES) {
+			String selection = null;
+			String[] selectionArgs = null;
+			if (null != getIntent()) {
+				selection = getIntent().getStringExtra("SELECTION");
+				String srchStr = getIntent().getStringExtra("SEARCHSTRING");
+				if (null != srchStr) {
+					selectionArgs = new String[] { "%" + srchStr + "%" };
+				}
+				loader = new CursorLoader(this, ServiceProvider.SERVICES_URI,
+						null, selection, selectionArgs, null);
+			}
+		}
+		if (id == ServiceProvider.SERVICES_ON_REFRESH) {
+			loader = new CursorLoader(this,
+					ServiceProvider.SERVICES_ONREFREFRESH_URI, null, null,
+					null, null);
+		}
+		return loader;
 	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+
+		// Log.d("ChannelsActivity","onLoadFinished");
+		if (mProgressDialog != null && mProgressDialog.isShowing()) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+		if (null != cursor)
+			loadServicesfromCursor(cursor);
+	}
+
+	private void loadServicesfromCursor(Cursor cursor) {
+		mserviceList.clear();
+		try {
+			int serviceIdx = cursor
+					.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_SERVICE_ID);
+			int clientIdx = cursor
+					.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_CLIENT_ID);
+			int chIdx = cursor
+					.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_CHANNEL_NAME);
+			int imgIdx = cursor
+					.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_IMAGE);
+			int urlIdx = cursor.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_URL);
+			cursor.moveToFirst();
+			do {
+				ServiceDatum service = new ServiceDatum();
+				service.setServiceId(Integer.parseInt(cursor
+						.getString(serviceIdx)));
+				service.setClientId(Integer.parseInt(cursor
+						.getString(clientIdx)));
+				service.setChannelName(cursor.getString(chIdx));
+				service.setImage(cursor.getString(imgIdx));
+				service.setUrl(cursor.getString(urlIdx));
+				mserviceList.add(service);
+			} while (cursor.moveToNext());
+		} catch (Exception e) {
+			Log.d("VideoPlayerActivity", e.getMessage());
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+
+	}
+
 }

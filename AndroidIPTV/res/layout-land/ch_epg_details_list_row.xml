@@ -11,7 +11,7 @@
         android:textSize="15sp"
         android:textStyle="bold"
         android:textColor="@color/white"
-        android:padding="8dp" />
+        android:padding="3dp" />
 
     <TextView
         android:id="@+id/a_ch_epg_details_list_row_tv_prog_title"
@@ -19,9 +19,8 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/a_ch_epg_details_list_row_tv_start_time"
         android:ellipsize="end"
-        android:padding="8dp"
+        android:padding="3dp"
         android:textSize="15sp"
-        android:textStyle="bold"
         android:textColor="@color/white"
         android:singleLine="True" />
 

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_action_search_icon"
+        android:orderInCategory="3"
+        android:showAsAction="always"
+        android:title="@string/action_bar_search"/>
+    <item
+        android:id="@+id/action_refresh"
+        android:icon="@drawable/ic_action_refresh_icon"
+        android:orderInCategory="4"
+        android:showAsAction="always"
+        android:title="@string/action_refresh"/>
+
+     <item
+        android:id="@+id/action_channels"
+        android:layout_width="50dp"
+        android:layout_height="120dp"
+        android:icon="@drawable/ic_action_channels_icon"
+        android:orderInCategory="2"
+        android:showAsAction="always"
+        android:title="@string/action_channels"/>
+     
+    <item
+        android:id="@+id/action_favourite"
+        android:layout_width="50dp"
+        android:layout_height="120dp"
+        android:icon="@drawable/ic_action_favourite"
+        android:orderInCategory="1"
+        android:showAsAction="always"
+        android:title="@string/action_favourites"/>
+</menu>
