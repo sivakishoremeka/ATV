@@ -99,7 +99,7 @@ public class ChannelsActivity extends Activity implements
 	ServiceDatum mService;
 
 	private SimpleCursorAdapter adapter;
-	private boolean mIsOnResume = false;
+	private int mSelectedIdx =-1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -147,7 +147,8 @@ public class ChannelsActivity extends Activity implements
 		mListView.setOnItemClickListener(this);
 		mListView.setOnItemLongClickListener(this);
 		mListView.setOnItemSelectedListener(this);
-		mListView.setSelected(true);
+		//mListView.setSelected(true);
+		//mListView.setSelection(0);
 		// initiallizeUI();
 	}
 
@@ -165,16 +166,6 @@ public class ChannelsActivity extends Activity implements
 			mSelectionArgs = new String[] { "%" + mSearchString + "%" };
 			CheckBalancenGetData();
 		}
-	}
-
-	@Override
-	protected void onResume() {
-		if (null == getLoaderManager().getLoader(mReqType)) {
-			initiallizeUI();
-		} else {
-			mIsOnResume = true;
-		}
-		super.onResume();
 	}
 
 	@Override
@@ -559,7 +550,7 @@ public class ChannelsActivity extends Activity implements
 	@Override
 	public void onPrepared(MediaPlayer mp) {
 		// Log.d("ChannelsActivity","onPrepared");
-		mListView.setSelection(mListView.getSelectedItemPosition());
+		//mListView.setSelection(mSelectedIdx);
 		// mListView.getSelectedItem();
 		mp.start();
 	}
@@ -592,7 +583,9 @@ public class ChannelsActivity extends Activity implements
 		// Log.d("ChannelsActivity","surfaceCreated");
 		initiallizePlayer();
 		player.setDisplay(holder);
-		if (mIsOnResume) {
+		if (mSelectedIdx==-1) {
+			initiallizeUI();
+		} else{
 			OnChannelSelection(getServiceFromCursor(((Cursor) mListView
 					.getAdapter().getItem(mListView.getSelectedItemPosition()))));
 		}
@@ -648,8 +641,11 @@ public class ChannelsActivity extends Activity implements
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
 		// Log.d("ChannelsActivity","onItemSelected");
+		if(position!=mSelectedIdx){
+			mSelectedIdx = position;
 		OnChannelSelection(getServiceFromCursor(((Cursor) parent.getAdapter()
 				.getItem(position))));
+		}
 	}
 
 	@Override
@@ -699,6 +695,11 @@ public class ChannelsActivity extends Activity implements
 			mProgressDialog = null;
 		}
 		adapter.swapCursor(cursor);
+		mListView.setSelection(0);
+		mListView.setSelected(true);
+		cursor.moveToFirst();
+		OnChannelSelection(getServiceFromCursor(cursor));
+		
 	}
 
 	@Override
@@ -710,6 +711,7 @@ public class ChannelsActivity extends Activity implements
 	public boolean onItemLongClick(AdapterView<?> parent, View view,
 			int position, long id) {
 		// Log.d("ChannelsActivity","onItemLongClick");
+		mSelectedIdx = position;
 		ServiceDatum data = getServiceFromCursor(((Cursor) parent.getAdapter()
 				.getItem(position)));
 		ContentValues values = new ContentValues();
