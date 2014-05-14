@@ -1,8 +1,6 @@
 package com.obs.androidiptv;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -32,7 +30,6 @@ public class AuthenticationAcitivity extends Activity {
 	private Button mBtnRefresh;
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 	boolean mIsFailed = false;
 
@@ -42,8 +39,7 @@ public class AuthenticationAcitivity extends Activity {
 		setContentView(R.layout.activity_authentication);
 		setTitle("");
 		mApplication = ((MyApplication) getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
-		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
+		mOBSClient = mApplication.getOBSClient(this);
 		mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 		mBtnRefresh = (Button) findViewById(R.id.btn_refresh);
 		validateDevice();
@@ -187,7 +183,6 @@ public class AuthenticationAcitivity extends Activity {
 									mProgressBar.setVisibility(View.INVISIBLE);
 								}
 								mIsReqCanceled = true;
-								mExecutorService.shutdownNow();
 								AuthenticationAcitivity.this.finish();
 							}
 						});

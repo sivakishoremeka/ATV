@@ -5,11 +5,8 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.app.LoaderManager.LoaderCallbacks;
-import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
-import android.content.Loader;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -33,8 +30,7 @@ import com.obs.database.ServiceProvider;
 
 public class VideoPlayerActivity extends Activity implements
 		SurfaceHolder.Callback, MediaPlayer.OnPreparedListener,
-		MediaPlayer.OnInfoListener, MediaPlayer.OnErrorListener,
-		VideoControllerView.MediaPlayerControl, LoaderCallbacks<Cursor> {
+		MediaPlayer.OnErrorListener, VideoControllerView.MediaPlayerControl {
 
 	public static String TAG = VideoPlayerActivity.class.getName();
 	public static int mChannelId = -1;
@@ -65,7 +61,6 @@ public class VideoPlayerActivity extends Activity implements
 			decorView.setSystemUiVisibility(uiOptions);
 		}
 
-		// prepareChannelsList();
 		videoSurface = (SurfaceView) findViewById(R.id.videoSurface);
 		SurfaceHolder videoHolder = videoSurface.getHolder();
 		videoHolder.addCallback(this);
@@ -76,6 +71,8 @@ public class VideoPlayerActivity extends Activity implements
 			isLiveController = true;
 			VideoControllerView.sDefaultTimeout = 3000;
 			mChannelId = getIntent().getIntExtra("CHANNELID", -1);
+			int reqType = getIntent().getIntExtra("REQTYPE", 1);
+			prepareChannelsList(reqType);
 			if (mChannelId != -1) {
 				mChannelIndex = getChannelIndexByChannelId(mChannelId);
 				// Log.d("mChannelIndex", "" + mChannelIndex);
@@ -94,7 +91,6 @@ public class VideoPlayerActivity extends Activity implements
 			// Log.d("VideoPlayerActivity", "VideoURL:"+
 			// getIntent().getStringExtra("URL"));
 			player.setOnPreparedListener(this);
-			player.setOnInfoListener(this);
 			player.setOnErrorListener(this);
 		} catch (IllegalArgumentException e) {
 			Log.d(TAG, e.getMessage());
@@ -107,8 +103,33 @@ public class VideoPlayerActivity extends Activity implements
 		} catch (Exception e) {
 			Log.d(TAG, e.getMessage());
 		}
-		getLoaderManager().initLoader(getIntent().getIntExtra("REQTYPE", 1),
-				null, this);
+		/*
+		 * getLoaderManager().initLoader(getIntent().getIntExtra("REQTYPE", 1),
+		 * null, this);
+		 */
+	}
+
+	private void prepareChannelsList(int reqType) {
+		Cursor cursor = null;
+		if (reqType == ServiceProvider.SERVICES) {
+			String selection = null;
+			String[] selectionArgs = null;
+			if (null != getIntent()) {
+				selection = getIntent().getStringExtra("SELECTION");
+				String srchStr = getIntent().getStringExtra("SEARCHSTRING");
+				if (null != srchStr) {
+					selectionArgs = new String[] { "%" + srchStr + "%" };
+				}
+				cursor = getContentResolver().query(
+						ServiceProvider.SERVICES_URI, null, selection,
+						selectionArgs, null);
+			}
+		} else if (reqType == ServiceProvider.SERVICES_ON_REFRESH) {
+			cursor = getContentResolver().query(ServiceProvider.SERVICES_URI,
+					null, null, null, null);
+		}
+		if (cursor != null)
+			loadServicesfromCursor(cursor);
 	}
 
 	private int getChannelIndexByChannelId(int channelId) {
@@ -142,6 +163,10 @@ public class VideoPlayerActivity extends Activity implements
 		// Log.d("VideoPlayerActivity", "surfaceCreated");
 
 		player.setDisplay(holder);
+		/*
+		 * getLoaderManager().initLoader(getIntent().getIntExtra("REQTYPE", 1),
+		 * null, this);
+		 */
 		player.prepareAsync();
 		if (mProgressDialog != null && mProgressDialog.isShowing()) {
 			mProgressDialog.dismiss();
@@ -156,6 +181,7 @@ public class VideoPlayerActivity extends Activity implements
 			public void onCancel(DialogInterface arg0) {
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
+				mProgressDialog = null;
 				finish();
 			}
 		});
@@ -196,11 +222,9 @@ public class VideoPlayerActivity extends Activity implements
 		controller.setAnchorView(rlayout);
 		controller
 				.setAnchorView((RelativeLayout) findViewById(R.id.video_container));
-		if (Build.VERSION.SDK_INT < 17) {
-			if (mProgressDialog != null && mProgressDialog.isShowing()) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}
+		if (mProgressDialog != null && mProgressDialog.isShowing()) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
 		}
 		mp.start();
 	}
@@ -228,44 +252,7 @@ public class VideoPlayerActivity extends Activity implements
 			changeChannel(mChannelUri, mChannelId);
 		}
 
-		/*
-		 * if (player != null && player.isPlaying()) player.stop();
-		 * player.release(); player = null; if (mProgressDialog != null &&
-		 * mProgressDialog.isShowing()) { mProgressDialog.dismiss();
-		 * mProgressDialog = null; } finish();
-		 */return true;
-	}
-
-	@Override
-	public boolean onInfo(MediaPlayer mp, int what, int extra) {
-		/*
-		 * if (Build.VERSION.SDK_INT >= 17) { if (what ==
-		 * MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) { if (mProgressDialog
-		 * != null && mProgressDialog.isShowing()) { mProgressDialog.dismiss();
-		 * mProgressDialog = null; } } } if (what ==
-		 * MediaPlayer.MEDIA_INFO_BUFFERING_START) { if (mProgressDialog != null
-		 * && mProgressDialog.isShowing()) { mProgressDialog.dismiss();
-		 * mProgressDialog = null; } mProgressDialog = new
-		 * ProgressDialog(VideoPlayerActivity.this,
-		 * ProgressDialog.THEME_HOLO_DARK);
-		 * mProgressDialog.setMessage("Buffering"); //
-		 * mProgressDialog.setCancelable(true);
-		 * mProgressDialog.setCanceledOnTouchOutside(false);
-		 * mProgressDialog.setOnCancelListener(new OnCancelListener() {
-		 * 
-		 * public void onCancel(DialogInterface arg0) { if
-		 * (mProgressDialog.isShowing()) mProgressDialog.dismiss(); finish(); }
-		 * }); mProgressDialog.show(); } else if (what ==
-		 * MediaPlayer.MEDIA_INFO_BUFFERING_END) { if (mProgressDialog != null
-		 * && mProgressDialog.isShowing()) { mProgressDialog.dismiss();
-		 * mProgressDialog = null; } }
-		 *//*
-			 * else if (what == MediaPlayer.MEDIA_ERROR_TIMED_OUT) { if
-			 * (mProgressDialog.isShowing()) { mProgressDialog.dismiss(); }
-			 * Log.d(TAG, "Request timed out.Closing MediaPlayer"); finish(); }
-			 */
 		return true;
-
 	}
 
 	// End MediaPlayer.OnPreparedListener
@@ -371,12 +358,12 @@ public class VideoPlayerActivity extends Activity implements
 				|| keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
 			AudioManager audio = (AudioManager) getSystemService(VideoPlayerActivity.this.AUDIO_SERVICE);
 			switch (keyCode) {
-			case KeyEvent.KEYCODE_DPAD_LEFT:
+			case KeyEvent.KEYCODE_DPAD_RIGHT:
 			case KeyEvent.KEYCODE_VOLUME_UP:
 				audio.adjustStreamVolume(AudioManager.STREAM_MUSIC,
 						AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
 				return true;
-			case KeyEvent.KEYCODE_DPAD_RIGHT:
+			case KeyEvent.KEYCODE_DPAD_LEFT:
 			case KeyEvent.KEYCODE_VOLUME_DOWN:
 				audio.adjustStreamVolume(AudioManager.STREAM_MUSIC,
 						AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI);
@@ -388,24 +375,7 @@ public class VideoPlayerActivity extends Activity implements
 			// Log.d(TAG, "onMenuKeyDownEvent" + event.getAction());
 			controller.show();
 			return true;
-			/*
-			 * } else if (keyCode == 9) {// 20) { Log.d(TAG, "menu key" +
-			 * keyCode); if (null != player) { if (!controller.isShowing())
-			 * controller.show(); else controller.hide(); } return true; } else
-			 * if (keyCode == 22) {// 23 22) { Log.d(TAG, "menu key" + keyCode);
-			 * if (null != player) { controller.mPauseListener.onClick(null); }
-			 * return true;
-			 */
-		}
-		/*
-		 * else if (keyCode == 21) {// 23) { Log.d(TAG, "menu key" + keyCode);
-		 * if (null != player) { controller.mRewListener.onClick(null); } return
-		 * true; }
-		 * 
-		 * else if (keyCode == 22) {// 22 19) { Log.d(TAG, "menu key" +
-		 * keyCode); if (null != player) {
-		 * controller.mFfwdListener.onClick(null); } return true; }
-		 */else if (keyCode >= 7 && keyCode <= 16) {
+		} else if (keyCode >= 7 && keyCode <= 16) {
 			if (null != player) {
 				if (mserviceList != null) {
 					int idx = keyCode - 7;
@@ -463,7 +433,6 @@ public class VideoPlayerActivity extends Activity implements
 
 				player.setDataSource(this, uri);
 				player.setOnPreparedListener(this);
-				player.setOnInfoListener(this);
 				player.setOnErrorListener(this);
 				player.prepareAsync();
 			} catch (IllegalArgumentException e) {
@@ -492,42 +461,6 @@ public class VideoPlayerActivity extends Activity implements
 		rlayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 	}
 
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		CursorLoader loader = null;
-		if (id == ServiceProvider.SERVICES) {
-			String selection = null;
-			String[] selectionArgs = null;
-			if (null != getIntent()) {
-				selection = getIntent().getStringExtra("SELECTION");
-				String srchStr = getIntent().getStringExtra("SEARCHSTRING");
-				if (null != srchStr) {
-					selectionArgs = new String[] { "%" + srchStr + "%" };
-				}
-				loader = new CursorLoader(this, ServiceProvider.SERVICES_URI,
-						null, selection, selectionArgs, null);
-			}
-		}
-		if (id == ServiceProvider.SERVICES_ON_REFRESH) {
-			loader = new CursorLoader(this,
-					ServiceProvider.SERVICES_ONREFREFRESH_URI, null, null,
-					null, null);
-		}
-		return loader;
-	}
-
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-
-		// Log.d("ChannelsActivity","onLoadFinished");
-		if (mProgressDialog != null && mProgressDialog.isShowing()) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-		if (null != cursor)
-			loadServicesfromCursor(cursor);
-	}
-
 	private void loadServicesfromCursor(Cursor cursor) {
 		mserviceList.clear();
 		try {
@@ -537,6 +470,8 @@ public class VideoPlayerActivity extends Activity implements
 					.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_CLIENT_ID);
 			int chIdx = cursor
 					.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_CHANNEL_NAME);
+			int chDescIdx = cursor
+					.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_CHANNEL_DESC);
 			int imgIdx = cursor
 					.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_IMAGE);
 			int urlIdx = cursor.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_URL);
@@ -548,18 +483,24 @@ public class VideoPlayerActivity extends Activity implements
 				service.setClientId(Integer.parseInt(cursor
 						.getString(clientIdx)));
 				service.setChannelName(cursor.getString(chIdx));
+				service.setChannelDescription(cursor.getString(chDescIdx));
 				service.setImage(cursor.getString(imgIdx));
 				service.setUrl(cursor.getString(urlIdx));
 				mserviceList.add(service);
 			} while (cursor.moveToNext());
+			if (mChannelId != -1) {
+				mChannelIndex = getChannelIndexByChannelId(mChannelId);
+				// Log.d("mChannelIndex", "" + mChannelIndex);
+			}
 		} catch (Exception e) {
 			Log.d("VideoPlayerActivity", e.getMessage());
 		}
 	}
 
-	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
-
-	}
+	/*
+	 * @Override public void onLoaderReset(Loader<Cursor> loader) {
+	 * 
+	 * }
+	 */
 
 }

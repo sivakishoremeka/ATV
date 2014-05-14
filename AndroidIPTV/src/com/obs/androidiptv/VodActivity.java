@@ -1,8 +1,5 @@
 package com.obs.androidiptv;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -54,7 +51,6 @@ public class VodActivity extends FragmentActivity
 
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 	
 	String mSearchString;
@@ -68,8 +64,7 @@ public class VodActivity extends FragmentActivity
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		mApplication = ((MyApplication) getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
-		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
+		mOBSClient = mApplication.getOBSClient(this);
 
 		mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
 		mPrefsEditor = mPrefs.edit();
@@ -164,9 +159,9 @@ public class VodActivity extends FragmentActivity
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
 				mIsReqCanceled = true;
-				if (null != mExecutorService)
-					if (!mExecutorService.isShutdown())
-						mExecutorService.shutdownNow();
+				//if (null != mExecutorService)
+				//	if (!mExecutorService.isShutdown())
+				//		mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();

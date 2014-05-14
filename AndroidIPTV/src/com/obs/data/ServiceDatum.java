@@ -3,13 +3,15 @@ package com.obs.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class ServiceDatum implements Parcelable {
+public class ServiceDatum implements Parcelable,Comparable<ServiceDatum> {
 
 	private Integer serviceId;
 
 	private Integer clientId;
 
 	private String channelName;
+	
+	private String channelDescription;
 
 	private String image;
 
@@ -38,6 +40,13 @@ public class ServiceDatum implements Parcelable {
 	public void setChannelName(String channelName) {
 		this.channelName = channelName;
 	}
+	public String getChannelDescription() {
+		return channelDescription;
+	}
+
+	public void setChannelDescription(String channelDescription) {
+		this.channelDescription = channelDescription;
+	}
 
 	public String getImage() {
 		return image;
@@ -63,7 +72,9 @@ public class ServiceDatum implements Parcelable {
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeIntArray(new int[] { this.serviceId, this.clientId });
-		dest.writeStringArray(new String[] { this.channelName, this.image,
+		dest.writeStringArray(new String[] {
+				//this.channelName,
+				this.channelDescription, this.image,
 				this.url });
 	}
 
@@ -89,9 +100,15 @@ public class ServiceDatum implements Parcelable {
 		this.clientId = intData[1];
 
 		in.readStringArray(stringData);
-		this.channelName = stringData[0];
-		this.image = stringData[1];
-		this.url = stringData[2];
+		//this.channelName = stringData[0];
+		this.channelDescription = stringData[1];
+		this.image = stringData[2];
+		this.url = stringData[3];
+	}
+
+	@Override
+	public int compareTo(ServiceDatum another) {
+		return this.channelDescription.compareToIgnoreCase(another.getChannelDescription());
 	}
 
 }

@@ -5,8 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -41,7 +39,6 @@ public class PlanActivity extends Activity {
 
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 
 	List<PlanDatum> mPlans;
@@ -56,8 +53,7 @@ public class PlanActivity extends Activity {
 		setContentView(R.layout.activity_plan);
 
 		mApplication = ((MyApplication) getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
-		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
+		mOBSClient = mApplication.getOBSClient(this);
 		fetchAndBuildPlanList();
 	}
 
@@ -76,9 +72,6 @@ public class PlanActivity extends Activity {
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
 				mIsReqCanceled = true;
-				if (null != mExecutorService)
-					if (!mExecutorService.isShutdown())
-						mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();
@@ -179,11 +172,6 @@ public class PlanActivity extends Activity {
 							mProgressDialog.dismiss();
 							mProgressDialog = null;
 						}
-						if (null != mExecutorService)
-							if (!mExecutorService.isShutdown()) {
-								mExecutorService.shutdownNow();
-								mExecutorService = null;
-							}
 						mIsReqCanceled = true;
 						PlanActivity.this.finish();
 					}

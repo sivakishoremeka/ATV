@@ -10,7 +10,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String LOG = "DatabaseHelper";
 
 	// Database Version
-	public static final int DATABASE_VERSION = 2;
+	public static final int DATABASE_VERSION = 3;
 
 	// Database Name
 	public static final String DATABASE_NAME = "obsdatabase.db";
@@ -24,6 +24,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	public static final String SERVICE_KEY_SERVICE_ID = "service_id";
 	public static final String SERVICE_KEY_CLIENT_ID = "client_id";
 	public static final String SERVICE_KEY_CHANNEL_NAME = "channel_name";
+	public static final String SERVICE_KEY_CHANNEL_DESC = "channel_desc";
 	public static final String SERVICE_KEY_IMAGE = "image";
 	public static final String SERVICE_KEY_URL = "url";
 	public static final String SERVICE_KEY_FAVOURITE = "is_favourite";
@@ -35,6 +36,7 @@ public class DBHelper extends SQLiteOpenHelper {
 								   + SERVICE_KEY_SERVICE_ID	+ " INTEGER," 
 			                       + SERVICE_KEY_CLIENT_ID + " INTEGER," 
 			                       + SERVICE_KEY_CHANNEL_NAME + " TEXT,"
+			                       + SERVICE_KEY_CHANNEL_DESC + " TEXT,"
 								   + SERVICE_KEY_IMAGE + " TEXT,"
 			                       + SERVICE_KEY_URL + " TEXT,"
 								   + SERVICE_KEY_FAVOURITE + " NUMERIC DEFAULT 0," 

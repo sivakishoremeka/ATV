@@ -4,8 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -52,7 +50,6 @@ public class RegisterActivity extends Activity {
 	boolean mIsHWAlocated = false;
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 
 	@Override
@@ -61,8 +58,7 @@ public class RegisterActivity extends Activity {
 		setContentView(R.layout.activity_register);
 
 		mApplication = ((MyApplication) getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
-		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
+		mOBSClient = mApplication.getOBSClient(this);
 
 		et_MobileNumber = (EditText) findViewById(R.id.a_reg_et_mobile_no);
 		et_FirstName = (EditText) findViewById(R.id.a_reg_et_first_name);
@@ -90,7 +86,6 @@ public class RegisterActivity extends Activity {
 
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
-				mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();
@@ -187,11 +182,6 @@ public class RegisterActivity extends Activity {
 							mProgressDialog.dismiss();
 							mProgressDialog = null;
 						}
-						if (null != mExecutorService)
-							if (!mExecutorService.isShutdown()) {
-								mExecutorService.shutdownNow();
-								mExecutorService = null;
-							}
 						mIsReqCanceled = true;
 						RegisterActivity.this.finish();
 					}

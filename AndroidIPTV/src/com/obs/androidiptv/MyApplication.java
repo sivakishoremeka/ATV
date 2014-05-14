@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -17,7 +18,6 @@ import org.json.JSONObject;
 
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
-import retrofit.android.MainThreadExecutor;
 import retrofit.client.Response;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -25,7 +25,6 @@ import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.sqlite.SQLiteDatabase;
@@ -61,9 +60,9 @@ public class MyApplication extends Application {
 	private float balance = 0;
 	public static String androidId;
 	private String clientId = null;
-	public boolean isBalCheckReq = false;
+	public boolean isBalCheckReq = true;
 	public boolean D = true; // need to delete this variable
-	public Player player = Player.NATIVE_PLAYER;
+	public static Player player = Player.NATIVE_PLAYER;
 
 	@Override
 	public void onCreate() {
@@ -105,27 +104,6 @@ public class MyApplication extends Application {
 				.getContentResolver(), Settings.Secure.ANDROID_ID);
 	}
 
-	public void startPlayer(Intent intent, Context context) {
-
-		switch (player) {
-		case NATIVE_PLAYER:
-			intent.setClass(context, VideoPlayerActivity.class);
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent);
-			break;
-		case MXPLAYER:
-			intent.setClass(context, MXPlayerActivity.class);
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent);
-			break;
-		default:
-			intent.setClass(context, VideoPlayerActivity.class);
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent);
-			break;
-		}
-	}
-
 	public boolean isNetworkAvailable() {
 		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo wifiNetwork = connectivityManager
@@ -145,32 +123,33 @@ public class MyApplication extends Application {
 		return false;
 	}
 
-	public OBSClient getOBSClient(Context context,
-			ExecutorService mExecutorService) {
+	public OBSClient getOBSClient(Context context) {
 		RestAdapter restAdapter = new RestAdapter.Builder()
 				.setEndpoint(API_URL)
 				.setLogLevel(RestAdapter.LogLevel.FULL)
-				.setExecutors(mExecutorService, new MainThreadExecutor())
 				.setClient(
 						new com.obs.retrofit.CustomUrlConnectionClient(
 								tenentId, basicAuth, contentType)).build();
 		return restAdapter.create(OBSClient.class);
 	}
-	
+
 	public void PullnInsertServices() {
-		ExecutorService mExecutorService = Executors.newCachedThreadPool();
-		OBSClient mOBSClient = getOBSClient(this, mExecutorService);
+		OBSClient mOBSClient = getOBSClient(this);
 		prefs = getPrefs();
 		editor = getEditor();
 		DBHelper openHelper = new DBHelper(this);
 		SQLiteDatabase db = openHelper.getWritableDatabase();
+		db.delete(DBHelper.TABLE_SERVICES, null, null);
 		ArrayList<ServiceDatum> serviceList = mOBSClient
 				.getPlanServicesSync(this.getClientId());
+		Collections.sort(serviceList);
 		if (serviceList != null && serviceList.size() > 0) {
 			/** saving channel details to preferences */
 			Date date = new Date();
 			String formattedDate = this.df.format(date);
-			editor.putString(getResources().getString(R.string.channels_updated_at), formattedDate);
+			editor.putString(
+					getResources().getString(R.string.channels_updated_at),
+					formattedDate);
 			editor.commit();
 			// Begin the transaction
 			db.beginTransaction();
@@ -184,11 +163,11 @@ public class MyApplication extends Application {
 							service.getClientId());
 					values.put(DBHelper.SERVICE_KEY_CHANNEL_NAME,
 							service.getChannelName());
-					values.put(DBHelper.SERVICE_KEY_IMAGE,
-							service.getImage());
+					values.put(DBHelper.SERVICE_KEY_CHANNEL_DESC,
+							service.getChannelDescription());
+					values.put(DBHelper.SERVICE_KEY_IMAGE, service.getImage());
 					values.put(DBHelper.SERVICE_KEY_URL, service.getUrl());
-					db.insert(DBHelper.TABLE_SERVICES, nullColumnHack,
-							values);
+					db.insert(DBHelper.TABLE_SERVICES, nullColumnHack, values);
 				}
 				// Transaction is successful and all the records have been
 				// inserted
@@ -198,8 +177,9 @@ public class MyApplication extends Application {
 			} finally {
 				// End the transaction
 				db.endTransaction();
-			}
 
+			}
+			db.close();
 		}
 	}
 
@@ -272,6 +252,7 @@ public class MyApplication extends Application {
 
 	public void setBalance(float balance) {
 		getEditor().putFloat("BALANCE", -balance);
+		getEditor().commit();
 		this.balance = -balance;
 	}
 
@@ -284,6 +265,7 @@ public class MyApplication extends Application {
 
 	public void setClientId(String clientId) {
 		getEditor().putString("CLIENTID", clientId);
+		getEditor().commit();
 		this.clientId = clientId;
 	}
 

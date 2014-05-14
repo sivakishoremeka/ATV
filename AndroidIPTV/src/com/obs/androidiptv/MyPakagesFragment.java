@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.json.JSONArray;
@@ -51,7 +50,6 @@ public class MyPakagesFragment extends Fragment {
 	private ProgressDialog mProgressDialog;
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 	Activity mActivity;
 	View mRootView;
@@ -65,11 +63,10 @@ public class MyPakagesFragment extends Fragment {
 
 		mActivity = getActivity();
 		mApplication = ((MyApplication) mActivity.getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
 		RestAdapter restAdapter = new RestAdapter.Builder()
 				.setEndpoint(mApplication.API_URL)
 				.setLogLevel(RestAdapter.LogLevel.FULL)
-				.setExecutors(mExecutorService, new MainThreadExecutor())
+				.setExecutors(Executors.newCachedThreadPool(), new MainThreadExecutor())
 				.setConverter(new JSONConverter())
 				.setClient(
 						new com.obs.retrofit.CustomUrlConnectionClient(
@@ -108,9 +105,6 @@ public class MyPakagesFragment extends Fragment {
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
 				mIsReqCanceled = true;
-				if (null != mExecutorService)
-					if (!mExecutorService.isShutdown())
-						mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();

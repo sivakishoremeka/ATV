@@ -6,8 +6,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -81,7 +79,6 @@ public class ChannelsActivity extends Activity implements
 
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 
 	boolean mIsLiveDataReq = false;
@@ -99,7 +96,7 @@ public class ChannelsActivity extends Activity implements
 	ServiceDatum mService;
 
 	private SimpleCursorAdapter adapter;
-	private int mSelectedIdx =-1;
+	private int mSelectedIdx = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -123,8 +120,7 @@ public class ChannelsActivity extends Activity implements
 		}
 
 		mApplication = ((MyApplication) getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
-		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
+		mOBSClient = mApplication.getOBSClient(this);
 		mPrefs = mApplication.getPrefs();
 		mIsBalCheckReq = mApplication.isBalCheckReq;
 
@@ -138,7 +134,7 @@ public class ChannelsActivity extends Activity implements
 		videoHolder.addCallback(this);
 		player = new MediaPlayer();
 
-		String[] from = new String[] { DBHelper.SERVICE_KEY_CHANNEL_NAME };
+		String[] from = new String[] { DBHelper.SERVICE_KEY_CHANNEL_DESC };
 		int[] to = new int[] { R.id.ch_lv_item_tv_ch_Name };
 
 		adapter = new SimpleCursorAdapter(this, R.layout.ch_list_item, null,
@@ -147,8 +143,8 @@ public class ChannelsActivity extends Activity implements
 		mListView.setOnItemClickListener(this);
 		mListView.setOnItemLongClickListener(this);
 		mListView.setOnItemSelectedListener(this);
-		//mListView.setSelected(true);
-		//mListView.setSelection(0);
+		// mListView.setSelected(true);
+		// mListView.setSelection(0);
 		// initiallizeUI();
 	}
 
@@ -220,10 +216,11 @@ public class ChannelsActivity extends Activity implements
 			public void onCancel(DialogInterface arg0) {
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
+				mProgressDialog = null;
 				mIsReqCanceled = true;
-				if (null != mExecutorService)
-					if (!mExecutorService.isShutdown())
-						mExecutorService.shutdownNow();
+				// if (null != mExecutorService)
+				// if (!mExecutorService.isShutdown())
+				// mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();
@@ -255,6 +252,7 @@ public class ChannelsActivity extends Activity implements
 					}
 				}
 			}
+			mIsReqCanceled = false;
 		}
 
 		@Override
@@ -286,6 +284,7 @@ public class ChannelsActivity extends Activity implements
 							Toast.LENGTH_LONG).show();
 				}
 			}
+			mIsReqCanceled = false;
 		}
 	};
 
@@ -550,7 +549,7 @@ public class ChannelsActivity extends Activity implements
 	@Override
 	public void onPrepared(MediaPlayer mp) {
 		// Log.d("ChannelsActivity","onPrepared");
-		//mListView.setSelection(mSelectedIdx);
+		// mListView.setSelection(mSelectedIdx);
 		// mListView.getSelectedItem();
 		mp.start();
 	}
@@ -580,14 +579,16 @@ public class ChannelsActivity extends Activity implements
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		// Log.d("ChannelsActivity","surfaceCreated");
 		initiallizePlayer();
 		player.setDisplay(holder);
-		if (mSelectedIdx==-1) {
+		if (mSelectedIdx == -1 && mListView.getSelectedItemPosition()==-1) {
 			initiallizeUI();
-		} else{
+		} else {
+			if(mSelectedIdx==-1){
+				mSelectedIdx = mListView.getSelectedItemPosition();
+			}
 			OnChannelSelection(getServiceFromCursor(((Cursor) mListView
-					.getAdapter().getItem(mListView.getSelectedItemPosition()))));
+					.getAdapter().getItem(mSelectedIdx))));
 		}
 	}
 
@@ -606,6 +607,7 @@ public class ChannelsActivity extends Activity implements
 		}
 		super.onPause();
 	}
+
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		// Log.d("ChannelsActivity","surfaceDestroyed");
@@ -616,6 +618,7 @@ public class ChannelsActivity extends Activity implements
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
 		// Log.d("ChannelsActivity","onItemClick");
+			mSelectedIdx = position;
 		if (player != null) {
 			if (player.isPlaying())
 				player.stop();
@@ -630,21 +633,34 @@ public class ChannelsActivity extends Activity implements
 		Intent intent = new Intent();
 		intent.putExtra("VIDEOTYPE", "LIVETV");
 		intent.putExtra(CHANNEL_URL, service.getUrl());
-		intent.putExtra("CHANNELID", service.getClientId());
+		intent.putExtra("CHANNELID", service.getServiceId());
 		intent.putExtra("REQTYPE", mReqType);
 		intent.putExtra("SELECTION", mSelection);
 		intent.putExtra("SEARCHSTRING", mSearchString);
-		mApplication.startPlayer(intent, ChannelsActivity.this);
+		switch (MyApplication.player) {
+		case NATIVE_PLAYER:
+			intent.setClass(getApplicationContext(), VideoPlayerActivity.class);
+			startActivity(intent);
+			break;
+		case MXPLAYER:
+			intent.setClass(getApplicationContext(), MXPlayerActivity.class);
+			startActivity(intent);
+			break;
+		default:
+			intent.setClass(getApplicationContext(), VideoPlayerActivity.class);
+			startActivity(intent);
+			break;
+		}
 	}
 
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
 		// Log.d("ChannelsActivity","onItemSelected");
-		if(position!=mSelectedIdx){
+		if (position != mSelectedIdx) {
 			mSelectedIdx = position;
-		OnChannelSelection(getServiceFromCursor(((Cursor) parent.getAdapter()
-				.getItem(position))));
+			OnChannelSelection(getServiceFromCursor(((Cursor) parent
+					.getAdapter().getItem(position))));
 		}
 	}
 
@@ -669,6 +685,7 @@ public class ChannelsActivity extends Activity implements
 			public void onCancel(DialogInterface arg0) {
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
+				mProgressDialog=null;
 			}
 		});
 		mProgressDialog.show();
@@ -694,12 +711,13 @@ public class ChannelsActivity extends Activity implements
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
 		}
+		if(null!=cursor && cursor.getCount()!=0){
 		adapter.swapCursor(cursor);
 		mListView.setSelection(0);
 		mListView.setSelected(true);
 		cursor.moveToFirst();
 		OnChannelSelection(getServiceFromCursor(cursor));
-		
+		}
 	}
 
 	@Override
@@ -718,6 +736,7 @@ public class ChannelsActivity extends Activity implements
 		values.put(DBHelper.SERVICE_KEY_SERVICE_ID, data.getServiceId());
 		values.put(DBHelper.SERVICE_KEY_CLIENT_ID, data.getClientId());
 		values.put(DBHelper.SERVICE_KEY_CHANNEL_NAME, data.getChannelName());
+		values.put(DBHelper.SERVICE_KEY_CHANNEL_DESC,data.getChannelDescription());
 		values.put(DBHelper.SERVICE_KEY_IMAGE, data.getImage());
 		values.put(DBHelper.SERVICE_KEY_URL, data.getUrl());
 		values.put(DBHelper.SERVICE_KEY_FAVOURITE, 1);
@@ -726,9 +745,8 @@ public class ChannelsActivity extends Activity implements
 				values,
 				DBHelper.SERVICE_KEY_SERVICE_ID + "="
 						+ data.getServiceId().toString(), null);
-
 		Toast.makeText(this,
-				"Channel " + data.getChannelName() + " is added to Favourites",
+				"Channel " + data.getChannelDescription() + " is added to Favourites",
 				Toast.LENGTH_LONG).show();
 		return true;
 	}
@@ -738,8 +756,9 @@ public class ChannelsActivity extends Activity implements
 		service.setServiceId(c.getInt(1));
 		service.setClientId(c.getInt(2));
 		service.setChannelName(c.getString(3));
-		service.setImage(c.getString(4));
-		service.setUrl(c.getString(5));
+		service.setChannelDescription(c.getString(4));
+		service.setImage(c.getString(5));
+		service.setUrl(c.getString(6));
 		return service;
 	}
 }

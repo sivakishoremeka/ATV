@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.json.JSONArray;
@@ -64,7 +63,6 @@ public class NewPackageFragment extends Fragment {
 	static String CLIENT_PACKAGE_DATA;
 	private ProgressDialog mProgressDialog;
 	MyApplication mApplication = null;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 	boolean mIsPlanSubscribed = false;
 	List<PlanDatum> mPlans;
@@ -160,23 +158,18 @@ public class NewPackageFragment extends Fragment {
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
 				mIsReqCanceled = true;
-				if (null != mExecutorService)
-					if (!mExecutorService.isShutdown())
-						mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();
 		if (PREPAID_PLANS.equalsIgnoreCase(planType)) {
-			mExecutorService = Executors.newCachedThreadPool();
-			OBSClient mOBSClient = mApplication.getOBSClient(mActivity,
-					mExecutorService);
+			OBSClient mOBSClient = mApplication.getOBSClient(mActivity);
 			mOBSClient.getPrepaidPlans(getPlansCallBack);
 		} else if (MY_PLANS.equalsIgnoreCase(planType)) {
-			mExecutorService = Executors.newCachedThreadPool();
 			RestAdapter restAdapter = new RestAdapter.Builder()
 					.setEndpoint(mApplication.API_URL)
 					.setLogLevel(RestAdapter.LogLevel.FULL)
-					.setExecutors(mExecutorService, new MainThreadExecutor())
+					.setExecutors(Executors.newCachedThreadPool(),
+							new MainThreadExecutor())
 					.setConverter(new JSONConverter())
 					.setClient(
 							new com.obs.retrofit.CustomUrlConnectionClient(
@@ -485,13 +478,12 @@ public class NewPackageFragment extends Fragment {
 	}
 
 	public void onFragKeydown(int keyCode, KeyEvent event) {
-		/*if (mProgressDialog != null)
-			if (mProgressDialog.isShowing()) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}*/
-		//mIsReqCanceled = true;
-		//mExecutorService.shutdownNow();
+		/*
+		 * if (mProgressDialog != null) if (mProgressDialog.isShowing()) {
+		 * mProgressDialog.dismiss(); mProgressDialog = null; }
+		 */
+		// mIsReqCanceled = true;
+		// mExecutorService.shutdownNow();
 	}
 
 }
