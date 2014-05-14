@@ -8,7 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:textSize="15sp"
+        android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@color/white"
         android:padding="8dp" />
@@ -20,7 +20,7 @@
         android:layout_toRightOf="@+id/a_ch_epg_details_list_row_tv_start_time"
         android:ellipsize="end"
         android:padding="8dp"
-        android:textSize="15sp"
+        android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@color/white"
         android:singleLine="True" />

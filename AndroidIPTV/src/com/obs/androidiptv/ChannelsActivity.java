@@ -160,6 +160,13 @@ public class ChannelsActivity extends Activity implements
 			mSearchString = intent.getStringExtra(SearchManager.QUERY);
 			mSelection = DBHelper.SERVICE_KEY_CHANNEL_NAME + " LIKE ?";
 			mSelectionArgs = new String[] { "%" + mSearchString + "%" };
+
+			// initializing player
+			initiallizePlayer();
+			SurfaceHolder videoHolder = videoSurface.getHolder();
+			videoHolder.addCallback(this);
+			player.setDisplay(videoHolder);
+
 			CheckBalancenGetData();
 		}
 	}
@@ -314,6 +321,7 @@ public class ChannelsActivity extends Activity implements
 			break;
 		case R.id.action_favourite:
 			mReqType = ServiceProvider.SERVICES;
+			mSearchString = null;
 			mSelection = DBHelper.SERVICE_KEY_FAVOURITE + "=1";
 			mSelectionArgs = null;
 			CheckBalancenGetData();
@@ -441,10 +449,10 @@ public class ChannelsActivity extends Activity implements
 
 					/** updating fragment **/
 					updateEPGDetails(ProgGuideList);
-				}/*
-				 * else { mErrDialog.setMessage("EPG Data is not Available");
-				 * mErrDialog.show(); }
-				 */
+				} else {
+					updateEPGDetails(null);
+				}
+
 			}
 		}
 	};
@@ -483,6 +491,9 @@ public class ChannelsActivity extends Activity implements
 					container.addView(child);
 				}
 			}
+		} else {
+			LinearLayout container = (LinearLayout) findViewById(R.id.a_Epg_container_ll);
+			container.removeAllViews();
 		}
 
 	}
@@ -581,10 +592,10 @@ public class ChannelsActivity extends Activity implements
 	public void surfaceCreated(SurfaceHolder holder) {
 		initiallizePlayer();
 		player.setDisplay(holder);
-		if (mSelectedIdx == -1 && mListView.getSelectedItemPosition()==-1) {
+		if (mSelectedIdx == -1 && mListView.getSelectedItemPosition() == -1) {
 			initiallizeUI();
 		} else {
-			if(mSelectedIdx==-1){
+			if (mSelectedIdx == -1) {
 				mSelectedIdx = mListView.getSelectedItemPosition();
 			}
 			OnChannelSelection(getServiceFromCursor(((Cursor) mListView
@@ -618,7 +629,7 @@ public class ChannelsActivity extends Activity implements
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
 		// Log.d("ChannelsActivity","onItemClick");
-			mSelectedIdx = position;
+		mSelectedIdx = position;
 		if (player != null) {
 			if (player.isPlaying())
 				player.stop();
@@ -685,7 +696,7 @@ public class ChannelsActivity extends Activity implements
 			public void onCancel(DialogInterface arg0) {
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
-				mProgressDialog=null;
+				mProgressDialog = null;
 			}
 		});
 		mProgressDialog.show();
@@ -711,12 +722,15 @@ public class ChannelsActivity extends Activity implements
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
 		}
-		if(null!=cursor && cursor.getCount()!=0){
-		adapter.swapCursor(cursor);
-		mListView.setSelection(0);
-		mListView.setSelected(true);
-		cursor.moveToFirst();
-		OnChannelSelection(getServiceFromCursor(cursor));
+		if (null != cursor && cursor.getCount() != 0) {
+			adapter.swapCursor(cursor);
+			mListView.setSelection(0);
+			mListView.setSelected(true);
+			cursor.moveToFirst();
+			OnChannelSelection(getServiceFromCursor(cursor));
+		} else {
+			adapter.swapCursor(null);
+			updateEPGDetails(null);
 		}
 	}
 
@@ -736,7 +750,8 @@ public class ChannelsActivity extends Activity implements
 		values.put(DBHelper.SERVICE_KEY_SERVICE_ID, data.getServiceId());
 		values.put(DBHelper.SERVICE_KEY_CLIENT_ID, data.getClientId());
 		values.put(DBHelper.SERVICE_KEY_CHANNEL_NAME, data.getChannelName());
-		values.put(DBHelper.SERVICE_KEY_CHANNEL_DESC,data.getChannelDescription());
+		values.put(DBHelper.SERVICE_KEY_CHANNEL_DESC,
+				data.getChannelDescription());
 		values.put(DBHelper.SERVICE_KEY_IMAGE, data.getImage());
 		values.put(DBHelper.SERVICE_KEY_URL, data.getUrl());
 		values.put(DBHelper.SERVICE_KEY_FAVOURITE, 1);
@@ -745,9 +760,10 @@ public class ChannelsActivity extends Activity implements
 				values,
 				DBHelper.SERVICE_KEY_SERVICE_ID + "="
 						+ data.getServiceId().toString(), null);
-		Toast.makeText(this,
-				"Channel " + data.getChannelDescription() + " is added to Favourites",
-				Toast.LENGTH_LONG).show();
+		Toast.makeText(
+				this,
+				"Channel " + data.getChannelDescription()
+						+ " is added to Favourites", Toast.LENGTH_LONG).show();
 		return true;
 	}
 
