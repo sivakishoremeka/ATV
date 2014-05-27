@@ -4,10 +4,9 @@
     <color name="white">#FFFFFF</color>
      <color name="pink">#DF2D3A</color>
     <color name="dark_pink">#C12431</color>
-    <color name="form_header">#3086DD</color>
-    <color name="dark_blue">#0D479B</color>
-    <color name="default_blue">#3086DD</color>
-    <color name="selected_blue">#A5C7F1</color> 
-    <color name="selected_dark_blue">#105BC4</color> 
+    <color name="dark_blue">#042D5F</color>
+    <color name="default_blue">#144380</color>
+     <color name="selected_blue">#436DA6</color>
+    <color name="f_lv_child_color_def">#A1C5F0</color>
        
 </resources>

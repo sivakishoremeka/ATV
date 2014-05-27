@@ -116,6 +116,8 @@ public class AuthenticationAcitivity extends Activity {
 					/** on success save client id and check for active plans */
 					mApplication
 							.setClientId(Long.toString(device.getClientId()));
+					mApplication.setBalance(device.getBalanceAmount());
+					mApplication.setBalanceCheck(device.isBalanceCheck());
 					mOBSClient.getActivePlans(mApplication.getClientId(),
 							activePlansCallBack);
 				} else {

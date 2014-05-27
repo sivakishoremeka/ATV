@@ -5,11 +5,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
@@ -27,6 +26,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
@@ -60,7 +60,7 @@ public class MyApplication extends Application {
 	private float balance = 0;
 	public static String androidId;
 	private String clientId = null;
-	public boolean isBalCheckReq = true;
+	public boolean balanceCheck = true;
 	public boolean D = true; // need to delete this variable
 	public static Player player = Player.NATIVE_PLAYER;
 
@@ -133,12 +133,10 @@ public class MyApplication extends Application {
 		return restAdapter.create(OBSClient.class);
 	}
 
-	public void PullnInsertServices() {
+	public void PullnInsertServices(SQLiteDatabase db) {
 		OBSClient mOBSClient = getOBSClient(this);
 		prefs = getPrefs();
 		editor = getEditor();
-		DBHelper openHelper = new DBHelper(this);
-		SQLiteDatabase db = openHelper.getWritableDatabase();
 		db.delete(DBHelper.TABLE_SERVICES, null, null);
 		ArrayList<ServiceDatum> serviceList = mOBSClient
 				.getPlanServicesSync(this.getClientId());
@@ -157,16 +155,15 @@ public class MyApplication extends Application {
 				for (ServiceDatum service : serviceList) {
 					String nullColumnHack = null;
 					ContentValues values = new ContentValues();
-					values.put(DBHelper.SERVICE_KEY_SERVICE_ID,
-							service.getServiceId());
-					values.put(DBHelper.SERVICE_KEY_CLIENT_ID,
-							service.getClientId());
-					values.put(DBHelper.SERVICE_KEY_CHANNEL_NAME,
-							service.getChannelName());
-					values.put(DBHelper.SERVICE_KEY_CHANNEL_DESC,
+					values.put(DBHelper.SERVICE_ID, service.getServiceId());
+					values.put(DBHelper.CLIENT_ID, service.getClientId());
+					values.put(DBHelper.CHANNEL_NAME, service.getChannelName());
+					values.put(DBHelper.CHANNEL_DESC,
 							service.getChannelDescription());
-					values.put(DBHelper.SERVICE_KEY_IMAGE, service.getImage());
-					values.put(DBHelper.SERVICE_KEY_URL, service.getUrl());
+					values.put(DBHelper.CATEGORY, service.getCategory());
+					values.put(DBHelper.SUB_CATEGORY, service.getSubCategory());
+					values.put(DBHelper.IMAGE, service.getImage());
+					values.put(DBHelper.URL, service.getUrl());
 					db.insert(DBHelper.TABLE_SERVICES, nullColumnHack, values);
 				}
 				// Transaction is successful and all the records have been
@@ -179,7 +176,74 @@ public class MyApplication extends Application {
 				db.endTransaction();
 
 			}
-			db.close();
+		}
+	}
+
+	public void InsertCategories(SQLiteDatabase db) {
+		db.delete(DBHelper.TABLE_SERVICE_CATEGORIES, null, null);
+		Cursor cursor = db.rawQuery("select DISTINCT " + DBHelper.CATEGORY
+				+ " from " + DBHelper.TABLE_SERVICES +" where TRIM( "+DBHelper.CATEGORY+" )!='' AND "
+						+DBHelper.CATEGORY+" is NOT NULL " , null);//+  " ORDER BY "+ DBHelper.CATEGORY + " ASC", null);
+		if (cursor.getCount() > 0) {
+			Date date = new Date();
+			String formattedDate = this.df.format(date);
+			editor.putString(
+					getResources().getString(
+							R.string.channels_category_updated_at),
+					formattedDate);
+			editor.commit();
+			cursor.moveToFirst();
+			int category_idx = cursor.getColumnIndexOrThrow(DBHelper.CATEGORY);
+			try {
+				db.beginTransaction();
+				do {
+					String category_name = cursor.getString(category_idx);
+					ContentValues values = new ContentValues();
+					values.put(DBHelper.CATEGORY, category_name);
+					db.insert(DBHelper.TABLE_SERVICE_CATEGORIES, null, values);
+				} while (cursor.moveToNext());
+				db.setTransactionSuccessful();
+			} catch (Exception e) {
+				Log.e("Error in transaction", e.toString());
+			} finally {
+				// End the transaction
+				db.endTransaction();
+			}
+		}
+	}
+	//select * from service_categories where trim(category) != '' and category is not null
+	public void InsertSubCategories(SQLiteDatabase db) {
+		db.delete(DBHelper.TABLE_SERVICE_SUB_CATEGORIES, null, null);
+		Cursor cursor = db.rawQuery("select DISTINCT " + DBHelper.SUB_CATEGORY
+				+ " from " + DBHelper.TABLE_SERVICES +" where TRIM( "+DBHelper.SUB_CATEGORY+" )!='' AND "
+				+DBHelper.SUB_CATEGORY+" is NOT NULL ", null);// + " ORDER BY "+ DBHelper.SUB_CATEGORY + " ASC", null);
+		if (cursor.getCount() > 0) {
+			Date date = new Date();
+			String formattedDate = this.df.format(date);
+			editor.putString(
+					getResources().getString(
+							R.string.channels_sub_category_updated_at),
+					formattedDate);
+			editor.commit();
+			cursor.moveToFirst();
+			int category_idx = cursor
+					.getColumnIndexOrThrow(DBHelper.SUB_CATEGORY);
+			try {
+				db.beginTransaction();
+				do {
+					String category_name = cursor.getString(category_idx);
+					ContentValues values = new ContentValues();
+					values.put(DBHelper.SUB_CATEGORY, category_name);
+					db.insert(DBHelper.TABLE_SERVICE_SUB_CATEGORIES, null,
+							values);
+				} while (cursor.moveToNext());
+				db.setTransactionSuccessful();
+			} catch (Exception e) {
+				Log.e("Error in transaction", e.toString());
+			} finally {
+				// End the transaction
+				db.endTransaction();
+			}
 		}
 	}
 
@@ -201,6 +265,10 @@ public class MyApplication extends Application {
 
 	public enum Player {
 		NATIVE_PLAYER, MXPLAYER
+	}
+
+	public enum SortBy {
+		DEFAULT, CATEGORY, LANGUAGE,
 	}
 
 	public String getResponseOnSuccess(Response response) {
@@ -251,9 +319,13 @@ public class MyApplication extends Application {
 	}
 
 	public void setBalance(float balance) {
-		getEditor().putFloat("BALANCE", -balance);
+		getEditor().putFloat("BALANCE", balance);
+		Calendar c = Calendar.getInstance();
+		String date = df.format(c.getTime()); // dt is now the new date
+		getEditor()
+				.putString(this.getString(R.string.balance_updated_at), date);
 		getEditor().commit();
-		this.balance = -balance;
+		this.balance = balance;
 	}
 
 	public String getClientId() {
@@ -279,5 +351,13 @@ public class MyApplication extends Application {
 		if (editor == null)
 			editor = prefs.edit();
 		return editor;
+	}
+
+	public boolean isBalanceCheck() {
+		return balanceCheck;
+	}
+
+	public void setBalanceCheck(boolean balanceCheck) {
+		this.balanceCheck = balanceCheck;
 	}
 }

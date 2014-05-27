@@ -148,6 +148,7 @@ public class MyProfileFragment extends Fragment {
 					editor.putString(CLIENT_DATA, new Gson().toJson(client));
 					editor.commit();
 					mApplication.setBalance(client.getBalanceAmount());
+					mApplication.setBalanceCheck(client.isBalanceCheck());
 					updateProfile(client);
 				}
 			}
@@ -272,6 +273,7 @@ public class MyProfileFragment extends Fragment {
 			client.setPhone(jsonObj.getString("phone"));
 			client.setCountry(jsonObj.getString("country"));
 			client.setBalanceAmount((float)jsonObj.getDouble("balanceAmount"));
+			client.setBalanceCheck(jsonObj.getBoolean("balanceCheck"));
 			client.setHwSerialNumber(MyApplication.androidId);
 
 		} catch (JSONException e) {

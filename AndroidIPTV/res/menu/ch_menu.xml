@@ -13,8 +13,7 @@
         android:orderInCategory="4"
         android:showAsAction="always"
         android:title="@string/action_refresh"/>
-
-     <item
+    <item
         android:id="@+id/action_channels"
         android:layout_width="50dp"
         android:layout_height="120dp"
@@ -22,7 +21,6 @@
         android:orderInCategory="2"
         android:showAsAction="always"
         android:title="@string/action_channels"/>
-     
     <item
         android:id="@+id/action_favourite"
         android:layout_width="50dp"
@@ -31,4 +29,29 @@
         android:orderInCategory="1"
         android:showAsAction="always"
         android:title="@string/action_favourites"/>
+    <item
+        android:id="@+id/action_sort_by"
+        android:layout_width="50dp"
+        android:layout_height="120dp"
+        android:icon="@drawable/ic_action_sortby_icon"
+        android:orderInCategory="5"
+        android:showAsAction="always"
+        android:title="@string/action_sort_by">
+        <!-- "file" submenu -->
+        <menu>
+            <item
+                android:id="@+id/action_sort_by_categ"
+                android:orderInCategory="1"
+                android:title="@string/action_sort_by_categ"/>
+            <item
+                android:id="@+id/action_sort_by_lang"
+                android:orderInCategory="2"
+                android:title="@string/action_sort_by_lang"/>
+            <item
+                android:id="@+id/action_sort_by_default"
+                android:orderInCategory="3"
+                android:title="@string/action_sort_by_default"/>
+        </menu>
+    </item>
+
 </menu>

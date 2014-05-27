@@ -1,0 +1,24 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/selector_f_ch_lv_group_item"
+    android:orientation="horizontal"
+    android:padding="3dp" >
+
+    <TextView
+        android:id="@+id/category_name"
+        android:layout_width="0dp"
+        android:layout_weight="85"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:text="channel name"
+        android:textAppearance="@android:style/TextAppearance"
+        android:textColor="@drawable/selector_a_ch_lv_item_ch_name_text"
+        android:textSize="23sp" />
+       <ImageView
+        android:id="@+id/f_ch_lv_group_arrow"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="15"
+        android:src="@drawable/ic_navigation_expand" />
+</LinearLayout>

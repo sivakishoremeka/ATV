@@ -7,6 +7,7 @@ public class DeviceDatum {
 	private String clientType;
 	private long clientTypeId;
 	private float balanceAmount;
+	private boolean balanceCheck;
 
 	public long getDeviceId() {
 		return deviceId;
@@ -45,5 +46,13 @@ public class DeviceDatum {
 
 	public void setBalanceAmount(float balanceAmount) {
 		this.balanceAmount = balanceAmount;
+	}
+
+	public boolean isBalanceCheck() {
+		return balanceCheck;
+	}
+
+	public void setBalanceCheck(boolean balanceCheck) {
+		this.balanceCheck = balanceCheck;
 	}
 }

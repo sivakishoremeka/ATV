@@ -18,14 +18,13 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import android.util.Log;
-
 import retrofit.client.Client;
 import retrofit.client.Header;
 import retrofit.client.Request;
 import retrofit.client.Response;
 import retrofit.mime.TypedInput;
 import retrofit.mime.TypedOutput;
+import android.util.Log;
 
 public class CustomUrlConnectionClient implements Client {
 	private static final int CHUNK_SIZE = 4096;

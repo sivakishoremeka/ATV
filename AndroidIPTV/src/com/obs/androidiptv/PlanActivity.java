@@ -243,7 +243,7 @@ public class PlanActivity extends Activity {
 				map.put("contractPeriod", plan.getContractId().toString());
 				map.put("isNewplan", "true");
 				map.put("start_date", formattedDate);
-				map.put("billAlign", "true");
+				map.put("billAlign", "false");
 				map.put("paytermCode", plan.getServices().get(0)
 						.getChargeCode());
 

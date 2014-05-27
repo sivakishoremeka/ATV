@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.database.Cursor;
@@ -24,6 +25,7 @@ import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.obs.androidiptv.MyApplication.SortBy;
 import com.obs.data.ServiceDatum;
 import com.obs.database.DBHelper;
 import com.obs.database.ServiceProvider;
@@ -43,6 +45,11 @@ public class VideoPlayerActivity extends Activity implements
 	private boolean isLiveController;
 	private ArrayList<ServiceDatum> mserviceList = new ArrayList<ServiceDatum>();
 	private String mVideoType = null;
+	private String mIsRefresh = "false";
+	private int mSortBy = 0;
+	private String mSearchString;
+	private String mSelection;
+	private String[] mSelectionArgs;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +78,7 @@ public class VideoPlayerActivity extends Activity implements
 			isLiveController = true;
 			VideoControllerView.sDefaultTimeout = 3000;
 			mChannelId = getIntent().getIntExtra("CHANNELID", -1);
-			int reqType = getIntent().getIntExtra("REQTYPE", 1);
-			prepareChannelsList(reqType);
+			prepareChannelsList();
 			if (mChannelId != -1) {
 				mChannelIndex = getChannelIndexByChannelId(mChannelId);
 				// Log.d("mChannelIndex", "" + mChannelIndex);
@@ -88,8 +94,7 @@ public class VideoPlayerActivity extends Activity implements
 			player.setVolume(1.0f, 1.0f);
 			player.setDataSource(this,
 					Uri.parse(getIntent().getStringExtra("URL")));
-			// Log.d("VideoPlayerActivity", "VideoURL:"+
-			// getIntent().getStringExtra("URL"));
+
 			player.setOnPreparedListener(this);
 			player.setOnErrorListener(this);
 		} catch (IllegalArgumentException e) {
@@ -109,25 +114,29 @@ public class VideoPlayerActivity extends Activity implements
 		 */
 	}
 
-	private void prepareChannelsList(int reqType) {
+	private void prepareChannelsList() {
 		Cursor cursor = null;
-		if (reqType == ServiceProvider.SERVICES) {
-			String selection = null;
-			String[] selectionArgs = null;
-			if (null != getIntent()) {
-				selection = getIntent().getStringExtra("SELECTION");
-				String srchStr = getIntent().getStringExtra("SEARCHSTRING");
-				if (null != srchStr) {
-					selectionArgs = new String[] { "%" + srchStr + "%" };
-				}
-				cursor = getContentResolver().query(
-						ServiceProvider.SERVICES_URI, null, selection,
-						selectionArgs, null);
-			}
-		} else if (reqType == ServiceProvider.SERVICES_ON_REFRESH) {
+		mSelection = getIntent().getStringExtra("SELECTION");
+		mSearchString = getIntent().getStringExtra("SEARCHSTRING");
+		mSortBy = getIntent().getIntExtra("SORTBY", 0);
+		if (mSearchString != null)
+			mSelectionArgs = new String[] { "%" + mSearchString + "%" };
+		else
+			mSelectionArgs = null;
+
+		if (mSortBy == SortBy.DEFAULT.ordinal()) {
 			cursor = getContentResolver().query(ServiceProvider.SERVICES_URI,
-					null, null, null, null);
+					null, mSelection, mSelectionArgs, null);
+		} else if (mSortBy == SortBy.CATEGORY.ordinal()) {
+			cursor = getContentResolver().query(
+					ServiceProvider.SERVICE_CATEGORIES_URI, null, null, null,
+					null);
+		} else if (mSortBy == SortBy.LANGUAGE.ordinal()) {
+			cursor = getContentResolver().query(
+					ServiceProvider.SERVICE_SUB_CATEGORIES_URI, null, null,
+					null, null);
 		}
+
 		if (cursor != null)
 			loadServicesfromCursor(cursor);
 	}
@@ -395,11 +404,11 @@ public class VideoPlayerActivity extends Activity implements
 
 				if (mserviceList != null && mChannelId != -1) {
 					mChannelIndex = getChannelIndexByChannelId(mChannelId);
-					if (keyCode == 19) {
+					if (keyCode == 20) {
 						mChannelIndex++;
 						if (mChannelIndex == mserviceList.size())
 							mChannelIndex = 0;
-					} else if (keyCode == 20) {
+					} else if (keyCode == 19) {
 						mChannelIndex--;
 						if (mChannelIndex < 0)
 							mChannelIndex = mserviceList.size() - 1;
@@ -410,9 +419,13 @@ public class VideoPlayerActivity extends Activity implements
 				}
 				return true;
 			}
-		} else if (keyCode == 23) {
-			View focusedView = getWindow().getCurrentFocus();
-			focusedView.performClick();
+		} else if (keyCode ==23) {  //23
+			
+			if(controller.isShowing()){
+				controller.hide();
+			}else{
+				controller.show();
+			}
 		} else
 			super.onKeyDown(keyCode, event);
 		return true;
@@ -464,36 +477,151 @@ public class VideoPlayerActivity extends Activity implements
 	private void loadServicesfromCursor(Cursor cursor) {
 		mserviceList.clear();
 		try {
-			int serviceIdx = cursor
-					.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_SERVICE_ID);
-			int clientIdx = cursor
-					.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_CLIENT_ID);
-			int chIdx = cursor
-					.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_CHANNEL_NAME);
-			int chDescIdx = cursor
-					.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_CHANNEL_DESC);
-			int imgIdx = cursor
-					.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_IMAGE);
-			int urlIdx = cursor.getColumnIndexOrThrow(DBHelper.SERVICE_KEY_URL);
-			cursor.moveToFirst();
-			do {
-				ServiceDatum service = new ServiceDatum();
-				service.setServiceId(Integer.parseInt(cursor
-						.getString(serviceIdx)));
-				service.setClientId(Integer.parseInt(cursor
-						.getString(clientIdx)));
-				service.setChannelName(cursor.getString(chIdx));
-				service.setChannelDescription(cursor.getString(chDescIdx));
-				service.setImage(cursor.getString(imgIdx));
-				service.setUrl(cursor.getString(urlIdx));
-				mserviceList.add(service);
-			} while (cursor.moveToNext());
+			if (mSortBy == SortBy.DEFAULT.ordinal()) {
+				{
+					cursor.moveToFirst();
+					do {
+						int serviceIdx = cursor
+								.getColumnIndexOrThrow(DBHelper.SERVICE_ID);
+						int clientIdx = cursor
+								.getColumnIndexOrThrow(DBHelper.CLIENT_ID);
+						int chIdx = cursor
+								.getColumnIndexOrThrow(DBHelper.CHANNEL_NAME);
+						int chDescIdx = cursor
+								.getColumnIndexOrThrow(DBHelper.CHANNEL_DESC);
+						int imgIdx = cursor
+								.getColumnIndexOrThrow(DBHelper.IMAGE);
+						int urlIdx = cursor.getColumnIndexOrThrow(DBHelper.URL);
+
+						ServiceDatum service = new ServiceDatum();
+						service.setServiceId(Integer.parseInt(cursor
+								.getString(serviceIdx)));
+						service.setClientId(Integer.parseInt(cursor
+								.getString(clientIdx)));
+						service.setChannelName(cursor.getString(chIdx));
+						service.setChannelDescription(cursor
+								.getString(chDescIdx));
+						service.setImage(cursor.getString(imgIdx));
+						service.setUrl(cursor.getString(urlIdx));
+						mserviceList.add(service);
+					} while (cursor.moveToNext());
+
+				}
+			} else if (mSortBy == SortBy.CATEGORY.ordinal()
+					|| mSortBy == SortBy.LANGUAGE.ordinal()) {
+				cursor.moveToFirst();
+				String selectionArgs = null;
+				if (mSelectionArgs != null && mSelectionArgs.length > 0) {
+					selectionArgs = mSelectionArgs[0];
+				}
+
+				do {
+					CursorLoader cursorLoader = null;
+					if (mSortBy == SortBy.CATEGORY.ordinal()) {
+						if (mSelection != null && selectionArgs != null) {
+							cursorLoader = new CursorLoader(
+									this,
+									ServiceProvider.SERVICES_URI,
+									null,
+									DBHelper.CATEGORY + "=? AND " + mSelection,
+									new String[] {
+											cursor.getString(cursor
+													.getColumnIndex(DBHelper.CATEGORY)),
+											selectionArgs }, null);
+						} else if (mSelection != null && selectionArgs == null) {
+
+							cursorLoader = new CursorLoader(
+									this,
+									ServiceProvider.SERVICES_URI,
+									null,
+									DBHelper.CATEGORY + "=? AND " + mSelection,
+									new String[] { cursor.getString(cursor
+											.getColumnIndex(DBHelper.CATEGORY)) },
+									null);
+						} else if (mSelection == null && selectionArgs == null) {
+							cursorLoader = new CursorLoader(
+									this,
+									ServiceProvider.SERVICES_URI,
+									null,
+									DBHelper.CATEGORY + "=?",
+									new String[] { cursor.getString(cursor
+											.getColumnIndex(DBHelper.CATEGORY)) },
+									null);
+						}
+					} else {
+
+						if (mSelection != null && selectionArgs != null) {
+							cursorLoader = new CursorLoader(
+									this,
+									ServiceProvider.SERVICES_URI,
+									null,
+									DBHelper.SUB_CATEGORY + "=? AND "
+											+ mSelection,
+									new String[] {
+											cursor.getString(cursor
+													.getColumnIndex(DBHelper.SUB_CATEGORY)),
+											selectionArgs }, null);
+						} else if (mSelection != null && selectionArgs == null) {
+
+							cursorLoader = new CursorLoader(
+									this,
+									ServiceProvider.SERVICES_URI,
+									null,
+									DBHelper.SUB_CATEGORY + "=? AND "
+											+ mSelection,
+									new String[] { cursor.getString(cursor
+											.getColumnIndex(DBHelper.SUB_CATEGORY)) },
+									null);
+						} else if (mSelection == null && selectionArgs == null) {
+							cursorLoader = new CursorLoader(
+									this,
+									ServiceProvider.SERVICES_URI,
+									null,
+									DBHelper.SUB_CATEGORY + "=?",
+									new String[] { cursor.getString(cursor
+											.getColumnIndex(DBHelper.SUB_CATEGORY)) },
+									null);
+						}
+					}
+					Cursor childCursor = null;
+
+					childCursor = cursorLoader.loadInBackground();
+					childCursor.moveToFirst();
+					do {
+						int serviceIdx = childCursor
+								.getColumnIndexOrThrow(DBHelper.SERVICE_ID);
+						int clientIdx = childCursor
+								.getColumnIndexOrThrow(DBHelper.CLIENT_ID);
+						int chIdx = childCursor
+								.getColumnIndexOrThrow(DBHelper.CHANNEL_NAME);
+						int chDescIdx = childCursor
+								.getColumnIndexOrThrow(DBHelper.CHANNEL_DESC);
+						int imgIdx = childCursor
+								.getColumnIndexOrThrow(DBHelper.IMAGE);
+						int urlIdx = childCursor
+								.getColumnIndexOrThrow(DBHelper.URL);
+
+						ServiceDatum service = new ServiceDatum();
+						service.setServiceId(Integer.parseInt(childCursor
+								.getString(serviceIdx)));
+						service.setClientId(Integer.parseInt(childCursor
+								.getString(clientIdx)));
+						service.setChannelName(childCursor.getString(chIdx));
+						service.setChannelDescription(childCursor
+								.getString(chDescIdx));
+						service.setImage(childCursor.getString(imgIdx));
+						service.setUrl(childCursor.getString(urlIdx));
+						mserviceList.add(service);
+					} while (childCursor.moveToNext());
+
+				} while (cursor.moveToNext());
+			}
 			if (mChannelId != -1) {
 				mChannelIndex = getChannelIndexByChannelId(mChannelId);
 				// Log.d("mChannelIndex", "" + mChannelIndex);
 			}
 		} catch (Exception e) {
-			Log.d("VideoPlayerActivity", e.getMessage());
+			Log.e(TAG, "Videoplayer-Cursor Exception");
 		}
 	}
 

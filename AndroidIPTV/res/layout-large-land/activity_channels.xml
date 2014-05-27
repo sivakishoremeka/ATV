@@ -2,20 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/shape_a_ch_bg"
+   android:background="@drawable/shape_a_ch_bg"
     android:orientation="horizontal" >
 
     <LinearLayout
+        android:id="@+id/ch_frag_container"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="5" >
-
-        <ListView
-            android:id="@+id/a_channels_lv"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:listSelector="@drawable/selector_a_ch_list_item" >
-        </ListView>
+        android:layout_weight="5"
+        android:orientation="horizontal" >
     </LinearLayout>
 
     <LinearLayout

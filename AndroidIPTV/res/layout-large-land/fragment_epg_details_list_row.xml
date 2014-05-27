@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/selector_epg_frg_lv_row">
+
+    <TextView
+        android:id="@+id/epg_details_list_row_new_tv_start_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:padding="8dp" 
+        android:background="@drawable/selector_epg_frg_lv_row_text"/>
+
+    <TextView
+        android:id="@+id/epg_details_list_row_new_tv_prog_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/epg_details_list_row_new_tv_start_time"
+        android:ellipsize="end"
+        android:padding="8dp"
+        android:singleLine="True" 
+        android:background="@drawable/selector_epg_frg_lv_row_text"/>
+
+</RelativeLayout>

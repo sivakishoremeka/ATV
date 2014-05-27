@@ -46,8 +46,8 @@
             android:text="RENEWAL"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
-            android:visibility="invisible"
-            android:background="@drawable/selector_btn_renewal" />
+            android:visibility="invisible"/>
+<!--             android:background="@drawable/selector_btn_renewal" /> -->
 
     </LinearLayout>
 

@@ -13,6 +13,10 @@ public class ServiceDatum implements Parcelable,Comparable<ServiceDatum> {
 	
 	private String channelDescription;
 
+	private String category;
+	
+	private String subCategory;
+	
 	private String image;
 
 	private String url;
@@ -105,6 +109,23 @@ public class ServiceDatum implements Parcelable,Comparable<ServiceDatum> {
 		this.image = stringData[2];
 		this.url = stringData[3];
 	}
+	
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public String getSubCategory() {
+		return subCategory;
+	}
+
+	public void setSubCategory(String subCategory) {
+		this.subCategory = subCategory;
+	}
+
 
 	@Override
 	public int compareTo(ServiceDatum another) {

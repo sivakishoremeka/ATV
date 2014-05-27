@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="3dp" >
+
+        <TextView
+            android:id="@+id/f_my_pkgs_pkg_name_h"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4.5"
+            android:text="@string/package_name"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/f_my_pkgs_actvtd_on_h"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2.75"
+            android:text="@string/actvtd_on"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/f_my_pkgs_valid_till_h"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2.75"
+            android:text="@string/valid_till"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/f_my_profile_hr_line1"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="3dp"
+        android:background="#C3C1C2" />
+
+    <LinearLayout
+        android:id="@+id/f_my_pkgs_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+    </LinearLayout>
+
+</LinearLayout>

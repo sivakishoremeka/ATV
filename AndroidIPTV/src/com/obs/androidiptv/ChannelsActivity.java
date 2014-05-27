@@ -15,36 +15,30 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.LoaderManager.LoaderCallbacks;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.CursorLoader;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
-import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v4.app.NavUtils;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.AdapterView;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -52,7 +46,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.obs.data.DeviceDatum;
+import com.obs.androidiptv.MyApplication.SortBy;
 import com.obs.data.EPGData;
 import com.obs.data.EpgDatum;
 import com.obs.data.ServiceDatum;
@@ -62,90 +56,60 @@ import com.obs.retrofit.OBSClient;
 
 public class ChannelsActivity extends Activity implements
 		SurfaceHolder.Callback, MediaPlayer.OnPreparedListener,
-		MediaPlayer.OnErrorListener, AdapterView.OnItemSelectedListener,
-		AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener,
-		LoaderCallbacks<Cursor> {
+		MediaPlayer.OnErrorListener, ChannelsByDefOrderFrag.Callbacks,
+		ChannelsBySortOrderFrag.Callbacks {
+	public final static String CHANNEL_URL = "URL";
 	private SharedPreferences mPrefs;
 	private ProgressDialog mProgressDialog;
 	private Editor mPrefsEditor;
 
-	public final static String CHANNEL_EPG = "Channel Epg";
-	public final static String IPTV_CHANNELS_DETAILS = "IPTV Channels Details";
-	public final static String CHANNELS_UPDATED_AT = "Updated At";
-	public final static String CHANNELS_LIST = "Channels";
-	public final static String CHANNEL_URL = "URL";
 	public static String mDate;
-	ListView mListView;
 
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
 	boolean mIsReqCanceled = false;
 
 	boolean mIsLiveDataReq = false;
-	int mReqType = ServiceProvider.SERVICES;
 	boolean mIsBalCheckReq;
 	float mBalance;
 
 	String mSearchString;
 	String mSelection;
 	String[] mSelectionArgs;
+	boolean mIsRefresh = false;
 
 	SurfaceView videoSurface;
 	MediaPlayer player;
 	VideoControllerView controller;
-	ServiceDatum mService;
+	String mChannelName;
+	String mChannelUrl;
+	int mSelectionIdx = -1;
+	ServiceDatum mService = null;
+	ListView lv = null;
 
-	private SimpleCursorAdapter adapter;
-	private int mSelectedIdx = -1;
+	public static int mSortBy = SortBy.CATEGORY.ordinal();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_channels);
 
-		// Log.d("ChannelsActivity","onCreate");
-
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
-
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-
-			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-					WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		} else {
-			View decorView = getWindow().getDecorView();
-			int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-					| View.SYSTEM_UI_FLAG_LOW_PROFILE;
-			decorView.setSystemUiVisibility(uiOptions);
-		}
-
-		mApplication = ((MyApplication) getApplicationContext());
-		mOBSClient = mApplication.getOBSClient(this);
-		mPrefs = mApplication.getPrefs();
-		mIsBalCheckReq = mApplication.isBalCheckReq;
-
-		Calendar c = Calendar.getInstance();
-		mDate = mApplication.df.format(c.getTime()); // dt is now the new date
-
-		mListView = (ListView) findViewById(R.id.a_channels_lv);
 
 		videoSurface = (SurfaceView) findViewById(R.id.a_channels_videoSurface);
 		SurfaceHolder videoHolder = videoSurface.getHolder();
 		videoHolder.addCallback(this);
 		player = new MediaPlayer();
 
-		String[] from = new String[] { DBHelper.SERVICE_KEY_CHANNEL_DESC };
-		int[] to = new int[] { R.id.ch_lv_item_tv_ch_Name };
+		mApplication = ((MyApplication) getApplicationContext());
+		mOBSClient = mApplication.getOBSClient(this);
+		mPrefs = mApplication.getPrefs();
+		mIsBalCheckReq = mApplication.isBalanceCheck();
 
-		adapter = new SimpleCursorAdapter(this, R.layout.ch_list_item, null,
-				from, to, 0);
-		mListView.setAdapter(adapter);
-		mListView.setOnItemClickListener(this);
-		mListView.setOnItemLongClickListener(this);
-		mListView.setOnItemSelectedListener(this);
-		// mListView.setSelected(true);
-		// mListView.setSelection(0);
-		// initiallizeUI();
+		Calendar c = Calendar.getInstance();
+		mDate = mApplication.df.format(c.getTime()); // dt is now the new date
+
 	}
 
 	@Override
@@ -156,9 +120,8 @@ public class ChannelsActivity extends Activity implements
 				&& intent.getAction().equals(Intent.ACTION_SEARCH)) {
 
 			// initiallizing req criteria
-			mReqType = ServiceProvider.SERVICES;
 			mSearchString = intent.getStringExtra(SearchManager.QUERY);
-			mSelection = DBHelper.SERVICE_KEY_CHANNEL_NAME + " LIKE ?";
+			mSelection = DBHelper.CHANNEL_DESC + " LIKE ?";
 			mSelectionArgs = new String[] { "%" + mSearchString + "%" };
 
 			// initializing player
@@ -166,9 +129,111 @@ public class ChannelsActivity extends Activity implements
 			SurfaceHolder videoHolder = videoSurface.getHolder();
 			videoHolder.addCallback(this);
 			player.setDisplay(videoHolder);
-
-			CheckBalancenGetData();
+			initiallizeUI();
+			// CheckBalancenGetData();
 		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.ch_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		mSelection = null;
+		mSearchString = null;
+		mSelectionArgs = null;
+		mIsRefresh = false;
+		updateEPGDetails(null);
+		if (null != player)
+			player.reset();
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			NavUtils.navigateUpFromSameTask(this);
+			break;
+		case R.id.action_refresh:
+			mIsRefresh = true;
+			initiallizeUI();
+			break;
+		case R.id.action_search:
+			onSearchRequested();
+			break;
+		case R.id.action_favourite:
+			// mSortBy = SortBy.DEFAULT;
+			// mReqType = ServiceProvider.SERVICES;
+			mSelection = DBHelper.IS_FAVOURITE + "=1";
+			initiallizeUI();
+			break;
+		case R.id.action_channels:
+			initiallizeUI();
+			break;
+		case R.id.action_sort_by_default:
+			mSortBy = SortBy.DEFAULT.ordinal();
+			initiallizeUI();
+			break;
+		case R.id.action_sort_by_categ:
+			mSortBy = SortBy.CATEGORY.ordinal();
+			initiallizeUI();
+			break;
+		case R.id.action_sort_by_lang:
+			mSortBy = SortBy.LANGUAGE.ordinal();
+			initiallizeUI();
+			break;
+		default:
+			break;
+		}
+		return true;
+	}
+
+	@Override
+	public void surfaceCreated(SurfaceHolder holder) {
+		initiallizePlayer();
+		player.setDisplay(holder);
+
+		if (mSelectionIdx == -1) {
+			initiallizeUI();
+		} else {
+			if (mService != null)
+				OnChannelSelection(mService.getUrl(), mService.getChannelName());
+		}
+	}
+
+	private void initiallizeUI() {
+		// Log.d("ChannelsActivity","initiallizeUI");
+		Bundle b = new Bundle();
+		b.putString("SEARCHSTRING", mSearchString);
+		b.putString("SELECTION", mSelection);
+		// b.putInt("REQTYPE", mReqType);
+		b.putInt("SORTBY", mSortBy);
+		b.putBoolean("ISREFRESH", mIsRefresh);
+		FragmentTransaction transaction = getFragmentManager()
+				.beginTransaction();
+		Fragment oldDefFrag = getFragmentManager().findFragmentByTag(
+				"SORT_BY_DEFAULT");
+		if (null != oldDefFrag)
+			transaction.remove(oldDefFrag);
+		Fragment oldSortedFrag = getFragmentManager().findFragmentByTag(
+				"SORT_BY");
+		if (null != oldSortedFrag)
+			transaction.remove(oldSortedFrag);
+		if (mSortBy == SortBy.DEFAULT.ordinal()) {
+			Fragment defFrag = new ChannelsByDefOrderFrag();
+			defFrag.setArguments(b);
+			transaction.add(R.id.ch_frag_container, defFrag, "SORT_BY_DEFAULT");
+		} else {
+			Fragment frag = new ChannelsBySortOrderFrag();
+			frag.setArguments(b);
+			transaction.add(R.id.ch_frag_container, frag, "SORT_BY");
+		}
+		transaction.commit();
+	}
+
+	@Override
+	public void surfaceChanged(SurfaceHolder holder, int format, int width,
+			int height) {
 	}
 
 	@Override
@@ -186,156 +251,6 @@ public class ChannelsActivity extends Activity implements
 		// Log.d("ChannelsActivity","initiallizePlayer");
 		if (player == null)
 			player = new MediaPlayer();
-	}
-
-	private void initiallizeUI() {
-		// Log.d("ChannelsActivity","initiallizeUI");
-		CheckBalancenGetData();
-	}
-
-	private void CheckBalancenGetData() {
-		// Log.d("ChannelsActivity","CheckBalancenGetData");
-		if (mIsBalCheckReq)
-			validateDevice();
-		else
-			getServices();
-	}
-
-	private void getServices() {
-		// Log.d("ChannelsActivity","getServices");
-		getLoaderManager().restartLoader(mReqType, null, this);
-	}
-
-	/** Validating Customer balance */
-	private void validateDevice() {
-		// Log.d("ChannelsActivity","validateDevice");
-		if (mProgressDialog != null && mProgressDialog.isShowing()) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-
-		mProgressDialog = new ProgressDialog(ChannelsActivity.this,
-				ProgressDialog.THEME_HOLO_DARK);
-		mProgressDialog.setMessage("Connectiong to Server...");
-		mProgressDialog.setCanceledOnTouchOutside(false);
-		mProgressDialog.setOnCancelListener(new OnCancelListener() {
-
-			public void onCancel(DialogInterface arg0) {
-				if (mProgressDialog.isShowing())
-					mProgressDialog.dismiss();
-				mProgressDialog = null;
-				mIsReqCanceled = true;
-				// if (null != mExecutorService)
-				// if (!mExecutorService.isShutdown())
-				// mExecutorService.shutdownNow();
-			}
-		});
-		mProgressDialog.show();
-
-		String androidId = Settings.Secure.getString(getApplicationContext()
-				.getContentResolver(), Settings.Secure.ANDROID_ID);
-		mOBSClient.getMediaDevice(androidId, deviceCallBack);
-	}
-
-	final Callback<DeviceDatum> deviceCallBack = new Callback<DeviceDatum>() {
-
-		@Override
-		public void success(DeviceDatum device, Response arg1) {
-			// Log.d("ChannelsActivity","success");
-			if (!mIsReqCanceled) {
-				if (mProgressDialog != null) {
-					mProgressDialog.dismiss();
-					mProgressDialog = null;
-				}
-				if (device != null) {
-					mApplication.setBalance(mBalance = device
-							.getBalanceAmount());
-					if (mBalance >= 0)
-						Toast.makeText(ChannelsActivity.this,
-								"Insufficient Balance.Please Make a Payment.",
-								Toast.LENGTH_LONG).show();
-					else {
-						getServices();
-					}
-				}
-			}
-			mIsReqCanceled = false;
-		}
-
-		@Override
-		public void failure(RetrofitError retrofitError) {
-			// Log.d("ChannelsActivity","failure");
-			if (!mIsReqCanceled) {
-				if (mProgressDialog != null) {
-					mProgressDialog.dismiss();
-					mProgressDialog = null;
-				}
-				if (retrofitError.isNetworkError()) {
-					Toast.makeText(
-							ChannelsActivity.this,
-							getApplicationContext().getString(
-									R.string.error_network), Toast.LENGTH_LONG)
-							.show();
-				} else if (retrofitError.getResponse().getStatus() == 403) {
-					String msg = mApplication
-							.getDeveloperMessage(retrofitError);
-					msg = (msg != null && msg.length() > 0 ? msg
-							: "Internal Server Error");
-					Toast.makeText(ChannelsActivity.this, msg,
-							Toast.LENGTH_LONG).show();
-				} else {
-					Toast.makeText(
-							ChannelsActivity.this,
-							"Server Error : "
-									+ retrofitError.getResponse().getStatus(),
-							Toast.LENGTH_LONG).show();
-				}
-			}
-			mIsReqCanceled = false;
-		}
-	};
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.ch_menu, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-
-		switch (item.getItemId()) {
-		case android.R.id.home:
-			NavUtils.navigateUpFromSameTask(this);
-			break;
-		case R.id.action_refresh:
-			// initiallizing req criteria
-			mReqType = ServiceProvider.SERVICES_ON_REFRESH;
-			mSearchString = null;
-			CheckBalancenGetData();
-			break;
-		case R.id.action_search:
-			// The searchbar is initiated programmatically with a call to your
-			// Activity’s onSearchRequested method.
-			onSearchRequested();
-			break;
-		case R.id.action_favourite:
-			mReqType = ServiceProvider.SERVICES;
-			mSearchString = null;
-			mSelection = DBHelper.SERVICE_KEY_FAVOURITE + "=1";
-			mSelectionArgs = null;
-			CheckBalancenGetData();
-			break;
-		case R.id.action_channels:
-			mReqType = ServiceProvider.SERVICES;
-			mSelection = null;
-			mSelectionArgs = null;
-			CheckBalancenGetData();
-			break;
-		default:
-			break;
-		}
-		return true;
 	}
 
 	public void CheckCacheForEpgDetails(String channelName) {
@@ -410,8 +325,7 @@ public class ChannelsActivity extends Activity implements
 
 					/** saving epg details to preferences */
 					mPrefsEditor = mPrefs.edit();
-					String Epg_Dtls_key = mService.getChannelName()
-							+ "_EPG_Details";
+					String Epg_Dtls_key = mChannelName + "_EPG_Details";
 					String Epg_Dtls_value = mPrefs.getString(Epg_Dtls_key, "");
 					JSONObject json = null, jsonReq = null;
 					try {
@@ -524,21 +438,10 @@ public class ChannelsActivity extends Activity implements
 		return false;
 	}
 
-	/*
-	 * private void updateChannels(final ArrayList<ServiceDatum> list) { if
-	 * (list != null && list.size() > 0) { ChannelListAdapter adapter = new
-	 * ChannelListAdapter(list, this); mListView.setAdapter(adapter);
-	 * mListView.setSelection(0); mListView.setOnItemClickListener(this);
-	 * mListView.setOnItemLongClickListener(this);
-	 * mListView.setOnItemSelectedListener(this);
-	 * OnChannelSelection(list.get(0));
-	 * 
-	 * } else mListView.setAdapter(null); }
-	 */
-
-	private void OnChannelSelection(ServiceDatum serviceDatum) {
+	private void OnChannelSelection(String url, String channelName) {
 		// Log.d("ChannelsActivity","OnChannelSelection");
-		mService = serviceDatum;
+		mChannelName = channelName;
+		mChannelUrl = url;
 		if (player.isPlaying())
 			player.stop();
 		player.reset();
@@ -546,7 +449,7 @@ public class ChannelsActivity extends Activity implements
 		player.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		player.setVolume(1.0f, 1.0f);
 		try {
-			player.setDataSource(this, Uri.parse(serviceDatum.getUrl()));
+			player.setDataSource(this, Uri.parse(url));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -554,14 +457,11 @@ public class ChannelsActivity extends Activity implements
 		player.setOnErrorListener(this);
 		player.prepareAsync();
 
-		CheckCacheForEpgDetails(serviceDatum.getChannelName());
+		CheckCacheForEpgDetails(channelName);
 	}
 
 	@Override
 	public void onPrepared(MediaPlayer mp) {
-		// Log.d("ChannelsActivity","onPrepared");
-		// mListView.setSelection(mSelectedIdx);
-		// mListView.getSelectedItem();
 		mp.start();
 	}
 
@@ -581,31 +481,11 @@ public class ChannelsActivity extends Activity implements
 					"Invalid Stream for this channel... Please try other channel",
 					Toast.LENGTH_SHORT).show();
 		} else {
-			if (null != mService && null != mp)
-				OnChannelSelection(mService);
+			if (null != mChannelUrl && null != mp)
+				OnChannelSelection(mChannelUrl, mChannelName);
 		}
 
 		return true;
-	}
-
-	@Override
-	public void surfaceCreated(SurfaceHolder holder) {
-		initiallizePlayer();
-		player.setDisplay(holder);
-		if (mSelectedIdx == -1 && mListView.getSelectedItemPosition() == -1) {
-			initiallizeUI();
-		} else {
-			if (mSelectedIdx == -1) {
-				mSelectedIdx = mListView.getSelectedItemPosition();
-			}
-			OnChannelSelection(getServiceFromCursor(((Cursor) mListView
-					.getAdapter().getItem(mSelectedIdx))));
-		}
-	}
-
-	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int width,
-			int height) {
 	}
 
 	@Override
@@ -625,29 +505,18 @@ public class ChannelsActivity extends Activity implements
 		// TODO Auto-generated method stub
 	}
 
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
-		// Log.d("ChannelsActivity","onItemClick");
-		mSelectedIdx = position;
-		if (player != null) {
-			if (player.isPlaying())
-				player.stop();
-			player.release();
-			player = null;
-		}
-		playChannel(getServiceFromCursor(((Cursor) parent.getAdapter().getItem(
-				position))));
-	}
-
-	private void playChannel(ServiceDatum service) {
+	private void playChannel(ServiceDatum data, int sortBy, String selection,
+			String searchString) {
 		Intent intent = new Intent();
 		intent.putExtra("VIDEOTYPE", "LIVETV");
-		intent.putExtra(CHANNEL_URL, service.getUrl());
-		intent.putExtra("CHANNELID", service.getServiceId());
-		intent.putExtra("REQTYPE", mReqType);
-		intent.putExtra("SELECTION", mSelection);
-		intent.putExtra("SEARCHSTRING", mSearchString);
+		intent.putExtra(CHANNEL_URL, data.getUrl());
+		intent.putExtra("CHANNELID", data.getServiceId()); // int
+		// intent.putExtra("REQTYPE", reqType); //int
+		intent.putExtra("SORTBY", sortBy); // int
+		intent.putExtra("SELECTION", selection);
+		intent.putExtra("SEARCHSTRING", searchString);
+		// intent.putExtra("ISREFRESH",mIsRefresh); //refresh is not neccessary
+		// for player.
 		switch (MyApplication.player) {
 		case NATIVE_PLAYER:
 			intent.setClass(getApplicationContext(), VideoPlayerActivity.class);
@@ -665,116 +534,126 @@ public class ChannelsActivity extends Activity implements
 	}
 
 	@Override
-	public void onItemSelected(AdapterView<?> parent, View view, int position,
-			long id) {
-		// Log.d("ChannelsActivity","onItemSelected");
-		if (position != mSelectedIdx) {
-			mSelectedIdx = position;
-			OnChannelSelection(getServiceFromCursor(((Cursor) parent
-					.getAdapter().getItem(position))));
-		}
+	public void onItemSelected(ServiceDatum data, int selIdx) {
+		mSelectionIdx = selIdx;
+		mService = data;
+		mChannelName = data.getChannelName();
+		OnChannelSelection(data.getUrl(), data.getChannelName());
 	}
 
 	@Override
-	public void onNothingSelected(AdapterView<?> parent) {
-		// TODO Auto-generated method stub
-
+	public void onItemClick(ServiceDatum data, int selIdx, int sortBy,
+			String selection, String searchString) {
+		mSelectionIdx = selIdx;
+		mService = data;
+		if (player != null) {
+			if (player.isPlaying())
+				player.stop();
+			player.release();
+			player = null;
+		}
+		playChannel(data, sortBy, selection, searchString);
 	}
 
 	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		if (mProgressDialog != null && mProgressDialog.isShowing()) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-		mProgressDialog = new ProgressDialog(ChannelsActivity.this,
-				ProgressDialog.THEME_HOLO_DARK);
-		mProgressDialog.setMessage("Connectiong to Server...");
-		mProgressDialog.setCanceledOnTouchOutside(false);
-		mProgressDialog.setOnCancelListener(new OnCancelListener() {
-
-			public void onCancel(DialogInterface arg0) {
-				if (mProgressDialog.isShowing())
-					mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}
-		});
-		mProgressDialog.show();
-
-		CursorLoader loader = null;
-		if (id == ServiceProvider.SERVICES) {
-			loader = new CursorLoader(this, ServiceProvider.SERVICES_URI, null,
-					mSelection, mSelectionArgs, null);
-		}
-		if (id == ServiceProvider.SERVICES_ON_REFRESH) {
-			loader = new CursorLoader(this,
-					ServiceProvider.SERVICES_ONREFREFRESH_URI, null, null,
-					null, null);
-		}
-		return loader;
-	}
-
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-
-		// Log.d("ChannelsActivity","onLoadFinished");
-		if (mProgressDialog != null && mProgressDialog.isShowing()) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-		if (null != cursor && cursor.getCount() != 0) {
-			adapter.swapCursor(cursor);
-			mListView.setSelection(0);
-			mListView.setSelected(true);
-			cursor.moveToFirst();
-			OnChannelSelection(getServiceFromCursor(cursor));
-		} else {
-			adapter.swapCursor(null);
-			updateEPGDetails(null);
-		}
-	}
-
-	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
-
-	}
-
-	@Override
-	public boolean onItemLongClick(AdapterView<?> parent, View view,
-			int position, long id) {
+	public void onItemLongClick(ServiceDatum data, int selIdx) {
 		// Log.d("ChannelsActivity","onItemLongClick");
-		mSelectedIdx = position;
-		ServiceDatum data = getServiceFromCursor(((Cursor) parent.getAdapter()
-				.getItem(position)));
+		mSelectionIdx = selIdx;
+		mService = data;
 		ContentValues values = new ContentValues();
-		values.put(DBHelper.SERVICE_KEY_SERVICE_ID, data.getServiceId());
-		values.put(DBHelper.SERVICE_KEY_CLIENT_ID, data.getClientId());
-		values.put(DBHelper.SERVICE_KEY_CHANNEL_NAME, data.getChannelName());
-		values.put(DBHelper.SERVICE_KEY_CHANNEL_DESC,
-				data.getChannelDescription());
-		values.put(DBHelper.SERVICE_KEY_IMAGE, data.getImage());
-		values.put(DBHelper.SERVICE_KEY_URL, data.getUrl());
-		values.put(DBHelper.SERVICE_KEY_FAVOURITE, 1);
-		getContentResolver().update(
-				ServiceProvider.SERVICES_URI,
-				values,
-				DBHelper.SERVICE_KEY_SERVICE_ID + "="
-						+ data.getServiceId().toString(), null);
+		values.put(DBHelper.SERVICE_ID, data.getServiceId());
+		values.put(DBHelper.CLIENT_ID, data.getClientId());
+		values.put(DBHelper.CHANNEL_NAME, data.getChannelName());
+		values.put(DBHelper.CHANNEL_DESC, data.getChannelDescription());
+		values.put(DBHelper.CATEGORY, data.getCategory());
+		values.put(DBHelper.SUB_CATEGORY, data.getSubCategory());
+		values.put(DBHelper.IMAGE, data.getImage());
+		values.put(DBHelper.URL, data.getUrl());
+		values.put(DBHelper.IS_FAVOURITE, 1);
+		getContentResolver().update(ServiceProvider.SERVICES_URI, values,
+				DBHelper.SERVICE_ID + "=" + data.getServiceId().toString(),
+				null);
 		Toast.makeText(
 				this,
 				"Channel " + data.getChannelDescription()
 						+ " is added to Favourites", Toast.LENGTH_LONG).show();
-		return true;
+
 	}
 
 	public static ServiceDatum getServiceFromCursor(Cursor c) {
+		int Id_idx = c.getColumnIndex(DBHelper.SERVICE_ID);
+		int ClientId_idx = c.getColumnIndex(DBHelper.CLIENT_ID);
+		int ChanName_idx = c.getColumnIndex(DBHelper.CHANNEL_NAME);
+		int ChanDesc_idx = c.getColumnIndex(DBHelper.CHANNEL_DESC);
+		int Img_idx = c.getColumnIndex(DBHelper.IMAGE);
+		int Url_idx = c.getColumnIndex(DBHelper.URL);
+		int Categ_idx = c.getColumnIndex(DBHelper.CATEGORY);
+		int SubCateg_idx = c.getColumnIndex(DBHelper.SUB_CATEGORY);
+
 		ServiceDatum service = new ServiceDatum();
-		service.setServiceId(c.getInt(1));
-		service.setClientId(c.getInt(2));
-		service.setChannelName(c.getString(3));
-		service.setChannelDescription(c.getString(4));
-		service.setImage(c.getString(5));
-		service.setUrl(c.getString(6));
+		service.setServiceId(c.getInt(Id_idx));
+		service.setClientId(c.getInt(ClientId_idx));
+		service.setChannelName(c.getString(ChanName_idx));
+		service.setChannelDescription(c.getString(ChanDesc_idx));
+		service.setImage(c.getString(Img_idx));
+		service.setUrl(c.getString(Url_idx));
+		service.setCategory(c.getString(Categ_idx));
+		service.setSubCategory(c.getString(SubCateg_idx));
 		return service;
+	}
+
+	public boolean isRemoteDeviceValidationReq() {
+		Calendar cal = Calendar.getInstance();
+		String sCurrDate = mApplication.df.format(cal.getTime());
+
+		String sUpdatedAt = mApplication.getPrefs().getString(
+				getString(R.string.balance_updated_at), "");
+		if (sUpdatedAt != null && sUpdatedAt.length() > 0) {
+			try {
+				Date dCurrDate = mApplication.df.parse(sCurrDate);
+				Date dUpdatedAt = mApplication.df.parse(sUpdatedAt);
+
+				if (dUpdatedAt.compareTo(dCurrDate) < 0) {
+					return true;
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+				return true;
+			}
+		} else
+			return true;
+		return false;
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		ListView lv = null;
+		if (mSortBy == SortBy.DEFAULT.ordinal()) {
+			lv = (ListView) findViewById(R.id.f_channels_lv);
+		} else
+			lv = (ExpandableListView) findViewById(R.id.elv);
+		if (null != lv) {
+			int position = lv.getSelectedItemPosition();
+			if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+				if (position < lv.getCount() - 1) {
+					position++;
+					lv.requestFocus();
+					lv.setSelection(position);					
+					if(position-2>0)
+					lv.smoothScrollToPosition(position-2);
+					return true;
+				}
+			} else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+				if (position > 0) {
+					lv.requestFocus();
+					position--;
+					lv.setSelection(position);
+					if(position+2<=lv.getCount())
+					lv.smoothScrollToPosition(position+2);
+					return true;
+				}
+			}
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 }
