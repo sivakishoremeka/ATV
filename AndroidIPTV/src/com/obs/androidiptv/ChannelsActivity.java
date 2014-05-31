@@ -85,7 +85,6 @@ public class ChannelsActivity extends Activity implements
 	boolean mIsBalCheckReq;
 	boolean mIsPayPalReq = true;
 	float mBalance;
-	String mPaymentStatus = null;
 
 	String mSearchString;
 	String mSelection;
@@ -122,6 +121,7 @@ public class ChannelsActivity extends Activity implements
 		mPrefs = mApplication.getPrefs();
 		mIsBalCheckReq = mApplication.isBalanceCheck();
 		mIsPayPalReq = mApplication.isPayPalReq();
+		mBalance = mApplication.getBalance();
 
 		Calendar c = Calendar.getInstance();
 		mDate = mApplication.df.format(c.getTime()); // dt is now the new date
@@ -747,6 +747,8 @@ public class ChannelsActivity extends Activity implements
 	@Override
 	public void onItemClick(ServiceDatum data, int selIdx, int sortBy,
 			String selection, String searchString) {
+		mChannelName = data.getChannelName();
+		mChannelUrl = data.getUrl();
 		if (mIsBalCheckReq == true && (mBalance > 0)) {
 			AlertDialog.Builder builder = new AlertDialog.Builder((this),
 					AlertDialog.THEME_HOLO_LIGHT);
@@ -932,7 +934,7 @@ public class ChannelsActivity extends Activity implements
 			}
 			mProgressDialog = new ProgressDialog(ChannelsActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Registering Details");
+			mProgressDialog.setMessage("Connecting to Server...");
 			mProgressDialog.setCanceledOnTouchOutside(false);
 			mProgressDialog.setOnCancelListener(new OnCancelListener() {
 
@@ -995,7 +997,7 @@ public class ChannelsActivity extends Activity implements
 
 						json = json.getJSONObject("changes");
 						if (json != null) {
-							mPaymentStatus = json.getString("paymentStatus");
+							String mPaymentStatus = json.getString("paymentStatus");
 							if (mPaymentStatus.equalsIgnoreCase("Success")) {
 								mBalance = (float) json.getLong("totalBalance");
 								mApplication.setBalance(mBalance);

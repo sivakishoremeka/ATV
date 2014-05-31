@@ -70,7 +70,7 @@ public class RegisterActivity extends Activity {
 
 	private void getCountries() {
 
-		Log.d(TAG, "getCountries");
+		// Log.d(TAG, "getCountries");
 
 		if (mProgressDialog != null) {
 			mProgressDialog.dismiss();
@@ -82,7 +82,6 @@ public class RegisterActivity extends Activity {
 		mProgressDialog.setCanceledOnTouchOutside(false);
 		mProgressDialog.setOnCancelListener(new OnCancelListener() {
 			public void onCancel(DialogInterface arg0) {
-				Log.d(TAG, "onCancel");
 
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
@@ -96,7 +95,7 @@ public class RegisterActivity extends Activity {
 		@Override
 		public void failure(RetrofitError retrofitError) {
 
-			Log.d(TAG, "templateCallBack-failure");
+			// Log.d(TAG, "templateCallBack-failure");
 			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
 				mProgressDialog = null;
@@ -119,7 +118,7 @@ public class RegisterActivity extends Activity {
 		@Override
 		public void success(TemplateDatum template, Response response) {
 
-			Log.d(TAG, "templateCallBack-success");
+			// Log.d(TAG, "templateCallBack-success");
 			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
 				mProgressDialog = null;
@@ -127,10 +126,11 @@ public class RegisterActivity extends Activity {
 			try {
 				mCountry = template.getAddressTemplateData().getCountryData()
 						.get(0);
-				 mState = template.getAddressTemplateData().getStateData().get(0);
-				 mCity = template.getAddressTemplateData().getCityData().get(0);				
+				mState = template.getAddressTemplateData().getStateData()
+						.get(0);
+				mCity = template.getAddressTemplateData().getCityData().get(0);
 			} catch (Exception e) {
-				Log.d("templateCallBack-success", e.getMessage());
+				Log.e("templateCallBack-success", e.getMessage());
 				Toast.makeText(RegisterActivity.this,
 						"Server Error : Country Name not Specified",
 						Toast.LENGTH_LONG).show();
@@ -259,7 +259,8 @@ public class RegisterActivity extends Activity {
 				map.put("addressNo", "ghcv");
 				map.put("street", "#23");
 				map.put("city", clientData.getCity());
-				map.put("state", clientData.getState());//"ANDHRA PRADESH");// "Akershus");//"Drenth");//
+				map.put("state", clientData.getState());// "ANDHRA PRADESH");//
+														// "Akershus");//"Drenth");//
 				map.put("country", clientData.getCountry());
 				map.put("zipCode", "436346");
 				map.put("phone", clientData.getPhone());
@@ -332,7 +333,7 @@ public class RegisterActivity extends Activity {
 
 	private RegClientRespDatum readJsonUser(String jsonText) {
 
-		Log.d("readJsonUser", "result is " + jsonText);
+		// Log.d("readJsonUser", "result is " + jsonText);
 
 		Gson gson = new Gson();
 		RegClientRespDatum response = gson.fromJson(jsonText,
