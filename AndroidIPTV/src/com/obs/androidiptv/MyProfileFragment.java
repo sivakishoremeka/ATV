@@ -28,7 +28,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,6 +39,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.obs.data.ClientDatum;
+import com.obs.data.ConfigurationProperty;
 import com.obs.retrofit.OBSClient;
 
 public class MyProfileFragment extends Fragment {
@@ -63,7 +63,8 @@ public class MyProfileFragment extends Fragment {
 		RestAdapter restAdapter = new RestAdapter.Builder()
 				.setEndpoint(mApplication.API_URL)
 				.setLogLevel(RestAdapter.LogLevel.FULL)
-				.setExecutors( Executors.newCachedThreadPool(), new MainThreadExecutor())
+				.setExecutors(Executors.newCachedThreadPool(),
+						new MainThreadExecutor())
 				.setConverter(new JSONConverter())
 				.setClient(
 						new com.obs.retrofit.CustomUrlConnectionClient(
@@ -148,7 +149,31 @@ public class MyProfileFragment extends Fragment {
 					editor.putString(CLIENT_DATA, new Gson().toJson(client));
 					editor.commit();
 					mApplication.setBalance(client.getBalanceAmount());
+					mApplication.setCurrency(client.getCurrency());
 					mApplication.setBalanceCheck(client.isBalanceCheck());
+					boolean isPayPalReq = client.getConfigurationProperty()
+							.getEnabled();
+					mApplication.setPayPalReq(isPayPalReq);
+					if (isPayPalReq) {
+						String value = client.getConfigurationProperty()
+								.getValue();
+						try {
+							JSONObject json = new JSONObject(value);
+							if (json != null) {
+								mApplication.setPayPalClientID(json.get(
+										"clientId").toString());
+								mApplication.setPayPalSecret(json.get(
+										"secretCode").toString());
+							}
+						} catch (JSONException e) {
+							Log.e("AuthenticationAcitivity",
+									(e.getMessage() == null) ? "Json Exception"
+											: e.getMessage());
+							Toast.makeText(getActivity(),
+									"Invalid Data-Json Exception",
+									Toast.LENGTH_LONG).show();
+						}
+					}
 					updateProfile(client);
 				}
 			}
@@ -177,22 +202,24 @@ public class MyProfileFragment extends Fragment {
 
 			((TextView) mRootView
 					.findViewById(R.id.f_my_profile_account_no_value))
-					.setText(":   "+client.getAccountNo());
+					.setText(":   " + client.getAccountNo());
 			((TextView) mRootView
 					.findViewById(R.id.f_my_profile_activation_date_value))
-					.setText(":   "+client.getActivationDate());
+					.setText(":   " + client.getActivationDate());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_name_value))
-					.setText(":   "+client.getFullname());
+					.setText(":   " + client.getFullname());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_email_value))
-					.setText(":   "+client.getEmail());
+					.setText(":   " + client.getEmail());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_phone_value))
-					.setText(":   "+client.getPhone());
+					.setText(":   " + client.getPhone());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_country_value))
-					.setText(":   "+client.getCountry());
+					.setText(":   " + client.getCountry());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_serial_value))
-					.setText(":   "+client.getHwSerialNumber());
+					.setText(":   " + client.getHwSerialNumber());
+			float bal = client.getBalanceAmount();
 			((TextView) mRootView.findViewById(R.id.f_my_profile_balance_value))
-					.setText(":   "+Float.toString(-client.getBalanceAmount()));
+					.setText(":   " + Float.toString((bal == 0.0 ? bal : -bal))
+							+ " " + client.getCurrency());
 		}
 	}
 
@@ -272,9 +299,20 @@ public class MyProfileFragment extends Fragment {
 			client.setEmail(jsonObj.getString("email"));
 			client.setPhone(jsonObj.getString("phone"));
 			client.setCountry(jsonObj.getString("country"));
-			client.setBalanceAmount((float)jsonObj.getDouble("balanceAmount"));
+			client.setBalanceAmount((float) jsonObj.getDouble("balanceAmount"));
+			client.setCurrency(jsonObj.getString("currency"));
 			client.setBalanceCheck(jsonObj.getBoolean("balanceCheck"));
 			client.setHwSerialNumber(MyApplication.androidId);
+
+			// paypal config data
+			JSONObject configJson = jsonObj
+					.getJSONObject("configurationProperty");
+			if (configJson != null) {
+				ConfigurationProperty configProperty = new ConfigurationProperty();
+				configProperty.setEnabled(configJson.getBoolean("enabled"));
+				configProperty.setValue(configJson.getString("value"));
+				client.setConfigurationProperty(configProperty);
+			}
 
 		} catch (JSONException e) {
 			Log.i(TAG, e.getMessage());
@@ -283,16 +321,6 @@ public class MyProfileFragment extends Fragment {
 		}
 
 		return client;
-	}
-
-	public void onFragKeydown(int keyCode, KeyEvent event) {
-		/*if (mProgressDialog != null)
-			if (mProgressDialog.isShowing()) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}*/
-		//mIsReqCanceled = true;
-		//mExecutorService.shutdownNow();
 	}
 
 }

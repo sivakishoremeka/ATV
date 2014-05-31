@@ -62,7 +62,6 @@ public class MyAccountActivity extends Activity {
 		transaction.commit();
 	}
 
-
 	public void btnCancel_onClick(View v) {
 
 	}
@@ -74,14 +73,6 @@ public class MyAccountActivity extends Activity {
 		} else if (keyCode == 23) {
 			View focusedView = getWindow().getCurrentFocus();
 			focusedView.performClick();
-		} else {
-			Fragment frag = getFragmentManager().findFragmentByTag(FRAG_TAG);
-			if (frag != null) {
-				if (frag instanceof MyProfileFragment)
-					((MyProfileFragment) frag).onFragKeydown(keyCode, event);
-				else if (frag instanceof MyPakagesFragment)
-					((MyPakagesFragment) frag).onFragKeydown(keyCode, event);
-			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}

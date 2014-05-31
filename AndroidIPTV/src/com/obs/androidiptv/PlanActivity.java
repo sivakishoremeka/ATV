@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -17,6 +20,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -26,6 +30,7 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.obs.adapter.CustomExpandableListAdapter;
+import com.obs.data.DeviceDatum;
 import com.obs.data.PlanDatum;
 import com.obs.data.ResponseObj;
 import com.obs.retrofit.OBSClient;
@@ -129,18 +134,8 @@ public class PlanActivity extends Activity {
 				RadioButton rb1 = (RadioButton) v
 						.findViewById(R.id.plan_list_plan_rb);
 				if (null != rb1 && (!rb1.isChecked())) {
-					//rb1.setChecked(true);
 					PlanActivity.selectedGroupItem = groupPosition;
-
-				/*	for (int i = 0; i < parent.getChildCount(); i++) {
-						RadioButton rb = (RadioButton) parent.getChildAt(i)
-								.findViewById(R.id.plan_list_plan_rb);
-						if (null != rb && groupPosition != i) {
-							rb.setChecked(false);
-						}
-					}*/
 				} else {
-				//	rb1.setChecked(false);
 					PlanActivity.selectedGroupItem = -1;
 				}
 				return false;
@@ -260,20 +255,140 @@ public class PlanActivity extends Activity {
 		protected void onPostExecute(ResponseObj resObj) {
 			super.onPostExecute(resObj);
 
-			Log.d(TAG, "onPostExecute");
+			// Log.d(TAG, "onPostExecute");
 
 			if (mProgressDialog.isShowing()) {
 				mProgressDialog.dismiss();
 			}
 			if (resObj.getStatusCode() == 200) {
-				Intent intent = new Intent(PlanActivity.this,
-						MainActivity.class);
-				PlanActivity.this.finish();
-				startActivity(intent);
+				// update balance config n Values
+				CheckBalancenGetData();
 			} else {
 				Toast.makeText(PlanActivity.this, resObj.getsErrorMessage(),
 						Toast.LENGTH_LONG).show();
 			}
 		}
 	}
+
+	private void CheckBalancenGetData() {
+		// Log.d("PlanActivity","CheckBalancenGetData");
+		validateDevice();
+	}
+
+	private void validateDevice() {
+		// Log.d("PlanActivity","validateDevice");
+		if (mProgressDialog != null && mProgressDialog.isShowing()) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+
+		mProgressDialog = new ProgressDialog(this,
+				ProgressDialog.THEME_HOLO_DARK);
+		mProgressDialog.setMessage("Connectiong to Server...");
+		mProgressDialog.setCanceledOnTouchOutside(false);
+		mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+			public void onCancel(DialogInterface arg0) {
+				if (mProgressDialog.isShowing())
+					mProgressDialog.dismiss();
+				mProgressDialog = null;
+				mIsReqCanceled = true;
+			}
+		});
+		mProgressDialog.show();
+
+		String androidId = Settings.Secure.getString(this
+				.getApplicationContext().getContentResolver(),
+				Settings.Secure.ANDROID_ID);
+		mOBSClient.getMediaDevice(androidId, deviceCallBack);
+	}
+
+	final Callback<DeviceDatum> deviceCallBack = new Callback<DeviceDatum>() {
+
+		@Override
+		public void success(DeviceDatum device, Response arg1) {
+			// Log.d("PlanActivity","success");
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+					mProgressDialog = null;
+				}
+				if (device != null) {
+					try {
+						mApplication.setClientId(Long.toString(device
+								.getClientId()));
+						mApplication.setBalance(device.getBalanceAmount());
+						mApplication.setBalanceCheck(device.isBalanceCheck());
+						mApplication.setCurrency(device.getCurrency());
+						boolean isPayPalReq = device.getPaypalConfigData()
+								.getEnabled();
+						mApplication.setPayPalReq(isPayPalReq);
+						if (isPayPalReq) {
+							String value = device.getPaypalConfigData()
+									.getValue();
+
+							JSONObject json = new JSONObject(value);
+							if (json != null) {
+								mApplication.setPayPalClientID(json.get(
+										"clientId").toString());
+								mApplication.setPayPalSecret(json.get(
+										"secretCode").toString());
+							}
+						}
+
+					} catch (JSONException e) {
+						Log.e("PlanActivity",
+								(e.getMessage() == null) ? "Json Exception" : e
+										.getMessage());
+						Toast.makeText(PlanActivity.this,
+								"Invalid Data-Json Error", Toast.LENGTH_LONG)
+								.show();
+					} catch (Exception e) {
+						Log.e("PlanActivity",
+								(e.getMessage() == null) ? "Exception" : e
+										.getMessage());
+						Toast.makeText(PlanActivity.this, "Invalid Data-Error",
+								Toast.LENGTH_LONG).show();
+					}
+				}
+			}
+			Intent intent = new Intent(PlanActivity.this, MainActivity.class);
+			PlanActivity.this.finish();
+			startActivity(intent);
+			mIsReqCanceled = false;
+		}
+
+		@Override
+		public void failure(RetrofitError retrofitError) {
+			// Log.d("ChannelsActivity","failure");
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+					mProgressDialog = null;
+				}
+				if (retrofitError.isNetworkError()) {
+					Toast.makeText(PlanActivity.this,
+							getString(R.string.error_network),
+							Toast.LENGTH_LONG).show();
+				} else if (retrofitError.getResponse().getStatus() == 403) {
+					String msg = mApplication
+							.getDeveloperMessage(retrofitError);
+					msg = (msg != null && msg.length() > 0 ? msg
+							: "Internal Server Error");
+					Toast.makeText(PlanActivity.this, msg, Toast.LENGTH_LONG)
+							.show();
+				} else {
+					Toast.makeText(
+							PlanActivity.this,
+							"Server Error : "
+									+ retrofitError.getResponse().getStatus(),
+							Toast.LENGTH_LONG).show();
+				}
+			}
+			Intent intent = new Intent(PlanActivity.this, MainActivity.class);
+			PlanActivity.this.finish();
+			startActivity(intent);
+			mIsReqCanceled = false;
+		}
+	};
 }

@@ -2,6 +2,9 @@ package com.obs.androidiptv;
 
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -111,15 +114,37 @@ public class AuthenticationAcitivity extends Activity {
 
 		@Override
 		public void success(DeviceDatum device, Response arg1) {
+		
 			if (!mIsReqCanceled) {
 				if (device != null) {
+					try {
 					/** on success save client id and check for active plans */
 					mApplication
 							.setClientId(Long.toString(device.getClientId()));
 					mApplication.setBalance(device.getBalanceAmount());
 					mApplication.setBalanceCheck(device.isBalanceCheck());
+					mApplication.setCurrency(device.getCurrency());
+					boolean isPayPalReq =device.getPaypalConfigData().getEnabled();
+					mApplication.setPayPalReq(isPayPalReq);
+					if(isPayPalReq){
+						String value = device.getPaypalConfigData().getValue();
+						
+							JSONObject json = new JSONObject(value);
+							if(json!=null){
+								mApplication.setPayPalClientID(json.get("clientId").toString());
+								mApplication.setPayPalSecret(json.get("secretCode").toString());
+							}
+					}
 					mOBSClient.getActivePlans(mApplication.getClientId(),
 							activePlansCallBack);
+					}catch(NullPointerException npe){
+						Log.e("AuthenticationAcitivity", (npe.getMessage()==null)?"NPE Exception":npe.getMessage());
+						Toast.makeText(AuthenticationAcitivity.this, "Invalid Data-NPE Exception", Toast.LENGTH_LONG).show();
+					} 
+					catch (JSONException e) {
+						Log.e("AuthenticationAcitivity", (e.getMessage()==null)?"Json Exception":e.getMessage());
+						Toast.makeText(AuthenticationAcitivity.this, "Invalid Data-Json Exception", Toast.LENGTH_LONG).show();
+					}
 				} else {
 					Toast.makeText(AuthenticationAcitivity.this,
 							"Server Error  :Device details not exists",

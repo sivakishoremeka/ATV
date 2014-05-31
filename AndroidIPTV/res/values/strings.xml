@@ -11,19 +11,24 @@
     <string name="action_refresh">Refresh</string>
     <string name="action_bar_search">Search</string>
     <string name="action_settings">Settings</string>
+    <string name="action_sort_by_categ">Category</string>
+    <string name="action_sort_by_default">Default</string>
+    <string name="action_sort_by_lang">Language</string>
+    <string name="action_sort_by">Sortby</string>
     <string name="action_vod">VOD</string>
     <string name="action_wish_list">Wish List</string>
     <string name="active_from">Active From</string>
     <string name="actvtd_on">Activated On</string>
     <string name="app_name">AndroidIPTV</string>
     <string name="balance">Balance</string>
-    <string name="basic_auth">Basic YWRtaW46b2JzQDEyMw==</string>
- <!-- Spark  admin/obs@123 -->
-    <string name="basic_auth_">Basic YmlsbGluZzpwYXNzd29yZA==</string>
- <!-- Peter  billing/password -->
+     <string name="balance_updated_at">Balance Updated At</string>
+    <string name="basic_auth">Basic YWRtaW46b2JzQDEyMw==</string> <!-- Spark  admin/obs@123 -->
+    <string name="basic_auth_">Basic YmlsbGluZzpwYXNzd29yZA==</string><!-- Peter  billing/password -->
     <string name="cancel"> Cancel </string>
     <string name="cast_crew">Cast &amp; Crew</string>
     <string name="channels_updated_at">channels updated at</string>
+     <string name="channels_category_updated_at">channels category updated at</string>
+     <string name="channels_sub_category_updated_at">channels sub category updated at</string>
     <string name="client_data">Client Data</string>
     <string name="client_pkg_data">Client Package Data</string>
     <string name="content_type">application/json</string>
@@ -60,16 +65,11 @@
     <string name="sel_country">Select Country </string>
     <string name="sel_pkg">Select Package</string>
     <string name="serialno">Serial No</string>
-    <string name="server_url">https://demo.openbillingsystem.com/obsplatform/api/v1</string>
- <!-- Spark -->
-    <string name="server_url_">https://188.138.84.29:8443/obsplatform/api/v1</string>
- <!-- Yusuf -->
-    <string name="server_url_p">https://46.21.175.210:8443/obsplatform/api/v1</string>
- <!-- Peter -->
-    <string name="server_url_q">https://80.82.222.173:8443/obsplatform/api/v1</string>
- <!-- Quasay -->
-    <string name="server_url_stro">https://provisioning.storm-media.net:8443/obsplatform/api/v1</string>
- <!-- strom -->
+    <string name="server_url_spark">https://41.76.90.173:8181/obsplatform/api/v1</string><!-- demo server -->
+  	<string name="server_url_yusuf">https://188.138.84.29:8443/obsplatform/api/v1</string><!-- Yusuf -->
+    <string name="server_url_ciprian">https://provisioning.storm-media.net:8443/obsplatform/api/v1</string><!-- strom -->
+    <string name="server_url_cristi">https://195.154.179.160:8443/obsplatform/api/v1</string><!-- cristi -->
+    <string name="server_url">https://192.168.1.101:8443/obsplatform/api/v1</string><!-- local -->
     <string name="submit"> Submit </string>
     <string name="tenent_id">default</string>
     <string name="user_name">User Name</string>
@@ -81,14 +81,14 @@
     <string-array name="arrMainMenu">
         <item>Live TV</item>
         <item>VOD</item>
-        <item>Music</item>
-        <item>Games</item>
+       <!--  <item>Music</item>
+        <item>Games</item> -->
     </string-array>
     <string-array name="arrMenuImageNames">
         <item>live_tv</item>
         <item>vod</item>
-        <item>music</item>
-        <item>games</item>
+      <!--   <item>music</item>
+        <item>games</item> -->
     </string-array>
     <string-array name="arrMyAccMenu">
 

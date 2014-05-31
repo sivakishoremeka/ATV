@@ -30,7 +30,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -66,7 +65,8 @@ public class MyPakagesFragment extends Fragment {
 		RestAdapter restAdapter = new RestAdapter.Builder()
 				.setEndpoint(mApplication.API_URL)
 				.setLogLevel(RestAdapter.LogLevel.FULL)
-				.setExecutors(Executors.newCachedThreadPool(), new MainThreadExecutor())
+				.setExecutors(Executors.newCachedThreadPool(),
+						new MainThreadExecutor())
 				.setConverter(new JSONConverter())
 				.setClient(
 						new com.obs.retrofit.CustomUrlConnectionClient(
@@ -302,16 +302,6 @@ public class MyPakagesFragment extends Fragment {
 			Log.i(TAG, e.getMessage());
 		}
 		return ordersList;
-	}
-
-	public void onFragKeydown(int keyCode, KeyEvent event) {
-		/*if (mProgressDialog != null)
-			if (mProgressDialog.isShowing()) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}*/
-		//mIsReqCanceled = true;
-		//mExecutorService.shutdownNow();
 	}
 
 }

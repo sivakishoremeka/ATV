@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,7 +24,7 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		Log.d(TAG, "onCreate");
+		// Log.d(TAG, "onCreate");
 
 		setContentView(R.layout.activity_main);
 		listView = (ListView) findViewById(R.id.a_main_lv_menu);
