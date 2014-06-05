@@ -64,9 +64,7 @@ public class MyPakagesFragment extends Fragment {
 		mApplication = ((MyApplication) mActivity.getApplicationContext());
 		RestAdapter restAdapter = new RestAdapter.Builder()
 				.setEndpoint(mApplication.API_URL)
-				.setLogLevel(RestAdapter.LogLevel.FULL)
-				.setExecutors(Executors.newCachedThreadPool(),
-						new MainThreadExecutor())
+				//.setLogLevel(RestAdapter.LogLevel.FULL)
 				.setConverter(new JSONConverter())
 				.setClient(
 						new com.obs.retrofit.CustomUrlConnectionClient(

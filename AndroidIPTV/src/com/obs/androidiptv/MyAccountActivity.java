@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
@@ -22,9 +23,7 @@ public class MyAccountActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		Log.d(TAG, "onCreate");
-
+		// Log.d(TAG, "onCreate");
 		setContentView(R.layout.activity_my_account);
 		listView = (ListView) findViewById(R.id.a_my_acc_lv_menu);
 		MyAccountMenuAdapter menuAdapter = new MyAccountMenuAdapter(this);
@@ -71,8 +70,13 @@ public class MyAccountActivity extends Activity {
 		if (keyCode == 4) {
 			this.finish();
 		} else if (keyCode == 23) {
-			View focusedView = getWindow().getCurrentFocus();
-			focusedView.performClick();
+			Window window = getWindow();
+			if (window != null) {
+				View focusedView = window.getCurrentFocus();
+				if (window != null) {
+					focusedView.performClick();
+				}
+			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}

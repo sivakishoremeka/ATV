@@ -273,29 +273,36 @@ public class ChannelsActivity extends Activity implements
 						mApplication.setBalance(device.getBalanceAmount());
 						mApplication.setBalanceCheck(device.isBalanceCheck());
 						mApplication.setCurrency(device.getCurrency());
-						boolean isPayPalReq = device.getPaypalConfigData()
-								.getEnabled();
+						boolean isPayPalReq = false;
+						if (device.getPaypalConfigData() != null)
+							isPayPalReq = device.getPaypalConfigData()
+									.getEnabled();
+						isPayPalReq = device.getPaypalConfigData().getEnabled();
 						mApplication.setPayPalReq(isPayPalReq);
 						if (isPayPalReq) {
 							String value = device.getPaypalConfigData()
 									.getValue();
-							try {
-								JSONObject json = new JSONObject(value);
-								if (json != null) {
-									mApplication.setPayPalClientID(json.get(
-											"clientId").toString());
-									mApplication.setPayPalSecret(json.get(
-											"secretCode").toString());
+							if (value != null && value.length() > 0) {
+								try {
+									JSONObject json = new JSONObject(value);
+									if (json != null) {
+										mApplication.setPayPalClientID(json
+												.get("clientId").toString());
+										// mApplication.setPayPalSecret(json.get(
+										// "secretCode").toString());
+									}
+								} catch (JSONException e) {
+									Log.e("ChannelsActivity",
+											(e.getMessage() == null) ? "Json Exception"
+													: e.getMessage());
+									Toast.makeText(ChannelsActivity.this,
+											"Invalid Data-Json Exception",
+											Toast.LENGTH_LONG).show();
 								}
-							} catch (JSONException e) {
-								Log.e("ChannelsActivity",
-										(e.getMessage() == null) ? "Json Exception"
-												: e.getMessage());
+							} else
 								Toast.makeText(ChannelsActivity.this,
-										"Invalid Data-Json Exception",
+										"Invalid Data for PayPal details",
 										Toast.LENGTH_LONG).show();
-							}
-
 						}
 					} catch (NullPointerException npe) {
 						Log.e("ChannelsActivity",
@@ -620,14 +627,15 @@ public class ChannelsActivity extends Activity implements
 								svcIntent
 										.putExtra(
 												PayPalService.EXTRA_PAYPAL_CONFIGURATION,
-												mApplication.config);
+												mApplication.getPaypalConfig());
 
 								startService(svcIntent);
 
 								PayPalPayment paymentData = new PayPalPayment(
 										new BigDecimal(mBalance), mApplication
-												.getCurrency(),
-										"AndroidIPTV-Payment",
+												.getCurrency(), getResources()
+												.getString(R.string.app_name)
+												+ " IPTV-Payment",
 										PayPalPayment.PAYMENT_INTENT_SALE);
 
 								Intent actviIntent = new Intent(
@@ -780,14 +788,15 @@ public class ChannelsActivity extends Activity implements
 								svcIntent
 										.putExtra(
 												PayPalService.EXTRA_PAYPAL_CONFIGURATION,
-												mApplication.config);
+												mApplication.getPaypalConfig());
 
 								startService(svcIntent);
 
 								PayPalPayment paymentData = new PayPalPayment(
 										new BigDecimal(mBalance), mApplication
-												.getCurrency(),
-										"AndroidIPTV-Payment",
+												.getCurrency(), getResources()
+												.getString(R.string.app_name)
+												+ " IPTV-Payment",
 										PayPalPayment.PAYMENT_INTENT_SALE);
 
 								Intent actviIntent = new Intent(
@@ -990,14 +999,13 @@ public class ChannelsActivity extends Activity implements
 
 			if (resObj.getStatusCode() == 200) {
 				if (resObj.getsResponse().length() > 0) {
-
 					JSONObject json;
 					try {
 						json = new JSONObject(resObj.getsResponse());
-
 						json = json.getJSONObject("changes");
 						if (json != null) {
-							String mPaymentStatus = json.getString("paymentStatus");
+							String mPaymentStatus = json
+									.getString("paymentStatus");
 							if (mPaymentStatus.equalsIgnoreCase("Success")) {
 								mBalance = (float) json.getLong("totalBalance");
 								mApplication.setBalance(mBalance);

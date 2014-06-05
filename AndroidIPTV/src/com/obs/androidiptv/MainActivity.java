@@ -9,6 +9,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
@@ -23,9 +24,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		// Log.d(TAG, "onCreate");
-
 		setContentView(R.layout.activity_main);
 		listView = (ListView) findViewById(R.id.a_main_lv_menu);
 		MainMenuAdapter menuAdapter = new MainMenuAdapter(this);
@@ -86,8 +85,13 @@ public class MainActivity extends Activity {
 					});
 			mConfirmDialog.show();
 		} else if (keyCode == 23) {
-			View focusedView = getWindow().getCurrentFocus();
-			focusedView.performClick();
+			Window window = getWindow();
+			if (window != null) {
+				View focusedView = window.getCurrentFocus();
+				if (window != null) {
+					focusedView.performClick();
+				}
+			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}

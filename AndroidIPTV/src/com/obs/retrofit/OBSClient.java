@@ -13,6 +13,7 @@ import com.obs.data.ClientDatum;
 import com.obs.data.DeviceDatum;
 import com.obs.data.EPGData;
 import com.obs.data.MediaDetailRes;
+import com.obs.data.MediaDetailsResDatum;
 import com.obs.data.OrderDatum;
 import com.obs.data.PlanDatum;
 import com.obs.data.ServiceDatum;
@@ -53,7 +54,7 @@ public interface OBSClient {
 	@GET("/assetdetails/{mediaId}")
 	void getMediaDetails(@Path("mediaId") String mediaId,
 			@Query("eventId") String eventId,
-			@Query("deviceId") String deviceId, Callback<Object> cb);
+			@Query("deviceId") String deviceId, Callback<MediaDetailsResDatum> cb);
 
 	@GET("/clients/{clientId}")
 	void getClinetDetails(@Path("clientId") String clientId,

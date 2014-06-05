@@ -124,16 +124,36 @@ public class AuthenticationAcitivity extends Activity {
 					mApplication.setBalance(device.getBalanceAmount());
 					mApplication.setBalanceCheck(device.isBalanceCheck());
 					mApplication.setCurrency(device.getCurrency());
-					boolean isPayPalReq =device.getPaypalConfigData().getEnabled();
+					boolean isPayPalReq = false;
+					if (device.getPaypalConfigData() != null)
+						isPayPalReq = device.getPaypalConfigData()
+								.getEnabled();
 					mApplication.setPayPalReq(isPayPalReq);
-					if(isPayPalReq){
-						String value = device.getPaypalConfigData().getValue();
-						
+					if (isPayPalReq) {
+						String value = device.getPaypalConfigData()
+								.getValue();
+						if (value != null && value.length() > 0) {
 							JSONObject json = new JSONObject(value);
-							if(json!=null){
-								mApplication.setPayPalClientID(json.get("clientId").toString());
-								mApplication.setPayPalSecret(json.get("secretCode").toString());
+							try {
+								if (json != null) {
+									mApplication.setPayPalClientID(json
+											.get("clientId").toString());
+								//	mApplication.setPayPalSecret(json.get(
+								//			"secretCode").toString());
+								}
+							} catch (NullPointerException npe) {
+								Log.e("AuthenticationAcitivity",
+										(npe.getMessage() == null) ? "NPE Exception"
+												: npe.getMessage());
+								Toast.makeText(
+										AuthenticationAcitivity.this,
+										"Invalid Data for PayPal details",
+										Toast.LENGTH_LONG).show();
 							}
+						} else
+							Toast.makeText(AuthenticationAcitivity.this,
+									"Invalid Data for PayPal details",
+									Toast.LENGTH_LONG).show();
 					}
 					mOBSClient.getActivePlans(mApplication.getClientId(),
 							activePlansCallBack);

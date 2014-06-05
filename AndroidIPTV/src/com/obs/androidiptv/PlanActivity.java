@@ -24,6 +24,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.RadioButton;
@@ -179,8 +180,14 @@ public class PlanActivity extends Activity {
 		if ((keyCode == KeyEvent.KEYCODE_BACK) || keyCode == 4) {
 			closeApp();
 		} else if (keyCode == 23) {
-			View focusedView = getWindow().getCurrentFocus();
-			focusedView.performClick();
+			Window window = getWindow();
+			if (window != null) {
+				View focusedView = window.getCurrentFocus();
+				if (window != null) {
+					focusedView.performClick();
+				}
+			}
+
 		}
 		return super.onKeyDown(keyCode, event);
 	}
@@ -320,20 +327,29 @@ public class PlanActivity extends Activity {
 						mApplication.setBalance(device.getBalanceAmount());
 						mApplication.setBalanceCheck(device.isBalanceCheck());
 						mApplication.setCurrency(device.getCurrency());
-						boolean isPayPalReq = device.getPaypalConfigData()
-								.getEnabled();
+						boolean isPayPalReq = false;
+						if (device.getPaypalConfigData() != null)
+							isPayPalReq = device.getPaypalConfigData()
+									.getEnabled();
+						isPayPalReq = device.getPaypalConfigData().getEnabled();
 						mApplication.setPayPalReq(isPayPalReq);
 						if (isPayPalReq) {
+
 							String value = device.getPaypalConfigData()
 									.getValue();
 
-							JSONObject json = new JSONObject(value);
-							if (json != null) {
-								mApplication.setPayPalClientID(json.get(
-										"clientId").toString());
-								mApplication.setPayPalSecret(json.get(
-										"secretCode").toString());
-							}
+							if (value != null && value.length() > 0) {
+								JSONObject json = new JSONObject(value);
+								if (json != null) {
+									mApplication.setPayPalClientID(json.get(
+											"clientId").toString());
+									// mApplication.setPayPalSecret(json.get(
+									// "secretCode").toString());
+								}
+							} else
+								Toast.makeText(PlanActivity.this,
+										"Invalid Data for PayPal details",
+										Toast.LENGTH_LONG).show();
 						}
 
 					} catch (JSONException e) {

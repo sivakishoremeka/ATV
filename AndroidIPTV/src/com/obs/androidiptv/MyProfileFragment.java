@@ -62,7 +62,7 @@ public class MyProfileFragment extends Fragment {
 		mApplication = ((MyApplication) mActivity.getApplicationContext());
 		RestAdapter restAdapter = new RestAdapter.Builder()
 				.setEndpoint(mApplication.API_URL)
-				.setLogLevel(RestAdapter.LogLevel.FULL)
+				.setLogLevel(RestAdapter.LogLevel.NONE)
 				.setExecutors(Executors.newCachedThreadPool(),
 						new MainThreadExecutor())
 				.setConverter(new JSONConverter())
@@ -151,28 +151,35 @@ public class MyProfileFragment extends Fragment {
 					mApplication.setBalance(client.getBalanceAmount());
 					mApplication.setCurrency(client.getCurrency());
 					mApplication.setBalanceCheck(client.isBalanceCheck());
-					boolean isPayPalReq = client.getConfigurationProperty()
-							.getEnabled();
+					boolean isPayPalReq = false;
+					if (client.getConfigurationProperty() != null)
+						isPayPalReq = client.getConfigurationProperty()
+								.getEnabled();
 					mApplication.setPayPalReq(isPayPalReq);
 					if (isPayPalReq) {
 						String value = client.getConfigurationProperty()
 								.getValue();
-						try {
-							JSONObject json = new JSONObject(value);
-							if (json != null) {
-								mApplication.setPayPalClientID(json.get(
-										"clientId").toString());
-								mApplication.setPayPalSecret(json.get(
-										"secretCode").toString());
+						if (value != null && value.length() > 0) {
+							try {
+								JSONObject json = new JSONObject(value);
+								if (json != null) {
+									mApplication.setPayPalClientID(json.get(
+											"clientId").toString());
+									//mApplication.setPayPalSecret(json.get(
+									//		"secretCode").toString());
+								}
+							} catch (JSONException e) {
+								Log.e("AuthenticationAcitivity",
+										(e.getMessage() == null) ? "Json Exception"
+												: e.getMessage());
+								Toast.makeText(getActivity(),
+										"Invalid Data-Json Exception",
+										Toast.LENGTH_LONG).show();
 							}
-						} catch (JSONException e) {
-							Log.e("AuthenticationAcitivity",
-									(e.getMessage() == null) ? "Json Exception"
-											: e.getMessage());
+						} else
 							Toast.makeText(getActivity(),
-									"Invalid Data-Json Exception",
+									"Invalid Data for PayPal details",
 									Toast.LENGTH_LONG).show();
-						}
 					}
 					updateProfile(client);
 				}

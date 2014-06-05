@@ -60,35 +60,25 @@ public class MyApplication extends Application {
 	public static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd",
 			new Locale("en"));
 	private float balance = 0;
-	private String currency = "USD";
+	private String currency = null;
 	public static String androidId;
 	private String clientId = null;
 	public boolean balanceCheck = false;
 	private boolean isPayPalReq = false;
-	private String payPalClientID = null;
-	private String payPalSecret = null;
-	public boolean D = false; // need to delete this variable
+	private static String payPalClientID = null;
+	//private static String payPalSecret = null;
+	public static boolean D = false; // need to delete this variable
 	public static Player player = Player.NATIVE_PLAYER;
+	public static PayPalConfiguration config = null;
 	
 	
 	/** PayPal configurations */
 	private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_SANDBOX;
     // note that these credentials will differ between live & sandbox environments.
-	private static final String CONFIG_CLIENT_ID = "AVqMmxDlwKnNin9LPyx1La7OW58dqm87gznLqRCOv1uSkiQLehhvHrYxi4de";
 	public static final int REQUEST_CODE_PAYMENT = 1;
 	public static final int REQUEST_CODE_FUTURE_PAYMENT = 2;
-	public static PayPalConfiguration config = new PayPalConfiguration()
-    .environment(CONFIG_ENVIRONMENT)
-    .clientId(CONFIG_CLIENT_ID)
-    // The following are only used in PayPalFuturePaymentActivity.
-    .merchantName("Android IPTV")
-    .merchantPrivacyPolicyUri(Uri.parse("https://www.example.com/privacy"))
-    .merchantUserAgreementUri(Uri.parse("https://www.example.com/legal"));
 	/**  Paypal configurations*/  
 	
-	
-	
-
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -151,7 +141,7 @@ public class MyApplication extends Application {
 	public OBSClient getOBSClient(Context context) {
 		RestAdapter restAdapter = new RestAdapter.Builder()
 				.setEndpoint(API_URL)
-				//.setLogLevel(RestAdapter.LogLevel.FULL)
+				.setLogLevel(RestAdapter.LogLevel.FULL)
 				.setClient(
 						new com.obs.retrofit.CustomUrlConnectionClient(
 								tenentId, basicAuth, contentType)).build();
@@ -409,12 +399,25 @@ public class MyApplication extends Application {
 		this.payPalClientID = paypalClientID;
 	}
 
-	public String getPayPalSecret() {
+	/*public String getPayPalSecret() {
 		return payPalSecret;
 	}
 
 	public void setPayPalSecret(String payPalSecret) {
 		this.payPalSecret = payPalSecret;
-	}
+	}*/
+	
+public PayPalConfiguration getPaypalConfig(){
+	config = new PayPalConfiguration()
+    .environment(CONFIG_ENVIRONMENT)
+    .clientId(payPalClientID)
+    // The following are only used in PayPalFuturePaymentActivity.
+    .merchantName(getResources().getString(R.string.app_name))
+    .merchantPrivacyPolicyUri(Uri.parse("https://www.example.com/privacy"))
+    .merchantUserAgreementUri(Uri.parse("https://www.example.com/legal"));
+	
+	return config;
+	
+}
 
 }
