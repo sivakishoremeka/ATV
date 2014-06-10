@@ -1,5 +1,4 @@
 package com.obs.androidiptv;
-
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -28,6 +27,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
@@ -63,8 +63,7 @@ public class VodMovieDetailsActivity extends Activity {
 	boolean mIsPayPalReq = true;
 	float mBalance;
 	AlertDialog mConfirmDialog;
-	Double mVodPrice ;
-	
+	double mVodPrice;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -109,8 +108,8 @@ public class VodMovieDetailsActivity extends Activity {
 		// Log.d("Btn Click", ((Button) v).getText().toString());
 		mIsPayPalReq = mApplication.isPayPalReq();
 		mBalance = mApplication.getBalance();
-		
-		if (mVodPrice!= 0 && (-mBalance < mVodPrice) ) {
+
+		if ((mVodPrice != 0 && (-mBalance < mVodPrice)) || mBalance > 0) {
 			AlertDialog.Builder builder = new AlertDialog.Builder((this),
 					AlertDialog.THEME_HOLO_LIGHT);
 			builder.setIcon(R.drawable.ic_logo_confirm_dialog);
@@ -142,9 +141,10 @@ public class VodMovieDetailsActivity extends Activity {
 												mApplication.getPaypalConfig());
 								startService(svcIntent);
 								PayPalPayment paymentData = new PayPalPayment(
-										new BigDecimal(mBalance+ mVodPrice), mApplication
-												.getCurrency(), getResources()
-												.getString(R.string.app_name)
+										new BigDecimal(mBalance + mVodPrice),
+										mApplication.getCurrency(),
+										getResources().getString(
+												R.string.app_name)
 												+ " VOD-Payment",
 										PayPalPayment.PAYMENT_INTENT_SALE);
 
@@ -226,7 +226,8 @@ public class VodMovieDetailsActivity extends Activity {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -242,7 +243,8 @@ public class VodMovieDetailsActivity extends Activity {
 					Toast.makeText(VodMovieDetailsActivity.this,
 							"Server Error  ", Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 
@@ -357,9 +359,9 @@ public class VodMovieDetailsActivity extends Activity {
 	public void updateUI(MediaDetailsResDatum data) {
 		if (data != null) {
 			List<PriceDetail> priceList = data.getPriceDetails();
-			if(priceList!=null && priceList.size()>0){
-				for(PriceDetail detail: priceList){
-					if(detail.getOptType().equalsIgnoreCase("RENT")){
+			if (priceList != null && priceList.size() > 0) {
+				for (PriceDetail detail : priceList) {
+					if (detail.getOptType().equalsIgnoreCase("RENT")) {
 						mVodPrice = detail.getPrice();
 						break;
 					}
@@ -378,12 +380,6 @@ public class VodMovieDetailsActivity extends Activity {
 			((TextView) findViewById(R.id.a_vod_mov_dtls_tv_lang_value))
 					.setText(getResources()
 							.getStringArray(R.array.arrLangauges)[1]);
-			/*
-			 * ((TextView) findViewById(R.id.a_vod_mov_dtls_tv_lang_value))
-			 * .setText
-			 * (getResources().getStringArray(R.array.arrLangauges)[obj.language
-			 * ]);
-			 */
 			((TextView) findViewById(R.id.a_vod_mov_dtls_tv_release_value))
 					.setText(data.getReleaseDate());
 			if (data.getActor().size() > 0) {
@@ -414,7 +410,7 @@ public class VodMovieDetailsActivity extends Activity {
 
 		mProgressDialog = new ProgressDialog(this,
 				ProgressDialog.THEME_HOLO_DARK);
-		mProgressDialog.setMessage("Connectiong to Server...");
+		mProgressDialog.setMessage("Connecting Server...");
 		mProgressDialog.setCanceledOnTouchOutside(false);
 		mProgressDialog.setOnCancelListener(new OnCancelListener() {
 
@@ -690,8 +686,13 @@ public class VodMovieDetailsActivity extends Activity {
 			mIsReqCanceled = true;
 			this.finish();
 		} else if (keyCode == 23) {
-			View focusedView = getWindow().getCurrentFocus();
-			focusedView.performClick();
+			Window window = getWindow();
+			if (window != null) {
+				View focusedView = window.getCurrentFocus();
+				if (window != null) {
+					focusedView.performClick();
+				}
+			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}

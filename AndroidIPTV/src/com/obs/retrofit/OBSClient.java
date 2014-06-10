@@ -54,7 +54,8 @@ public interface OBSClient {
 	@GET("/assetdetails/{mediaId}")
 	void getMediaDetails(@Path("mediaId") String mediaId,
 			@Query("eventId") String eventId,
-			@Query("deviceId") String deviceId, Callback<MediaDetailsResDatum> cb);
+			@Query("deviceId") String deviceId,
+			Callback<MediaDetailsResDatum> cb);
 
 	@GET("/clients/{clientId}")
 	void getClinetDetails(@Path("clientId") String clientId,

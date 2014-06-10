@@ -22,7 +22,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -192,6 +191,8 @@ public class VodActivity extends FragmentActivity
 							Toast.LENGTH_LONG).show();
 				}
 			}
+			else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -208,6 +209,8 @@ public class VodActivity extends FragmentActivity
 					mPager.setAdapter(mAdapter);
 				}
 			}
+			else
+				mIsReqCanceled = false;
 		}
 	};
 

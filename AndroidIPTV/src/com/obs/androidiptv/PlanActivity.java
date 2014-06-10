@@ -105,7 +105,8 @@ public class PlanActivity extends Activity {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -119,7 +120,8 @@ public class PlanActivity extends Activity {
 					mPlans = planList;
 					buildPlansList();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 

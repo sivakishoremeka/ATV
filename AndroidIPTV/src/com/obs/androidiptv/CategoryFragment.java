@@ -77,7 +77,7 @@ public class CategoryFragment extends Fragment {
 			}
 		});
 		mProgressDialog.show();
-		
+
 		String deviceId = Settings.Secure.getString(getActivity()
 				.getApplicationContext().getContentResolver(),
 				Settings.Secure.ANDROID_ID);
@@ -111,7 +111,8 @@ public class CategoryFragment extends Fragment {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -124,7 +125,8 @@ public class CategoryFragment extends Fragment {
 				if (objDetails != null) {
 					updateDetails(objDetails, searchDtls.rootview);
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 

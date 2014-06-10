@@ -42,6 +42,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.obs.data.ServiceDatum;
 import com.obs.database.DBHelper;
 import com.obs.imagehandler.AuthImageDownloader;
+import com.obs.retrofit.CustomUrlConnectionClient;
 import com.obs.retrofit.OBSClient;
 import com.paypal.android.sdk.payments.PayPalConfiguration;
 
@@ -73,7 +74,7 @@ public class MyApplication extends Application {
 	
 	
 	/** PayPal configurations */
-	private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_SANDBOX;
+	private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_PRODUCTION;
     // note that these credentials will differ between live & sandbox environments.
 	public static final int REQUEST_CODE_PAYMENT = 1;
 	public static final int REQUEST_CODE_FUTURE_PAYMENT = 2;
@@ -143,7 +144,7 @@ public class MyApplication extends Application {
 				.setEndpoint(API_URL)
 				.setLogLevel(RestAdapter.LogLevel.FULL)
 				.setClient(
-						new com.obs.retrofit.CustomUrlConnectionClient(
+						new CustomUrlConnectionClient(
 								tenentId, basicAuth, contentType)).build();
 		return restAdapter.create(OBSClient.class);
 	}

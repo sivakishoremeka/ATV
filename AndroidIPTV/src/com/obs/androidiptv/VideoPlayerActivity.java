@@ -1,5 +1,5 @@
 package com.obs.androidiptv;
-
+import java.io.IOException;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -8,12 +8,15 @@ import android.app.ProgressDialog;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnKeyListener;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -50,6 +53,43 @@ public class VideoPlayerActivity extends Activity implements
 	private String mSearchString;
 	private String mSelection;
 	private String[] mSelectionArgs;
+
+	public boolean stopThread = true;
+	public int currentPosition = 0;
+	public int lastPosition = 0;
+	BufferrChk bChk = null;
+	private Handler threadHandler = new Handler() {
+		public void handleMessage(Message msg) {
+			if (msg.what == 1) {
+				if (mProgressDialog != null && !mProgressDialog.isShowing()) {
+					showProgressDialog("Buffering...");
+				} else if (mProgressDialog == null) {
+					showProgressDialog("Buffering...");
+				}
+			} else if (mProgressDialog != null && mProgressDialog.isShowing()) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+				stopThread = true;
+			}
+		}
+	};
+	
+	public void showProgressDialog(String msg){
+		mProgressDialog = new ProgressDialog(
+				VideoPlayerActivity.this,
+				ProgressDialog.THEME_HOLO_DARK);
+		mProgressDialog.setMessage(msg);
+		mProgressDialog.setCancelable(true);
+		mProgressDialog.setCanceledOnTouchOutside(false);
+		mProgressDialog.setOnKeyListener(new OnKeyListener() {
+			
+			@Override
+			public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+				return dispatchKeyEvent(event);
+			}
+		});
+		mProgressDialog.show();
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -201,6 +241,7 @@ public class VideoPlayerActivity extends Activity implements
 	protected void onPause() {
 		// Log.d("VideoPlayerActivity", "surfaceDestroyed");
 		if (player != null && player.isPlaying()) {
+			stopThread = true;
 			controller.hide();
 			player.stop();
 			player.release();
@@ -214,7 +255,16 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-
+		stopThread = true;
+	}
+	
+	@Override
+	public void onDestroy() {
+	    super.onDestroy();
+	    if (mProgressDialog != null && mProgressDialog.isShowing()) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
 	}
 
 	// End SurfaceHolder.Callback
@@ -235,6 +285,9 @@ public class VideoPlayerActivity extends Activity implements
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
 		}
+		bChk = new BufferrChk();
+		stopThread = false;
+		bChk.start();
 		mp.start();
 	}
 
@@ -242,15 +295,23 @@ public class VideoPlayerActivity extends Activity implements
 	public boolean onError(MediaPlayer mp, int what, int extra) {
 		// Log.d(TAG, "Media player Error is...what:" + what + " Extra:" +
 		// extra);
-
+		stopThread = true;
 		if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == -2147483648) {
 
+			if (mProgressDialog != null && mProgressDialog.isShowing()) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
 			Toast.makeText(
 					getApplicationContext(),
 					"Incorrect URL or Unsupported Media Format.Media player closed.",
 					Toast.LENGTH_LONG).show();
 		} else if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == -1004) {
 
+			if (mProgressDialog != null && mProgressDialog.isShowing()) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
 			Toast.makeText(
 					getApplicationContext(),
 					"Invalid Stream for this channel... Please try other channel",
@@ -335,7 +396,7 @@ public class VideoPlayerActivity extends Activity implements
 		if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == 4) {
 
 			// Log.d("onKeyDown", "KeyCodeback");
-
+			stopThread = true;
 			if (player != null) {
 				if (player.isPlaying()) {
 					controller.hide();
@@ -419,11 +480,11 @@ public class VideoPlayerActivity extends Activity implements
 				}
 				return true;
 			}
-		} else if (keyCode ==23) {  //23
-			
-			if(controller.isShowing()){
+		} else if (keyCode == 23) { // 23
+
+			if (controller.isShowing()) {
 				controller.hide();
-			}else{
+			} else {
 				controller.show();
 			}
 		} else
@@ -625,10 +686,47 @@ public class VideoPlayerActivity extends Activity implements
 		}
 	}
 
-	/*
-	 * @Override public void onLoaderReset(Loader<Cursor> loader) {
-	 * 
-	 * }
-	 */
+	public class BufferrChk extends Thread {
+		@Override
+		public void run() {
+			try {
+				while (player != null) {
+
+					if (stopThread) {
+						currentPosition = 0;
+						lastPosition = 0;
+						break;
+					}
+
+					currentPosition = player.getCurrentPosition();
+					lastPosition = player.getDuration();
+					Message msg = new Message();
+					if (currentPosition != lastPosition
+							|| currentPosition > lastPosition)
+						msg.what = 0;
+					else
+						msg.what = 1;
+					lastPosition = currentPosition;
+					threadHandler.sendMessage(msg);
+
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+						System.out.println("interrupt exeption" + e);
+					}
+
+				}
+
+			}
+
+			catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.out.println("My exeption" + e);
+			}
+
+		}
+	}
 
 }

@@ -523,7 +523,8 @@ public class ChannelsActivity extends Activity implements
 					updateEPGDetails(null);
 				}
 
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 

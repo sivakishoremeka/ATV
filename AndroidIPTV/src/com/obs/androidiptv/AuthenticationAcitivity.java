@@ -93,7 +93,8 @@ public class AuthenticationAcitivity extends Activity {
 					startActivity(intent);
 				}
 				AuthenticationAcitivity.this.finish();
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -106,7 +107,8 @@ public class AuthenticationAcitivity extends Activity {
 						"Server Error : "
 								+ retrofitError.getResponse().getStatus(),
 						Toast.LENGTH_LONG).show();
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 
@@ -114,63 +116,71 @@ public class AuthenticationAcitivity extends Activity {
 
 		@Override
 		public void success(DeviceDatum device, Response arg1) {
-		
+
 			if (!mIsReqCanceled) {
 				if (device != null) {
 					try {
-					/** on success save client id and check for active plans */
-					mApplication
-							.setClientId(Long.toString(device.getClientId()));
-					mApplication.setBalance(device.getBalanceAmount());
-					mApplication.setBalanceCheck(device.isBalanceCheck());
-					mApplication.setCurrency(device.getCurrency());
-					boolean isPayPalReq = false;
-					if (device.getPaypalConfigData() != null)
-						isPayPalReq = device.getPaypalConfigData()
-								.getEnabled();
-					mApplication.setPayPalReq(isPayPalReq);
-					if (isPayPalReq) {
-						String value = device.getPaypalConfigData()
-								.getValue();
-						if (value != null && value.length() > 0) {
-							JSONObject json = new JSONObject(value);
-							try {
-								if (json != null) {
-									mApplication.setPayPalClientID(json
-											.get("clientId").toString());
-								//	mApplication.setPayPalSecret(json.get(
-								//			"secretCode").toString());
+						/** on success save client id and check for active plans */
+						mApplication.setClientId(Long.toString(device
+								.getClientId()));
+						mApplication.setBalance(device.getBalanceAmount());
+						mApplication.setBalanceCheck(device.isBalanceCheck());
+						mApplication.setCurrency(device.getCurrency());
+						boolean isPayPalReq = false;
+						if (device.getPaypalConfigData() != null)
+							isPayPalReq = device.getPaypalConfigData()
+									.getEnabled();
+						mApplication.setPayPalReq(isPayPalReq);
+						if (isPayPalReq) {
+							String value = device.getPaypalConfigData()
+									.getValue();
+							if (value != null && value.length() > 0) {
+								JSONObject json = new JSONObject(value);
+								try {
+									if (json != null) {
+										mApplication.setPayPalClientID(json
+												.get("clientId").toString());
+										// mApplication.setPayPalSecret(json.get(
+										// "secretCode").toString());
+									}
+								} catch (NullPointerException npe) {
+									Log.e("AuthenticationAcitivity",
+											(npe.getMessage() == null) ? "NPE Exception"
+													: npe.getMessage());
+									Toast.makeText(
+											AuthenticationAcitivity.this,
+											"Invalid Data for PayPal details",
+											Toast.LENGTH_LONG).show();
 								}
-							} catch (NullPointerException npe) {
-								Log.e("AuthenticationAcitivity",
-										(npe.getMessage() == null) ? "NPE Exception"
-												: npe.getMessage());
-								Toast.makeText(
-										AuthenticationAcitivity.this,
+							} else
+								Toast.makeText(AuthenticationAcitivity.this,
 										"Invalid Data for PayPal details",
 										Toast.LENGTH_LONG).show();
-							}
-						} else
-							Toast.makeText(AuthenticationAcitivity.this,
-									"Invalid Data for PayPal details",
-									Toast.LENGTH_LONG).show();
-					}
-					mOBSClient.getActivePlans(mApplication.getClientId(),
-							activePlansCallBack);
-					}catch(NullPointerException npe){
-						Log.e("AuthenticationAcitivity", (npe.getMessage()==null)?"NPE Exception":npe.getMessage());
-						Toast.makeText(AuthenticationAcitivity.this, "Invalid Data-NPE Exception", Toast.LENGTH_LONG).show();
-					} 
-					catch (JSONException e) {
-						Log.e("AuthenticationAcitivity", (e.getMessage()==null)?"Json Exception":e.getMessage());
-						Toast.makeText(AuthenticationAcitivity.this, "Invalid Data-Json Exception", Toast.LENGTH_LONG).show();
+						}
+						mOBSClient.getActivePlans(mApplication.getClientId(),
+								activePlansCallBack);
+					} catch (NullPointerException npe) {
+						Log.e("AuthenticationAcitivity",
+								(npe.getMessage() == null) ? "NPE Exception"
+										: npe.getMessage());
+						Toast.makeText(AuthenticationAcitivity.this,
+								"Invalid Data-NPE Exception", Toast.LENGTH_LONG)
+								.show();
+					} catch (JSONException e) {
+						Log.e("AuthenticationAcitivity",
+								(e.getMessage() == null) ? "Json Exception" : e
+										.getMessage());
+						Toast.makeText(AuthenticationAcitivity.this,
+								"Invalid Data-Json Exception",
+								Toast.LENGTH_LONG).show();
 					}
 				} else {
 					Toast.makeText(AuthenticationAcitivity.this,
 							"Server Error  :Device details not exists",
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -202,7 +212,8 @@ public class AuthenticationAcitivity extends Activity {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 

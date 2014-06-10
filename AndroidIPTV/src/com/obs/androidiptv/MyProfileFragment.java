@@ -40,6 +40,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.obs.data.ClientDatum;
 import com.obs.data.ConfigurationProperty;
+import com.obs.retrofit.CustomUrlConnectionClient;
 import com.obs.retrofit.OBSClient;
 
 public class MyProfileFragment extends Fragment {
@@ -67,7 +68,7 @@ public class MyProfileFragment extends Fragment {
 						new MainThreadExecutor())
 				.setConverter(new JSONConverter())
 				.setClient(
-						new com.obs.retrofit.CustomUrlConnectionClient(
+						new CustomUrlConnectionClient(
 								mApplication.tenentId, mApplication.basicAuth,
 								mApplication.contentType)).build();
 		mOBSClient = restAdapter.create(OBSClient.class);
@@ -130,7 +131,8 @@ public class MyProfileFragment extends Fragment {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -165,8 +167,8 @@ public class MyProfileFragment extends Fragment {
 								if (json != null) {
 									mApplication.setPayPalClientID(json.get(
 											"clientId").toString());
-									//mApplication.setPayPalSecret(json.get(
-									//		"secretCode").toString());
+									// mApplication.setPayPalSecret(json.get(
+									// "secretCode").toString());
 								}
 							} catch (JSONException e) {
 								Log.e("AuthenticationAcitivity",
@@ -183,7 +185,8 @@ public class MyProfileFragment extends Fragment {
 					}
 					updateProfile(client);
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 
 		}
 	};

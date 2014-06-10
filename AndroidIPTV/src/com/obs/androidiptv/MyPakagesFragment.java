@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Executors;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,7 +13,6 @@ import org.json.JSONObject;
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
-import retrofit.android.MainThreadExecutor;
 import retrofit.client.Response;
 import retrofit.converter.ConversionException;
 import retrofit.converter.Converter;
@@ -42,6 +40,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.obs.data.OrderDatum;
+import com.obs.retrofit.CustomUrlConnectionClient;
 import com.obs.retrofit.OBSClient;
 
 public class MyPakagesFragment extends Fragment {
@@ -64,10 +63,10 @@ public class MyPakagesFragment extends Fragment {
 		mApplication = ((MyApplication) mActivity.getApplicationContext());
 		RestAdapter restAdapter = new RestAdapter.Builder()
 				.setEndpoint(mApplication.API_URL)
-				//.setLogLevel(RestAdapter.LogLevel.FULL)
+				// .setLogLevel(RestAdapter.LogLevel.FULL)
 				.setConverter(new JSONConverter())
 				.setClient(
-						new com.obs.retrofit.CustomUrlConnectionClient(
+						new CustomUrlConnectionClient(
 								mApplication.tenentId, mApplication.basicAuth,
 								mApplication.contentType)).build();
 		mOBSClient = restAdapter.create(OBSClient.class);
@@ -131,7 +130,8 @@ public class MyPakagesFragment extends Fragment {
 					editor.commit();
 					updatePackages(orderList);
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 
 		}
 
@@ -154,7 +154,8 @@ public class MyPakagesFragment extends Fragment {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 
 		}
 	};
