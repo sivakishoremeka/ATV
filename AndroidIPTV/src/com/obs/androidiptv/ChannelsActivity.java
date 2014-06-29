@@ -52,6 +52,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.obs.androidiptv.MyApplication.SetAppState;
 import com.obs.androidiptv.MyApplication.SortBy;
 import com.obs.data.DeviceDatum;
 import com.obs.data.EPGData;
@@ -61,6 +62,7 @@ import com.obs.data.ServiceDatum;
 import com.obs.database.DBHelper;
 import com.obs.database.ServiceProvider;
 import com.obs.retrofit.OBSClient;
+import com.obs.service.DoBGTasksService;
 import com.obs.utils.Utilities;
 import com.paypal.android.sdk.payments.PayPalPayment;
 import com.paypal.android.sdk.payments.PayPalService;
@@ -117,14 +119,14 @@ public class ChannelsActivity extends Activity implements
 		player = new MediaPlayer();
 
 		mApplication = ((MyApplication) getApplicationContext());
-		mOBSClient = mApplication.getOBSClient(this);
+		mOBSClient = mApplication.getOBSClient();
 		mPrefs = mApplication.getPrefs();
 		mIsBalCheckReq = mApplication.isBalanceCheck();
 		mIsPayPalReq = mApplication.isPayPalReq();
 		mBalance = mApplication.getBalance();
 
 		Calendar c = Calendar.getInstance();
-		mDate = mApplication.df.format(c.getTime()); // dt is now the new date
+		mDate = MyApplication.df.format(c.getTime()); // dt is now the new date
 
 	}
 
@@ -202,6 +204,36 @@ public class ChannelsActivity extends Activity implements
 		return true;
 	}
 
+	@Override
+	protected void onStart() {
+		// Log.d(TAG, "OnStart");
+		MyApplication.startCount++;
+		if (!MyApplication.isActive) {
+			// Log.d(TAG, "SendIntent");
+
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_ACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStart();
+	}
+
+	@Override
+	protected void onStop() {
+		// Log.d(TAG, "onStop");
+		MyApplication.stopCount++;
+
+		if (MyApplication.stopCount == MyApplication.startCount
+				&& MyApplication.isActive) {
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_INACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStop();
+	}
+	
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		initiallizePlayer();
@@ -648,7 +680,7 @@ public class ChannelsActivity extends Activity implements
 										paymentData);
 
 								startActivityForResult(actviIntent,
-										mApplication.REQUEST_CODE_PAYMENT);
+										MyApplication.REQUEST_CODE_PAYMENT);
 							}
 						}
 					});
@@ -809,7 +841,7 @@ public class ChannelsActivity extends Activity implements
 										paymentData);
 
 								startActivityForResult(actviIntent,
-										mApplication.REQUEST_CODE_PAYMENT);
+										MyApplication.REQUEST_CODE_PAYMENT);
 							}
 						}
 					});
@@ -876,14 +908,14 @@ public class ChannelsActivity extends Activity implements
 
 	public boolean isRemoteDeviceValidationReq() {
 		Calendar cal = Calendar.getInstance();
-		String sCurrDate = mApplication.df.format(cal.getTime());
+		String sCurrDate = MyApplication.df.format(cal.getTime());
 
 		String sUpdatedAt = mApplication.getPrefs().getString(
 				getString(R.string.balance_updated_at), "");
 		if (sUpdatedAt != null && sUpdatedAt.length() > 0) {
 			try {
-				Date dCurrDate = mApplication.df.parse(sCurrDate);
-				Date dUpdatedAt = mApplication.df.parse(sUpdatedAt);
+				Date dCurrDate = MyApplication.df.parse(sCurrDate);
+				Date dUpdatedAt = MyApplication.df.parse(sUpdatedAt);
 
 				if (dUpdatedAt.compareTo(dCurrDate) < 0) {
 					return true;

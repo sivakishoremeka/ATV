@@ -1,7 +1,5 @@
 package com.obs.androidiptv;
 
-import java.util.Calendar;
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager;
@@ -12,7 +10,6 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +28,7 @@ public class ChannelsByDefOrderFrag extends Fragment implements
 		AdapterView.OnItemSelectedListener,
 		AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener {
 
-	private static final String TAG = ChannelsByDefOrderFrag.class.getName();
+//	private static final String TAG = ChannelsByDefOrderFrag.class.getName();
 	private Callbacks mCallbacks = sDummyCallbacks;
 
 	private ListView lv;
@@ -90,7 +87,7 @@ public class ChannelsByDefOrderFrag extends Fragment implements
 	 */
 	public ChannelsByDefOrderFrag() {
 
-		Log.d(TAG, "ItemListFragment constructor");
+		//Log.d(TAG, "ItemListFragment constructor");
 	}
 
 	@Override
@@ -112,8 +109,7 @@ public class ChannelsByDefOrderFrag extends Fragment implements
 		super.onCreate(savedInstanceState);
 
 		mApplication = (MyApplication) getActivity().getApplicationContext();
-		mOBSClient = mApplication.getOBSClient(getActivity());
-		Calendar c = Calendar.getInstance();
+		mOBSClient = mApplication.getOBSClient();
 		setRetainInstance(true);
 		setHasOptionsMenu(true);
 	}

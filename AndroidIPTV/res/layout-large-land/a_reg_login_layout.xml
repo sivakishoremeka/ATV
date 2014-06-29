@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="240dp"
+    android:layout_height="260dp"
+    android:layout_gravity="center_horizontal"
+    android:background="@drawable/img_bg_reg_forum"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/a_reg_tv_user_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:text="User Login"
+        android:textColor="#5A5A5A"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/a_reg_et_login_email_id"
+        android:layout_width="200dp"
+        android:layout_height="25dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="13dp"
+        android:background="@drawable/img_et_reg"
+        android:hint="@string/email_id"
+        android:inputType="textEmailAddress"
+        android:paddingLeft="10dp"
+        android:textSize="14sp" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/a_reg_et_password"
+        android:layout_width="200dp"
+        android:layout_height="25dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="9dp"
+        android:background="@drawable/img_et_reg"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:paddingLeft="10dp"
+        android:textSize="14sp" />
+
+    <LinearLayout
+        android:layout_width="200dp"
+        android:layout_height="28dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="13dp"
+        android:layout_marginTop="5dp" >
+
+        <Button
+            android:id="@+id/a_reg_btn_cancel"
+            android:layout_width="60dp"
+            android:layout_height="28dp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/selector_btn"
+            android:nextFocusDown="@+id/a_reg_btn_submit"
+            android:nextFocusLeft="@+id/a_reg_et_email_id"
+            android:nextFocusRight="@+id/a_reg_btn_submit"
+            android:nextFocusUp="@+id/a_reg_et_email_id"
+            android:onClick="btnCancel_onClick"
+            android:text="@string/cancel"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/a_reg_btn_submit"
+            android:layout_width="60dp"
+            android:layout_height="28dp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/selector_btn"
+            android:nextFocusLeft="@+id/a_reg_btn_cancel"
+            android:nextFocusUp="@+id/a_reg_btn_cancel"
+            android:onClick="btnLogin_onClick"
+            android:text="@string/submit"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/a_reg_tv_register"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:clickable="true"
+        android:gravity="center_horizontal"
+        android:onClick="textRegister_onClick"
+        android:text="@string/reg_new_user"
+        android:textColor="#0AA4E6"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/a_reg_tv_note"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginTop="3dp"
+        android:gravity="center_horizontal"
+        android:text="@string/reg_note"
+        android:textColor="#5A5A5A"
+        android:textSize="10sp" />
+
+</LinearLayout>

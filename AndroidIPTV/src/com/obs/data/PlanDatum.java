@@ -29,6 +29,8 @@ private Boolean isActive;
  
 private Integer planCount;
 
+public String orderId;
+
 public Integer getId() {
 return id;
 }

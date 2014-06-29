@@ -3,6 +3,7 @@ package com.obs.androidiptv;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -12,10 +13,12 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.obs.adapter.MyAccountMenuAdapter;
+import com.obs.androidiptv.MyApplication.SetAppState;
+import com.obs.service.DoBGTasksService;
 
 public class MyAccountActivity extends Activity {
 
-	private static final String TAG = MyAccountActivity.class.getName();
+	// private static final String TAG = MyAccountActivity.class.getName();
 	ListView listView;
 	private static final String FRAG_TAG = "My Fragment";
 
@@ -65,9 +68,43 @@ public class MyAccountActivity extends Activity {
 	}
 
 	@Override
+	protected void onStart() {
+
+		// Log.d(TAG, "OnStart");
+		MyApplication.startCount++;
+		if (!MyApplication.isActive) {
+			// Log.d(TAG, "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_ACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStart();
+	}
+
+	@Override
+	protected void onStop() {
+		// Log.d(TAG, "onStop");
+		MyApplication.stopCount++;
+		if (MyApplication.stopCount == MyApplication.startCount
+				&& MyApplication.isActive) {
+			// Log.d("sendIntent", "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_INACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStop();
+	}
+
+	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == 4) {
-			this.finish();
+			Fragment frag = getFragmentManager().findFragmentByTag(FRAG_TAG);
+			if (frag instanceof MyPakagesFragment) {
+				((MyPakagesFragment) frag).onBackPressed();
+				return true;
+			}
 		} else if (keyCode == 23) {
 			Window window = getWindow();
 			if (window != null) {
@@ -78,6 +115,14 @@ public class MyAccountActivity extends Activity {
 			}
 		}
 		return super.onKeyDown(keyCode, event);
+	}
+
+	public void btnSubmit_onClick(View v) {
+		Fragment frag = getFragmentManager().findFragmentByTag(FRAG_TAG);
+		if (frag instanceof MyPakagesFragment) {
+			((MyPakagesFragment) frag).btnSubmit_onClick(v);
+		}
+
 	}
 
 }

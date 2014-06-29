@@ -1,7 +1,7 @@
 package com.obs.data;
 
 public class OrderDatum {
-	public String orderNo;
+	public String orderId;
 	public String planCode;
 	public int pdid;
 
@@ -10,12 +10,12 @@ public class OrderDatum {
 	public String invoiceTilldate;
 	public String status;
 
-	public String getOrderNo() {
-		return orderNo;
+	public String getOrderId() {
+		return orderId;
 	}
 
-	public void setOrderNo(String orderNo) {
-		this.orderNo = orderNo;
+	public void setOrderId(String orderId) {
+		this.orderId = orderId;
 	}
 
 	public String getPlanCode() {

@@ -44,7 +44,7 @@ import com.obs.retrofit.CustomUrlConnectionClient;
 import com.obs.retrofit.OBSClient;
 
 public class MyProfileFragment extends Fragment {
-	public static String TAG = MyProfileFragment.class.getName();
+	//public static String TAG = MyProfileFragment.class.getName();
 	private ProgressDialog mProgressDialog;
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
@@ -62,15 +62,15 @@ public class MyProfileFragment extends Fragment {
 		mActivity = getActivity();
 		mApplication = ((MyApplication) mActivity.getApplicationContext());
 		RestAdapter restAdapter = new RestAdapter.Builder()
-				.setEndpoint(mApplication.API_URL)
+				.setEndpoint(MyApplication.API_URL)
 				.setLogLevel(RestAdapter.LogLevel.NONE)
 				.setExecutors(Executors.newCachedThreadPool(),
 						new MainThreadExecutor())
 				.setConverter(new JSONConverter())
 				.setClient(
 						new CustomUrlConnectionClient(
-								mApplication.tenentId, mApplication.basicAuth,
-								mApplication.contentType)).build();
+								MyApplication.tenentId, MyApplication.basicAuth,
+								MyApplication.contentType)).build();
 		mOBSClient = restAdapter.create(OBSClient.class);
 		CLIENT_DATA = mApplication.getResources().getString(
 				R.string.client_data);
@@ -115,7 +115,7 @@ public class MyProfileFragment extends Fragment {
 		@Override
 		public void failure(RetrofitError retrofitError) {
 			if (!mIsReqCanceled) {
-				Log.d(TAG, "getClientDetailsCallBack-failure");
+				//Log.d(TAG, "getClientDetailsCallBack-failure");
 				if (mProgressDialog != null) {
 					mProgressDialog.dismiss();
 					mProgressDialog = null;
@@ -138,7 +138,7 @@ public class MyProfileFragment extends Fragment {
 		@Override
 		public void success(ClientDatum client, Response response) {
 			if (!mIsReqCanceled) {
-				Log.d(TAG, "templateCallBack-success");
+				//Log.d(TAG, "templateCallBack-success");
 				if (mProgressDialog != null) {
 					mProgressDialog.dismiss();
 					mProgressDialog = null;
@@ -274,7 +274,7 @@ public class MyProfileFragment extends Fragment {
 						.in());
 				client = parseJsonToClient(json);
 			} catch (IOException e) {
-				Log.i(TAG, e.getMessage());
+				Log.i("MyProfileFragment", e.getMessage());
 			}
 			return client;
 		}
@@ -325,9 +325,9 @@ public class MyProfileFragment extends Fragment {
 			}
 
 		} catch (JSONException e) {
-			Log.i(TAG, e.getMessage());
+			Log.i("MyProfileFragment", e.getMessage());
 		} catch (ParseException e) {
-			Log.i(TAG, e.getMessage());
+			Log.i("MyProfileFragment", e.getMessage());
 		}
 
 		return client;

@@ -31,15 +31,17 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.obs.adapter.CustomExpandableListAdapter;
+import com.obs.androidiptv.MyApplication.SetAppState;
 import com.obs.data.DeviceDatum;
 import com.obs.data.PlanDatum;
 import com.obs.data.ResponseObj;
 import com.obs.retrofit.OBSClient;
+import com.obs.service.DoBGTasksService;
 import com.obs.utils.Utilities;
 
 public class PlanActivity extends Activity {
 
-	public static String TAG = PlanActivity.class.getName();
+	//public static String TAG = PlanActivity.class.getName();
 	private final static String NETWORK_ERROR = "Network error.";
 	private ProgressDialog mProgressDialog;
 
@@ -59,9 +61,40 @@ public class PlanActivity extends Activity {
 		setContentView(R.layout.activity_plan);
 
 		mApplication = ((MyApplication) getApplicationContext());
-		mOBSClient = mApplication.getOBSClient(this);
+		mOBSClient = mApplication.getOBSClient();
 		fetchAndBuildPlanList();
 	}
+	
+	@Override
+	protected void onStart() {
+
+		// Log.d(TAG, "OnStart");
+		MyApplication.startCount++;
+		if (!MyApplication.isActive) {
+			// Log.d(TAG, "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_ACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStart();
+	}
+
+	@Override
+	protected void onStop() {
+		// Log.d(TAG, "onStop");
+		MyApplication.stopCount++;
+		if (MyApplication.stopCount == MyApplication.startCount
+				&& MyApplication.isActive) {
+			// Log.d("sendIntent", "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_INACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStop();
+	}
+	
 
 	public void fetchAndBuildPlanList() {
 		if (mProgressDialog != null) {
@@ -205,7 +238,7 @@ public class PlanActivity extends Activity {
 		protected void onPreExecute() {
 			super.onPreExecute();
 
-			Log.d(TAG, "onPreExecute");
+		//	Log.d("PlanActivity", "onPreExecute");
 
 			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
@@ -229,7 +262,7 @@ public class PlanActivity extends Activity {
 		@Override
 		protected ResponseObj doInBackground(Void... params) {
 
-			Log.d(TAG, "doInBackground");
+			//Log.d(TAG, "doInBackground");
 
 			PlanDatum plan = mPlans.get(selectedGroupItem);
 			ResponseObj resObj = new ResponseObj();

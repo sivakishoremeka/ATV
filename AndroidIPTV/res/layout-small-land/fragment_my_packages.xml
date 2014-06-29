@@ -1,55 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="10dp" >
+    android:layout_height="match_parent" >
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/a_plan_tv_selpkg"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="3dp" >
-
-        <TextView
-            android:id="@+id/f_my_pkgs_pkg_name_h"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="4.5"
-            android:text="@string/package_name"
-            android:textSize="12sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/f_my_pkgs_actvtd_on_h"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2.75"
-            android:text="@string/actvtd_on"
-            android:textSize="12sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/f_my_pkgs_valid_till_h"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2.75"
-            android:text="@string/valid_till"
-            android:textSize="12sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:gravity="right"
+        android:padding="7sp"
+        android:textSize="12sp"
+        android:textStyle="bold" />
 
     <View
         android:id="@+id/f_my_profile_hr_line1"
         android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginTop="3dp"
-        android:background="#C3C1C2" />
+        android:layout_height="3dp"
+        android:layout_below="@+id/a_plan_tv_selpkg"
+         android:divider="@color/default_blue" />
 
     <LinearLayout
-        android:id="@+id/f_my_pkgs_container"
-        android:layout_width="match_parent"
+        android:id="@+id/a_plan_linlayout"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="3dp" >
+
+        <Button
+            android:id="@+id/a_plan_btn_submit"
+             android:layout_width="80dp"
+            android:layout_height="28dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/selector_vod_mov_dtls_btn_hd"
+            android:minWidth="60dp"
+            android:onClick="btnSubmit_onClick"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
-</LinearLayout>
+    <ExpandableListView
+        android:id="@+id/f_my_pkg_exlv_my_plans"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/a_plan_linlayout"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/f_my_profile_hr_line1"
+        android:divider="@color/default_blue"
+        android:dividerHeight="2dp"
+        android:scrollbars="vertical" />
+
+</RelativeLayout>

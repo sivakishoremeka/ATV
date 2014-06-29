@@ -11,7 +11,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +28,7 @@ import com.obs.retrofit.OBSClient;
 
 public class CategoryFragment extends Fragment {
 
-	private static final String TAG = CategoryFragment.class.getName();
+	//private static final String TAG = CategoryFragment.class.getName();
 	private ProgressDialog mProgressDialog;
 	private SearchDetails searchDtls;
 	private SharedPreferences mPrefs;
@@ -46,7 +45,7 @@ public class CategoryFragment extends Fragment {
 				container, false);
 
 		mApplication = ((MyApplication) getActivity().getApplicationContext());
-		mOBSClient = mApplication.getOBSClient(getActivity());
+		mOBSClient = mApplication.getOBSClient();
 
 		mPrefs = getActivity().getSharedPreferences(mApplication.PREFS_FILE, 0);
 		String category = mPrefs.getString("CATEGORY", "RELEASE");
@@ -58,7 +57,7 @@ public class CategoryFragment extends Fragment {
 
 	public void getDetails(SearchDetails sd) {
 
-		Log.d(TAG, "getDetails");
+		//Log.d(TAG, "getDetails");
 
 		if (mProgressDialog != null) {
 			mProgressDialog.dismiss();

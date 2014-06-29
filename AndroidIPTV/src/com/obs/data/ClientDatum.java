@@ -19,6 +19,7 @@ public class ClientDatum {
 	private String country;
 	private String flag;
 	private String email;
+	public  String password;
 	private String zipCode;
 	private String active;
 	private String dateFormat;

@@ -1,7 +1,5 @@
 package com.obs.androidiptv;
 
-import java.util.Calendar;
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager;
@@ -30,7 +28,8 @@ public class ChannelsBySortOrderFrag extends Fragment implements
 		ExpandableListView.OnChildClickListener,
 		AdapterView.OnItemSelectedListener, AdapterView.OnItemLongClickListener {
 
-	private static final String TAG = ChannelsBySortOrderFrag.class.getName();
+	// private static final String TAG =
+	// ChannelsBySortOrderFrag.class.getName();
 
 	private ProgressDialog mProgressDialog;
 
@@ -83,7 +82,7 @@ public class ChannelsBySortOrderFrag extends Fragment implements
 	};
 
 	public ChannelsBySortOrderFrag() {
-		Log.d(TAG, "ItemListFragment constructor");
+		// Log.d(TAG, "ItemListFragment constructor");
 	}
 
 	@Override
@@ -106,8 +105,7 @@ public class ChannelsBySortOrderFrag extends Fragment implements
 		super.onCreate(savedInstanceState);
 		mApplication = ((MyApplication) getActivity().getApplicationContext());
 		mApplication = (MyApplication) getActivity().getApplicationContext();
-		mOBSClient = mApplication.getOBSClient(getActivity());
-		Calendar c = Calendar.getInstance();
+		mOBSClient = mApplication.getOBSClient();
 		setRetainInstance(true);
 		setHasOptionsMenu(true);
 	}

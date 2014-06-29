@@ -31,14 +31,16 @@ import android.widget.Toast;
 
 import com.obs.adapter.MyFragmentPagerAdapter;
 import com.obs.adapter.VodCategoryAdapter;
+import com.obs.androidiptv.MyApplication.SetAppState;
 import com.obs.data.MediaDetailRes;
 import com.obs.retrofit.OBSClient;
+import com.obs.service.DoBGTasksService;
 
 public class VodActivity extends FragmentActivity 
 //implements
 //		SearchView.OnQueryTextListener
 {
-	private static final String TAG = VodActivity.class.getName();
+	//private static final String TAG = VodActivity.class.getName();
 	public static int ITEMS;
 	private final static String CATEGORY = "CATEGORY";
 	MyFragmentPagerAdapter mAdapter;
@@ -63,7 +65,7 @@ public class VodActivity extends FragmentActivity
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		mApplication = ((MyApplication) getApplicationContext());
-		mOBSClient = mApplication.getOBSClient(this);
+		mOBSClient = mApplication.getOBSClient();
 
 		mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
 		mPrefsEditor = mPrefs.edit();
@@ -119,6 +121,35 @@ public class VodActivity extends FragmentActivity
 				mPager.setCurrentItem(ITEMS - 1);
 			}
 		});
+	}
+	@Override
+	protected void onStart() {
+
+		// Log.d(TAG, "OnStart");
+		MyApplication.startCount++;
+		if (!MyApplication.isActive) {
+			// Log.d(TAG, "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_ACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStart();
+	}
+
+	@Override
+	protected void onStop() {
+		// Log.d(TAG, "onStop");
+		MyApplication.stopCount++;
+		if (MyApplication.stopCount == MyApplication.startCount
+				&& MyApplication.isActive) {
+			// Log.d("sendIntent", "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_INACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStop();
 	}
 
 	@Override

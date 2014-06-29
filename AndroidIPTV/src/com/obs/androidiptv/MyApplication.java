@@ -68,13 +68,17 @@ public class MyApplication extends Application {
 	private boolean isPayPalReq = false;
 	private static String payPalClientID = null;
 	//private static String payPalSecret = null;
-	public static boolean D = false; // need to delete this variable
+//	public static boolean D = false; // need to delete this variable
 	public static Player player = Player.NATIVE_PLAYER;
 	public static PayPalConfiguration config = null;
 	
+	//app background check
+	public static int startCount = 0 ;
+	public static int stopCount = 0 ;
+	public static boolean isActive = false;
 	
 	/** PayPal configurations */
-	private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_PRODUCTION;
+	private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_SANDBOX;
     // note that these credentials will differ between live & sandbox environments.
 	public static final int REQUEST_CODE_PAYMENT = 1;
 	public static final int REQUEST_CODE_FUTURE_PAYMENT = 2;
@@ -139,7 +143,7 @@ public class MyApplication extends Application {
 		return false;
 	}
 
-	public OBSClient getOBSClient(Context context) {
+	public OBSClient getOBSClient() {
 		RestAdapter restAdapter = new RestAdapter.Builder()
 				.setEndpoint(API_URL)
 				.setLogLevel(RestAdapter.LogLevel.FULL)
@@ -150,7 +154,7 @@ public class MyApplication extends Application {
 	}
 
 	public void PullnInsertServices(SQLiteDatabase db) {
-		OBSClient mOBSClient = getOBSClient(this);
+		OBSClient mOBSClient = getOBSClient();
 		prefs = getPrefs();
 		editor = getEditor();
 		db.delete(DBHelper.TABLE_SERVICES, null, null);
@@ -160,7 +164,7 @@ public class MyApplication extends Application {
 		if (serviceList != null && serviceList.size() > 0) {
 			/** saving channel details to preferences */
 			Date date = new Date();
-			String formattedDate = this.df.format(date);
+			String formattedDate = df.format(date);
 			editor.putString(
 					getResources().getString(R.string.channels_updated_at),
 					formattedDate);
@@ -202,7 +206,7 @@ public class MyApplication extends Application {
 						+DBHelper.CATEGORY+" is NOT NULL " , null);//+  " ORDER BY "+ DBHelper.CATEGORY + " ASC", null);
 		if (cursor.getCount() > 0) {
 			Date date = new Date();
-			String formattedDate = this.df.format(date);
+			String formattedDate = df.format(date);
 			editor.putString(
 					getResources().getString(
 							R.string.channels_category_updated_at),
@@ -235,7 +239,7 @@ public class MyApplication extends Application {
 				+DBHelper.SUB_CATEGORY+" is NOT NULL ", null);// + " ORDER BY "+ DBHelper.SUB_CATEGORY + " ASC", null);
 		if (cursor.getCount() > 0) {
 			Date date = new Date();
-			String formattedDate = this.df.format(date);
+			String formattedDate = df.format(date);
 			editor.putString(
 					getResources().getString(
 							R.string.channels_sub_category_updated_at),
@@ -285,6 +289,10 @@ public class MyApplication extends Application {
 
 	public enum SortBy {
 		DEFAULT, CATEGORY, LANGUAGE,
+	}
+	
+	public enum SetAppState {
+		SET_ACTIVE,SET_INACTIVE
 	}
 
 	public String getResponseOnSuccess(Response response) {
@@ -397,7 +405,7 @@ public class MyApplication extends Application {
 	}
 
 	public void setPayPalClientID(String paypalClientID) {
-		this.payPalClientID = paypalClientID;
+		payPalClientID = paypalClientID;
 	}
 
 	/*public String getPayPalSecret() {
