@@ -1,4 +1,5 @@
 package com.obs.androidiptv;
+
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -35,13 +36,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.obs.androidiptv.MyApplication.SetAppState;
 import com.obs.data.DeviceDatum;
 import com.obs.data.MediaDetailsResDatum;
 import com.obs.data.PriceDetail;
 import com.obs.data.ResponseObj;
 import com.obs.retrofit.OBSClient;
-import com.obs.service.DoBGTasksService;
 import com.obs.utils.Utilities;
 import com.paypal.android.sdk.payments.PayPalPayment;
 import com.paypal.android.sdk.payments.PayPalService;
@@ -90,36 +89,6 @@ public class VodMovieDetailsActivity extends Activity {
 			validateDevice();
 		}
 
-	}
-	
-	@Override
-	protected void onStart() {
-
-		// Log.d(TAG, "OnStart");
-		MyApplication.startCount++;
-		if (!MyApplication.isActive) {
-			// Log.d(TAG, "SendIntent");
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_ACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStart();
-	}
-
-	@Override
-	protected void onStop() {
-		// Log.d(TAG, "onStop");
-		MyApplication.stopCount++;
-		if (MyApplication.stopCount == MyApplication.startCount
-				&& MyApplication.isActive) {
-			// Log.d("sendIntent", "SendIntent");
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_INACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStop();
 	}
 
 	@Override

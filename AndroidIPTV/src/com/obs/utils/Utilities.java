@@ -36,7 +36,7 @@ import com.obs.data.ResponseObj;
 
 public class Utilities {
 
-	private static final String TAG = "Utilities";
+	//private static final String TAG = "Utilities";
 	public static String tenentId;
 	public static String basicAuth;
 	public static String contentType;
@@ -222,8 +222,8 @@ public class Utilities {
 					"application/json"));
 			httpPut.setEntity(se);
 
-			Log.d("ApiPutMethod : URL", httpPut.getURI().toString());
-			Log.d("ApiPutMethod : ", json.toString());
+			//Log.d("ApiPutMethod : URL", httpPut.getURI().toString());
+			//Log.d("ApiPutMethod : ", json.toString());
 
 			HttpResponse response = client.execute(httpPut);
 			StatusLine statusLine = response.getStatusLine();

@@ -72,13 +72,8 @@ public class MyApplication extends Application {
 	public static Player player = Player.NATIVE_PLAYER;
 	public static PayPalConfiguration config = null;
 	
-	//app background check
-	public static int startCount = 0 ;
-	public static int stopCount = 0 ;
-	public static boolean isActive = false;
-	
 	/** PayPal configurations */
-	private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_SANDBOX;
+	private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_PRODUCTION;
     // note that these credentials will differ between live & sandbox environments.
 	public static final int REQUEST_CODE_PAYMENT = 1;
 	public static final int REQUEST_CODE_FUTURE_PAYMENT = 2;
@@ -146,7 +141,7 @@ public class MyApplication extends Application {
 	public OBSClient getOBSClient() {
 		RestAdapter restAdapter = new RestAdapter.Builder()
 				.setEndpoint(API_URL)
-				.setLogLevel(RestAdapter.LogLevel.FULL)
+				.setLogLevel(RestAdapter.LogLevel.NONE)
 				.setClient(
 						new CustomUrlConnectionClient(
 								tenentId, basicAuth, contentType)).build();
@@ -289,10 +284,6 @@ public class MyApplication extends Application {
 
 	public enum SortBy {
 		DEFAULT, CATEGORY, LANGUAGE,
-	}
-	
-	public enum SetAppState {
-		SET_ACTIVE,SET_INACTIVE
 	}
 
 	public String getResponseOnSuccess(Response response) {

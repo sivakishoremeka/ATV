@@ -3,7 +3,6 @@ package com.obs.androidiptv;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -13,8 +12,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.obs.adapter.MyAccountMenuAdapter;
-import com.obs.androidiptv.MyApplication.SetAppState;
-import com.obs.service.DoBGTasksService;
 
 public class MyAccountActivity extends Activity {
 
@@ -65,36 +62,6 @@ public class MyAccountActivity extends Activity {
 
 	public void btnCancel_onClick(View v) {
 
-	}
-
-	@Override
-	protected void onStart() {
-
-		// Log.d(TAG, "OnStart");
-		MyApplication.startCount++;
-		if (!MyApplication.isActive) {
-			// Log.d(TAG, "SendIntent");
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_ACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStart();
-	}
-
-	@Override
-	protected void onStop() {
-		// Log.d(TAG, "onStop");
-		MyApplication.stopCount++;
-		if (MyApplication.stopCount == MyApplication.startCount
-				&& MyApplication.isActive) {
-			// Log.d("sendIntent", "SendIntent");
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_INACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStop();
 	}
 
 	@Override

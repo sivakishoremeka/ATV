@@ -1,4 +1,5 @@
 package com.obs.androidiptv;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -8,7 +9,6 @@ import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnKeyListener;
-import android.content.Intent;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -28,12 +28,10 @@ import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.obs.androidiptv.MyApplication.SetAppState;
 import com.obs.androidiptv.MyApplication.SortBy;
 import com.obs.data.ServiceDatum;
 import com.obs.database.DBHelper;
 import com.obs.database.ServiceProvider;
-import com.obs.service.DoBGTasksService;
 
 public class VideoPlayerActivity extends Activity implements
 		SurfaceHolder.Callback, MediaPlayer.OnPreparedListener,
@@ -75,18 +73,18 @@ public class VideoPlayerActivity extends Activity implements
 			}
 		}
 	};
-	
-	public void showProgressDialog(String msg){
-		mProgressDialog = new ProgressDialog(
-				VideoPlayerActivity.this,
+
+	public void showProgressDialog(String msg) {
+		mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
 				ProgressDialog.THEME_HOLO_DARK);
 		mProgressDialog.setMessage(msg);
 		mProgressDialog.setCancelable(true);
 		mProgressDialog.setCanceledOnTouchOutside(false);
 		mProgressDialog.setOnKeyListener(new OnKeyListener() {
-			
+
 			@Override
-			public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+			public boolean onKey(DialogInterface dialog, int keyCode,
+					KeyEvent event) {
 				return dispatchKeyEvent(event);
 			}
 		});
@@ -156,35 +154,6 @@ public class VideoPlayerActivity extends Activity implements
 		 */
 	}
 
-	@Override
-	protected void onStart() {
-
-		// Log.d(TAG, "OnStart");
-		MyApplication.startCount++;
-		if (!MyApplication.isActive) {
-			// Log.d(TAG, "SendIntent");
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_ACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStart();
-	}
-
-	@Override
-	protected void onStop() {
-		// Log.d(TAG, "onStop");
-		MyApplication.stopCount++;
-		if (MyApplication.stopCount == MyApplication.startCount
-				&& MyApplication.isActive) {
-			// Log.d("sendIntent", "SendIntent");
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_INACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStop();
-	}
 	private void prepareChannelsList() {
 		Cursor cursor = null;
 		mSelection = getIntent().getStringExtra("SELECTION");
@@ -288,11 +257,11 @@ public class VideoPlayerActivity extends Activity implements
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		stopThread = true;
 	}
-	
+
 	@Override
 	public void onDestroy() {
-	    super.onDestroy();
-	    if (mProgressDialog != null && mProgressDialog.isShowing()) {
+		super.onDestroy();
+		if (mProgressDialog != null && mProgressDialog.isShowing()) {
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
 		}

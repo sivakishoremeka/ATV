@@ -52,7 +52,6 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.obs.androidiptv.MyApplication.SetAppState;
 import com.obs.androidiptv.MyApplication.SortBy;
 import com.obs.data.DeviceDatum;
 import com.obs.data.EPGData;
@@ -62,7 +61,6 @@ import com.obs.data.ServiceDatum;
 import com.obs.database.DBHelper;
 import com.obs.database.ServiceProvider;
 import com.obs.retrofit.OBSClient;
-import com.obs.service.DoBGTasksService;
 import com.obs.utils.Utilities;
 import com.paypal.android.sdk.payments.PayPalPayment;
 import com.paypal.android.sdk.payments.PayPalService;
@@ -204,36 +202,6 @@ public class ChannelsActivity extends Activity implements
 		return true;
 	}
 
-	@Override
-	protected void onStart() {
-		// Log.d(TAG, "OnStart");
-		MyApplication.startCount++;
-		if (!MyApplication.isActive) {
-			// Log.d(TAG, "SendIntent");
-
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_ACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStart();
-	}
-
-	@Override
-	protected void onStop() {
-		// Log.d(TAG, "onStop");
-		MyApplication.stopCount++;
-
-		if (MyApplication.stopCount == MyApplication.startCount
-				&& MyApplication.isActive) {
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_INACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStop();
-	}
-	
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		initiallizePlayer();

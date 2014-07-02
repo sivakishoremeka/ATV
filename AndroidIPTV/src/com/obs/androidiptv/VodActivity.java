@@ -31,16 +31,14 @@ import android.widget.Toast;
 
 import com.obs.adapter.MyFragmentPagerAdapter;
 import com.obs.adapter.VodCategoryAdapter;
-import com.obs.androidiptv.MyApplication.SetAppState;
 import com.obs.data.MediaDetailRes;
 import com.obs.retrofit.OBSClient;
-import com.obs.service.DoBGTasksService;
 
-public class VodActivity extends FragmentActivity 
-//implements
-//		SearchView.OnQueryTextListener
+public class VodActivity extends FragmentActivity
+// implements
+// SearchView.OnQueryTextListener
 {
-	//private static final String TAG = VodActivity.class.getName();
+	// private static final String TAG = VodActivity.class.getName();
 	public static int ITEMS;
 	private final static String CATEGORY = "CATEGORY";
 	MyFragmentPagerAdapter mAdapter;
@@ -54,7 +52,7 @@ public class VodActivity extends FragmentActivity
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
 	boolean mIsReqCanceled = false;
-	
+
 	String mSearchString;
 
 	@Override
@@ -122,42 +120,14 @@ public class VodActivity extends FragmentActivity
 			}
 		});
 	}
-	@Override
-	protected void onStart() {
-
-		// Log.d(TAG, "OnStart");
-		MyApplication.startCount++;
-		if (!MyApplication.isActive) {
-			// Log.d(TAG, "SendIntent");
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_ACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStart();
-	}
 
 	@Override
-	protected void onStop() {
-		// Log.d(TAG, "onStop");
-		MyApplication.stopCount++;
-		if (MyApplication.stopCount == MyApplication.startCount
-				&& MyApplication.isActive) {
-			// Log.d("sendIntent", "SendIntent");
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_INACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStop();
-	}
-
-	@Override
-	protected void onNewIntent(Intent intent) {		
+	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
 		Log.d("onNewIntent", "onNewIntent");
-		if(null!=intent.getAction()&&intent.getAction().equals(Intent.ACTION_SEARCH)){
-			Log.d(intent.getStringExtra(SearchManager.QUERY),"onNewIntent");
+		if (null != intent.getAction()
+				&& intent.getAction().equals(Intent.ACTION_SEARCH)) {
+			Log.d(intent.getStringExtra(SearchManager.QUERY), "onNewIntent");
 			mSearchString = intent.getStringExtra(SearchManager.QUERY);
 			listView.clearChoices();
 			mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
@@ -167,7 +137,7 @@ public class VodActivity extends FragmentActivity
 			setPageCountAndGetDetails();
 		}
 	}
-	
+
 	protected void setPageCountAndGetDetails() {
 		mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
 		String category = mPrefs.getString(CATEGORY, "");
@@ -189,9 +159,9 @@ public class VodActivity extends FragmentActivity
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
 				mIsReqCanceled = true;
-				//if (null != mExecutorService)
-				//	if (!mExecutorService.isShutdown())
-				//		mExecutorService.shutdownNow();
+				// if (null != mExecutorService)
+				// if (!mExecutorService.isShutdown())
+				// mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();
@@ -221,8 +191,7 @@ public class VodActivity extends FragmentActivity
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
-			else
+			} else
 				mIsReqCanceled = false;
 		}
 
@@ -239,8 +208,7 @@ public class VodActivity extends FragmentActivity
 							getSupportFragmentManager());
 					mPager.setAdapter(mAdapter);
 				}
-			}
-			else
+			} else
 				mIsReqCanceled = false;
 		}
 	};
@@ -250,9 +218,9 @@ public class VodActivity extends FragmentActivity
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.nav_menu, menu);
 		MenuItem searchItem = menu.findItem(R.id.action_search);
-	    searchItem.setVisible(true);
-	    MenuItem refreshItem = menu.findItem(R.id.action_refresh);
-	    refreshItem.setVisible(true);
+		searchItem.setVisible(true);
+		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
+		refreshItem.setVisible(true);
 		return true;
 	}
 
@@ -271,7 +239,7 @@ public class VodActivity extends FragmentActivity
 			break;
 		case R.id.action_search:
 			onSearchRequested();
-		break;
+			break;
 		case R.id.action_refresh:
 			setPageCountAndGetDetails();
 			break;
