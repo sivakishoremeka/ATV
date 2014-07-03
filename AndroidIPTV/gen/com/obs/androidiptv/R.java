@@ -1620,7 +1620,7 @@ containing a value of this type.
         public static final int basic_auth_=0x7f0b0023;
         /**  Peter  billing/password 
          */
-        public static final int basic_auth_ciprian=0x7f0b0024;
+        public static final int basic_auth____=0x7f0b0024;
         /** buleus:l29e2031a 
          */
         public static final int cancel=0x7f0b0025;
@@ -1674,24 +1674,27 @@ containing a value of this type.
         public static final int server_url=0x7f0b0055;
         /**  Yusuf 
          */
-        public static final int server_url_cristi=0x7f0b0057;
+        public static final int server_url___=0x7f0b0057;
+        /**  strom 
+         */
+        public static final int server_url_cristi=0x7f0b0058;
         /**  cristi 
          */
-        public static final int server_url_local=0x7f0b0058;
+        public static final int server_url_local=0x7f0b0059;
         /**  demo server 
          */
         public static final int server_url_yusuf=0x7f0b0056;
         /**  local 
          */
-        public static final int submit=0x7f0b0059;
-        public static final int subscribe=0x7f0b005a;
-        public static final int tenent_id=0x7f0b005b;
-        public static final int user_login=0x7f0b005c;
-        public static final int user_name=0x7f0b005d;
-        public static final int user_reg=0x7f0b005e;
-        public static final int valid_till=0x7f0b005f;
-        public static final int vod=0x7f0b0060;
-        public static final int watch=0x7f0b0061;
+        public static final int submit=0x7f0b005a;
+        public static final int subscribe=0x7f0b005b;
+        public static final int tenent_id=0x7f0b005c;
+        public static final int user_login=0x7f0b005d;
+        public static final int user_name=0x7f0b005e;
+        public static final int user_reg=0x7f0b005f;
+        public static final int valid_till=0x7f0b0060;
+        public static final int vod=0x7f0b0061;
+        public static final int watch=0x7f0b0062;
     }
     public static final class style {
         /** 

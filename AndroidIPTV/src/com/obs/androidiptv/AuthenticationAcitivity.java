@@ -16,8 +16,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -46,24 +44,6 @@ public class AuthenticationAcitivity extends Activity {
 		mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 		mBtnRefresh = (Button) findViewById(R.id.btn_refresh);
 		validateDevice();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.menu, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.action_refresh:
-			validateDevice();
-			break;
-		default:
-			break;
-		}
-		return true;
 	}
 
 	private void validateDevice() {

@@ -235,6 +235,7 @@ public class MyProfileFragment extends Fragment {
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		menu.clear();
 		inflater.inflate(R.menu.nav_menu, menu);
 		MenuItem homeItem = menu.findItem(R.id.action_home);
 		homeItem.setVisible(true);

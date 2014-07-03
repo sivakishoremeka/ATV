@@ -24,7 +24,7 @@
      <string name="balance_updated_at">Balance Updated At</string>
     <string name="basic_auth">Basic YWRtaW46b2JzQDEyMw==</string> <!-- Spark  admin/obs@123 -->
     <string name="basic_auth_">Basic YmlsbGluZzpwYXNzd29yZA==</string><!-- Peter  billing/password -->
-    <string name="basic_auth_ciprian">Basic YnVsZXVzOmwyOWUyMDMxYQ==</string><!--buleus:l29e2031a -->
+    <string name="basic_auth____">Basic YnVsZXVzOmwyOWUyMDMxYQ==</string><!--buleus:l29e2031a -->
     <string name="cancel"> Cancel </string>
     <string name="cast_crew">Cast &amp; Crew</string>
     <string name="channels_updated_at">channels updated at</string>
@@ -76,6 +76,7 @@
     <string name="serialno">Serial No</string>
     <string name="server_url">https://41.76.90.173:8181/obsplatform/api/v1</string><!-- demo server -->
   	<string name="server_url_yusuf">https://188.138.84.29:8443/obsplatform/api/v1</string><!-- Yusuf -->
+  	<string name="server_url___">https://provisioning.storm-media.net:8443/obsplatform/api/v1</string> <!-- strom -->
     <string name="server_url_cristi">https://195.154.179.160:8443/obsplatform/api/v1</string><!-- cristi -->
     <string name="server_url_local">https://192.168.123.164:8443/obsplatform/api/v1</string><!-- local -->
     <string name="submit"> Submit </string>

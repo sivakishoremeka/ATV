@@ -47,12 +47,14 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.obs.adapter.PackageAdapter;
+import com.obs.androidiptv.MyApplication.DoBGTasks;
 import com.obs.data.DeviceDatum;
 import com.obs.data.OrderDatum;
 import com.obs.data.PlanDatum;
 import com.obs.data.ResponseObj;
 import com.obs.retrofit.CustomUrlConnectionClient;
 import com.obs.retrofit.OBSClient;
+import com.obs.service.DoBGTasksService;
 import com.obs.utils.Utilities;
 
 public class MyPakagesFragment extends Fragment {
@@ -335,6 +337,7 @@ public class MyPakagesFragment extends Fragment {
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		menu.clear();
 		inflater.inflate(R.menu.nav_menu, menu);
 		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
 		refreshItem.setVisible(true);
@@ -685,9 +688,13 @@ public class MyPakagesFragment extends Fragment {
 					}
 				}
 
-				UpdateUI();
 				Toast.makeText(mActivity, "Plan Change Success",
 						Toast.LENGTH_LONG).show();
+				Intent intent = new Intent(mActivity, DoBGTasksService.class);
+				intent.putExtra(DoBGTasksService.TASK_ID,
+						DoBGTasks.UPDATESERVICES.ordinal());
+				mActivity.startService(intent);
+				UpdateUI();
 			}
 
 		}
