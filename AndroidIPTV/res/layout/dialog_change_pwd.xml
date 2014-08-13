@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:background="@drawable/img_bg_reg_forum"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/f_my_profile_cp_dialog_tv_cp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/change_pwd"
+        android:textColor="#5A5A5A"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/f_my_profile_cp_dialog_et_email_id"
+        android:layout_width="200dp"
+        android:layout_height="25dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="13dp"
+        android:background="@drawable/img_et_reg"
+        android:hint="@string/email_id"
+        android:inputType="textEmailAddress"
+        android:paddingLeft="10dp"
+        android:textSize="14sp" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/f_my_profile_cp_dialog_et_new_pwd"
+        android:layout_width="200dp"
+        android:layout_height="25dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="13dp"
+        android:background="@drawable/img_et_reg"
+        android:hint="@string/profile_new_pwd"
+        android:inputType="textWebPassword"
+        android:paddingLeft="10dp"
+        android:textSize="14sp" >
+    </EditText>
+
+    <LinearLayout
+        android:layout_width="200dp"
+        android:layout_height="28dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="13dp"
+        android:layout_marginTop="5dp" >
+
+          <Button
+            android:id="@+id/f_my_profile_cp_dialog_btn_cancel"
+            android:layout_width="60dp"
+            android:layout_height="28dp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:layout_weight="1"
+           android:background="@drawable/selector_btn"
+            android:text="@string/cancel"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold"  />
+
+        <Button
+            android:id="@+id/f_my_profile_cp_dialog_btn_submit"
+            android:layout_width="60dp"
+            android:layout_height="28dp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/selector_btn"
+            android:text="@string/submit"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+        
+        
+        
+  
+    </LinearLayout>
+
+</LinearLayout>

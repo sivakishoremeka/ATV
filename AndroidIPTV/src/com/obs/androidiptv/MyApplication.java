@@ -286,7 +286,7 @@ public class MyApplication extends Application {
 		DEFAULT, CATEGORY, LANGUAGE,
 	}
 	public enum DoBGTasks {
-		UPDATESERVICES,UPDATECLIENT_CONFIGS
+		UPDATESERVICES_CONFIGS,UPDATECLIENT_CONFIGS
 	}
 
 	public String getResponseOnSuccess(Response response) {

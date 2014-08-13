@@ -34,12 +34,15 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.obs.data.ClientDatum;
 import com.obs.data.RegClientRespDatum;
+import com.obs.data.ResForgetPwd;
 import com.obs.data.ResponseObj;
+import com.obs.data.SenderMailId;
 import com.obs.data.TemplateDatum;
 import com.obs.retrofit.OBSClient;
 import com.obs.utils.Utilities;
 
-public class RegisterActivity extends Activity {
+public class RegisterActivity extends Activity implements
+		ForgetPwdDialogFragment.PwdSubmitClickListener {
 
 	//public static String TAG = RegisterActivity.class.getName();
 	private final static String NETWORK_ERROR = "Network error.";
@@ -71,6 +74,10 @@ public class RegisterActivity extends Activity {
 
 		mApplication = ((MyApplication) getApplicationContext());
 		mOBSClient = mApplication.getOBSClient();
+	}
+
+	public void textForgetPwd_onClick(View v) {
+		showDialog();
 	}
 
 	public void textRegister_onClick(View v) {
@@ -139,9 +146,9 @@ public class RegisterActivity extends Activity {
 		mProgressDialog.setCanceledOnTouchOutside(false);
 		mProgressDialog.setOnCancelListener(new OnCancelListener() {
 			public void onCancel(DialogInterface arg0) {
-
-				if (mProgressDialog.isShowing())
+				if (mProgressDialog != null && mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
+				mProgressDialog = null;
 			}
 		});
 		mProgressDialog.show();
@@ -189,7 +196,7 @@ public class RegisterActivity extends Activity {
 			} catch (Exception e) {
 				Log.e("templateCallBack-success", e.getMessage());
 				Toast.makeText(RegisterActivity.this,
-						"Server Error : Country Name not Specified",
+						"Server Error : Country/City/State not Specified",
 						Toast.LENGTH_LONG).show();
 			}
 		}
@@ -207,6 +214,10 @@ public class RegisterActivity extends Activity {
 					Toast.LENGTH_LONG).show();
 		} else if (et_LastName.getText().toString().length() <= 0) {
 			Toast.makeText(RegisterActivity.this, "Please enter Last Name",
+					Toast.LENGTH_LONG).show();
+		}
+		if (et_Password.getText().toString().length() <= 0) {
+			Toast.makeText(RegisterActivity.this, "Please enter Password",
 					Toast.LENGTH_LONG).show();
 		} else if (email.matches(emailPattern)) {
 			ClientDatum client = new ClientDatum();
@@ -569,4 +580,91 @@ public class RegisterActivity extends Activity {
 				RegClientRespDatum.class);
 		return response;
 	}
+
+	@Override
+	public void onPwdSubmitClickListener(String mailId) {
+		new PwdSenderTask().execute(mailId);
+	}
+
+	private class PwdSenderTask extends
+			AsyncTask<String, Void, ResForgetPwd> {
+
+		retrofit.RetrofitError error = null;
+		int status = -1;
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			if (mProgressDialog != null) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			mProgressDialog = new ProgressDialog(RegisterActivity.this,
+					ProgressDialog.THEME_HOLO_DARK);
+			mProgressDialog.setMessage("Please wait...");
+			mProgressDialog.setCanceledOnTouchOutside(false);
+			mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+				public void onCancel(DialogInterface arg0) {
+					if (mProgressDialog.isShowing())
+						mProgressDialog.dismiss();
+					cancel(true);
+				}
+			});
+			mProgressDialog.show();
+		}
+
+		@Override
+		protected ResForgetPwd doInBackground(String... arg0) {
+
+			String mailId = arg0[0];
+			ResForgetPwd result = null;
+			if (mApplication.isNetworkAvailable()) {
+				OBSClient mOBSClient = mApplication.getOBSClient();
+
+				if (mailId != null && mailId.length() != 0) {
+					try {
+						result = mOBSClient
+								.sendPasswordToMail(new SenderMailId(mailId));
+					} catch (Exception e) {
+						error = ((retrofit.RetrofitError) e);
+						status = error.getResponse().getStatus();
+					}
+				}
+			} else {
+				Toast.makeText(RegisterActivity.this, "Communication Error.",
+						Toast.LENGTH_LONG).show();
+			}
+
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(ResForgetPwd result) {
+			if (mProgressDialog != null) {
+				if (mProgressDialog.isShowing())
+					mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			if (result != null || status == -1) {
+
+				Toast.makeText(RegisterActivity.this,
+						getResources().getString(R.string.password_mail),
+						Toast.LENGTH_LONG).show();
+			} else {
+				final String toastMsg = (status == 403 ? mApplication
+						.getDeveloperMessage(error)
+						: "Server Communication Error");// errMsg;
+				Toast.makeText(RegisterActivity.this, toastMsg,
+						Toast.LENGTH_LONG).show();
+			}
+		}
+	}
+
+	void showDialog() {
+		// Create the fragment and show it as a dialog.
+		ForgetPwdDialogFragment newFragment = new ForgetPwdDialogFragment();
+		newFragment.show(getFragmentManager(), "dialog");
+	}
+
 }

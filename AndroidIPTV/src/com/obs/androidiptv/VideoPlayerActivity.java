@@ -48,7 +48,6 @@ public class VideoPlayerActivity extends Activity implements
 	private boolean isLiveController;
 	private ArrayList<ServiceDatum> mserviceList = new ArrayList<ServiceDatum>();
 	private String mVideoType = null;
-	private String mIsRefresh = "false";
 	private int mSortBy = 0;
 	private String mSearchString;
 	private String mSelection;
@@ -57,6 +56,7 @@ public class VideoPlayerActivity extends Activity implements
 	public boolean stopThread = true;
 	public int currentPosition = 0;
 	public int lastPosition = 0;
+	public int MediaServerDiedCount = 0;
 	BufferrChk bChk = null;
 	private Handler threadHandler = new Handler() {
 		public void handleMessage(Message msg) {
@@ -111,6 +111,7 @@ public class VideoPlayerActivity extends Activity implements
 		videoSurface = (SurfaceView) findViewById(R.id.videoSurface);
 		SurfaceHolder videoHolder = videoSurface.getHolder();
 		videoHolder.addCallback(this);
+		MediaServerDiedCount = 0;
 		player = new MediaPlayer();
 
 		mVideoType = getIntent().getStringExtra("VIDEOTYPE");
@@ -210,7 +211,7 @@ public class VideoPlayerActivity extends Activity implements
 	public void surfaceCreated(SurfaceHolder holder) {
 
 		// Log.d("VideoPlayerActivity", "surfaceCreated");
-
+		MediaServerDiedCount = 0;
 		player.setDisplay(holder);
 		/*
 		 * getLoaderManager().initLoader(getIntent().getIntExtra("REQTYPE", 1),
@@ -261,6 +262,8 @@ public class VideoPlayerActivity extends Activity implements
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		threadHandler.removeMessages(1);
+		threadHandler.removeMessages(0);
 		if (mProgressDialog != null && mProgressDialog.isShowing()) {
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
@@ -316,9 +319,35 @@ public class VideoPlayerActivity extends Activity implements
 					getApplicationContext(),
 					"Invalid Stream for this channel... Please try other channel",
 					Toast.LENGTH_LONG).show();
+		}  else if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
+			// threadHandler.sendMessage(msg);
+			MediaServerDiedCount++;
+			if(MediaServerDiedCount<2){
+			Toast.makeText(getApplicationContext(),
+					"Server or Network Error.Please wait Connecting...",
+					Toast.LENGTH_LONG).show();
+
+			reinitializeplayer();
+			}
+			else{
+				stopThread = true;
+				if (player != null) {
+					if (player.isPlaying()) {
+						player.stop();
+						player.release();
+						player = null;
+					}
+				}
+				threadHandler.removeMessages(1);
+				threadHandler.removeMessages(0);
+				Toast.makeText(getApplicationContext(),
+						"Server or Network Error.Please try again.",
+						Toast.LENGTH_LONG).show();
+				finish();
+			}
 		} else {
-			controller.mHandler.removeMessages(controller.SHOW_PROGRESS);
-			controller.mHandler.removeMessages(controller.FADE_OUT);
+			controller.mHandler.removeMessages(VideoControllerView.SHOW_PROGRESS);
+			controller.mHandler.removeMessages(VideoControllerView.FADE_OUT);
 			changeChannel(mChannelUri, mChannelId);
 		}
 
@@ -684,6 +713,69 @@ public class VideoPlayerActivity extends Activity implements
 		} catch (Exception e) {
 			Log.e(TAG, "Videoplayer-Cursor Exception");
 		}
+	}
+
+	private void reinitializeplayer() {
+		if (player != null) {
+			if (player.isPlaying())
+				player.stop();
+			player.release();
+			player = null;
+		}
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+					WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		} else {
+			View decorView = getWindow().getDecorView();
+			int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+					| View.SYSTEM_UI_FLAG_LOW_PROFILE;
+			decorView.setSystemUiVisibility(uiOptions);
+		}
+		videoSurface = (SurfaceView) findViewById(R.id.videoSurface);
+		SurfaceHolder videoHolder = videoSurface.getHolder();
+		videoHolder.addCallback(this);
+		MediaServerDiedCount = 0;
+		player = new MediaPlayer();
+
+		mVideoType = getIntent().getStringExtra("VIDEOTYPE");
+		if (mVideoType.equalsIgnoreCase("LIVETV")) {
+			isLiveController = true;
+			VideoControllerView.sDefaultTimeout = 3000;
+			// mChannelId = getIntent().getIntExtra("CHANNELID", -1);
+			prepareChannelsList();
+			if (mChannelId != -1) {
+				mChannelIndex = getChannelIndexByChannelId(mChannelId);
+				// Log.d("mChannelIndex", "" + mChannelIndex);
+			}
+		} else if (mVideoType.equalsIgnoreCase("VOD")) {
+			isLiveController = false;
+			VideoControllerView.sDefaultTimeout = 3000;
+		}
+		controller = new VideoControllerView(this, (!isLiveController),
+				mserviceList);
+		try {
+			player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+			player.setVolume(1.0f, 1.0f);
+			player.setDataSource(this, mChannelUri);
+			player.setOnPreparedListener(this);
+			player.setOnErrorListener(this);
+		} catch (IllegalArgumentException e) {
+			Log.d(TAG, e.getMessage());
+		} catch (SecurityException e) {
+			Log.d(TAG, e.getMessage());
+		} catch (IllegalStateException e) {
+			Log.d(TAG, e.getMessage());
+		} catch (IOException e) {
+			Log.d(TAG, e.getMessage());
+		} catch (Exception e) {
+			Log.d(TAG, e.getMessage());
+		}
+		/*
+		 * getLoaderManager().initLoader(getIntent().getIntExtra("REQTYPE", 1),
+		 * null, this);
+		 */
+
 	}
 
 	public class BufferrChk extends Thread {

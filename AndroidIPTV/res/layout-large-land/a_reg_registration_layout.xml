@@ -139,7 +139,7 @@
         android:onClick="textLogin_onClick"
         android:text="@string/reg_existing_user"
         android:textColor="#0AA4E6"
-        android:textSize="15sp" />
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/a_reg_tv_note"

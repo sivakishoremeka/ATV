@@ -36,11 +36,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.obs.androidiptv.MyApplication.DoBGTasks;
 import com.obs.data.DeviceDatum;
 import com.obs.data.MediaDetailsResDatum;
 import com.obs.data.PriceDetail;
 import com.obs.data.ResponseObj;
 import com.obs.retrofit.OBSClient;
+import com.obs.service.DoBGTasksService;
 import com.obs.utils.Utilities;
 import com.paypal.android.sdk.payments.PayPalPayment;
 import com.paypal.android.sdk.payments.PayPalService;
@@ -86,7 +88,13 @@ public class VodMovieDetailsActivity extends Activity {
 				&& (!(eventId.equalsIgnoreCase("")) || eventId != null)) {
 			RelativeLayout rl = (RelativeLayout) findViewById(R.id.a_vod_mov_dtls_root_layout);
 			rl.setVisibility(View.INVISIBLE);
-			validateDevice();
+			Intent updateDataIntent = new Intent(VodMovieDetailsActivity.this,
+					DoBGTasksService.class);
+			updateDataIntent.putExtra(DoBGTasksService.TASK_ID,
+					DoBGTasks.UPDATECLIENT_CONFIGS.ordinal());
+			VodMovieDetailsActivity.this.startService(updateDataIntent);
+			//validateDevice();
+			UpdateDetails();
 		}
 
 	}

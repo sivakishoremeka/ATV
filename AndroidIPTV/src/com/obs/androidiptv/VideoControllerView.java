@@ -167,7 +167,7 @@ public class VideoControllerView extends FrameLayout {
 			mRoot = inflate.inflate(R.layout.media_controller, null);
 		else {
 			mRoot = inflate
-					.inflate(R.layout.media_controller_live_tv_new, null);
+					.inflate(R.layout.media_controller_live_tv, null);
 		}
 		initControllerView(mRoot);
 
