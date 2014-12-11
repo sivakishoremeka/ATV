@@ -3,6 +3,8 @@ package com.obs.androidiptv;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,6 +35,11 @@ public class MXPlayerActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		initiallizePlayer();
+	}
+
+	private void initiallizePlayer() {
+		// TODO Auto-generated method stub
 		Uri mUri = Uri.parse(getIntent().getStringExtra("URL"));
 		Intent i = new Intent(Intent.ACTION_VIEW);
 		i.setDataAndType(mUri, "application/*");
@@ -52,17 +59,29 @@ public class MXPlayerActivity extends Activity {
 		try {
 			i.setPackage(MXVP);
 			i.setClassName(MXVP, MXVP_PLAYBACK_CLASS);
+			PackageManager pm = getPackageManager();
+			ResolveInfo info = pm.resolveActivity(i,
+					PackageManager.MATCH_DEFAULT_ONLY);
+			if (info == null) {
+				Intent goToMarket = new Intent(Intent.ACTION_VIEW)
+			    .setData(Uri.parse("market://details?id=com.mxtech.videoplayer.ad&hl=en"));
+			startActivityForResult(goToMarket,1);
+			} else
 			startActivityForResult(i, 0);
 			return;
 		} catch (ActivityNotFoundException e2) {
-			Log.d("MxException", e2.getMessage().toString());
+			Log.e("MxException", e2.getMessage().toString());
 		}
 	}
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if(requestCode==1){
+			initiallizePlayer();
+		}
+		else{
 		finish();
 		if (resultCode != RESULT_OK) {
-			Log.d(TAG, "Canceled.");
 			return;
 		}
 		// handle result.
@@ -71,5 +90,6 @@ public class MXPlayerActivity extends Activity {
 		int lastPosition = data.getIntExtra(EXTRA_POSITION, 0);
 		Log.i(TAG, "OK: " + lastVideoUri + " last-decoding-mode="
 				+ lastDecodingMode + " last-position=" + lastPosition);
+	}
 	}
 }

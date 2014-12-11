@@ -6,7 +6,6 @@ import java.util.List;
 import retrofit.Callback;
 import retrofit.http.Body;
 import retrofit.http.GET;
-import retrofit.http.POST;
 import retrofit.http.PUT;
 import retrofit.http.Path;
 import retrofit.http.Query;
@@ -19,11 +18,9 @@ import com.obs.data.EPGData;
 import com.obs.data.MediaDetailRes;
 import com.obs.data.MediaDetailsResDatum;
 import com.obs.data.OrderDatum;
+import com.obs.data.Paytermdatum;
 import com.obs.data.PlanDatum;
-import com.obs.data.ResForgetPwd;
-import com.obs.data.ResetPwdDatum;
 import com.obs.data.ResourceIdentifier;
-import com.obs.data.SenderMailId;
 import com.obs.data.ServiceDatum;
 import com.obs.data.StatusReqDatum;
 import com.obs.data.TemplateDatum;
@@ -46,6 +43,9 @@ public interface OBSClient {
 
 	@GET("/plans?planType=prepaid")
 	void getPrepaidPlans(Callback<List<PlanDatum>> cb);
+	
+	@GET("/orders/{planid}/template?template=true")
+	void getPlanPayterms(@Path("planid") String planid, Callback<List<Paytermdatum>> cb);
 
 	@GET("/planservices/{clientId}?serviceType=IPTV")
 	ArrayList<ServiceDatum> getPlanServicesSync(
@@ -80,17 +80,4 @@ public interface OBSClient {
 	
 	@PUT("/mediadevices/{device}")
 	ResourceIdentifier updateAppStatus(@Path("device") String device,@Body StatusReqDatum request);
-	/**
-	 * sendPasswordToMail post method used to initiate the server process of
-	 * sending mail to specified MailId Sync'ly. Usage: DoBGTasksService
-	 */
-	@POST("/selfcare/forgotpassword")
-	ResForgetPwd sendPasswordToMail(@Body SenderMailId senderMailId);
-
-	/**
-	 * changePassword put method used to reset the password the server process
-	 * of sending mail to specified MailId Sync'ly. Usage: DoBGTasksService
-	 */
-	@PUT("/selfcare/resetpassword")
-	ResForgetPwd resetPassword(@Body ResetPwdDatum restPwdData);
 }

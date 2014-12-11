@@ -21,7 +21,7 @@
     <EditText
         android:id="@+id/a_reg_et_mobile_no"
         android:layout_width="220dp"
-        android:layout_height="23dp"
+        android:layout_height="26dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
         android:background="@drawable/img_et_reg"
@@ -37,7 +37,7 @@
     <EditText
         android:id="@+id/a_reg_et_first_name"
         android:layout_width="220dp"
-        android:layout_height="23dp"
+        android:layout_height="26dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
         android:background="@drawable/img_et_reg"
@@ -50,7 +50,7 @@
     <EditText
         android:id="@+id/a_reg_et_last_name"
         android:layout_width="220dp"
-        android:layout_height="23dp"
+        android:layout_height="26dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
         android:background="@drawable/img_et_reg"
@@ -63,7 +63,7 @@
     <EditText
         android:id="@+id/a_reg_et_email_id"
         android:layout_width="220dp"
-        android:layout_height="23dp"
+        android:layout_height="26dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
         android:background="@drawable/img_et_reg"
@@ -75,7 +75,7 @@
     <EditText
         android:id="@+id/a_reg_et_pwd"
         android:layout_width="220dp"
-        android:layout_height="23dp"
+        android:layout_height="26dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
         android:background="@drawable/img_et_reg"
@@ -94,7 +94,7 @@
         <Button
             android:id="@+id/a_reg_btn_cancel"
             android:layout_width="60dp"
-            android:layout_height="23dp"
+            android:layout_height="19dp"
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
             android:layout_weight="1"
@@ -112,7 +112,7 @@
         <Button
             android:id="@+id/a_reg_btn_submit"
             android:layout_width="60dp"
-            android:layout_height="23dp"
+            android:layout_height="19dp"
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
             android:layout_weight="1"
@@ -137,7 +137,7 @@
         android:onClick="textLogin_onClick"
         android:text="@string/reg_existing_user"
         android:textColor="#0AA4E6"
-        android:textSize="12sp" />
+        android:textSize="15sp" />
 
     <TextView
         android:id="@+id/a_reg_tv_note"

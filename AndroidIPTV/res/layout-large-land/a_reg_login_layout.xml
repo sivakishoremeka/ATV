@@ -88,24 +88,11 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/a_reg_tv_forget_pwd"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="2dp"
-        android:layout_marginTop="4dp"
-        android:clickable="true"
-        android:gravity="center_horizontal"
-        android:onClick="textForgetPwd_onClick"
-        android:text="@string/reg_forget_pwd"
-        android:textColor="#0AA4E6"
-        android:textSize="14sp" />
-
-    <TextView
         android:id="@+id/a_reg_tv_register"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="6dp"
-        android:layout_marginTop="6dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
         android:clickable="true"
         android:gravity="center_horizontal"
         android:onClick="textRegister_onClick"

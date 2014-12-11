@@ -97,7 +97,7 @@ public class PackageAdapter extends BaseExpandableListAdapter {
 		RadioButton rb1 = (RadioButton) convertView
 				.findViewById(R.id.plan_list_plan_rb);
 		rb1.setFocusable(false);
-		if (MyPakagesFragment.selectedGroupItem == groupPosition) {
+		if (MyPakagesFragment.selGroupId == groupPosition) {
 			rb1.setChecked(true);
 		} else {
 			rb1.setChecked(false);
@@ -115,7 +115,7 @@ public class PackageAdapter extends BaseExpandableListAdapter {
 							rb.setChecked(false);
 						}
 					}
-					MyPakagesFragment.selectedGroupItem = (Integer) ((RadioButton) v)
+					MyPakagesFragment.selGroupId = (Integer) ((RadioButton) v)
 							.getTag();
 				}
 			}

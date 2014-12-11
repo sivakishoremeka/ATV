@@ -65,5 +65,17 @@
         android:divider="@color/default_blue"
         android:dividerHeight="2dp"
         android:scrollbars="vertical" />
+    <ListView
+        android:id="@+id/a_plan_payterm_lv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/a_plan_linlayout"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/a_plan_tv_selpkg"
+        android:background="#DAD8D9"
+        android:divider="@color/default_blue"
+        android:dividerHeight="2dp"
+        android:scrollbars="vertical"
+        android:visibility="gone" />
 
 </RelativeLayout>

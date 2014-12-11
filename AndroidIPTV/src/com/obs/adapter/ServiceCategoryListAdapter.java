@@ -13,8 +13,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.obs.androidiptv.ChannelsActivity;
-import com.obs.androidiptv.MyApplication.SortBy;
 import com.obs.androidiptv.R;
+import com.obs.androidiptv.MyApplication.SortBy;
 import com.obs.database.DBHelper;
 import com.obs.database.ServiceProvider;
 

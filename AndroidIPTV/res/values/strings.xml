@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="account">Account</string>
     <string name="account_no">Account No</string>
     <string name="action_account">Account</string>
@@ -20,19 +19,18 @@
     <string name="active_from">Active From</string>
     <string name="actvtd_on">Activated On</string>
     <string name="app_name">AndroidIPTV</string>
+      <string name="back"> &lt; Back</string>
     <string name="balance">Balance</string>
-     <string name="balance_updated_at">Balance Updated At</string>
-    <string name="basic_auth_">Basic YWRtaW46b2JzQDEyMw==</string> <!-- Spark  admin/obs@123 -->
-    <string name="basic_auth">Basic YmlsbGluZzpwYXNzd29yZA==</string><!-- Peter  billing/password -->
-    <string name="basic_auth____">Basic YnVsZXVzOmwyOWUyMDMxYQ==</string><!--buleus:l29e2031a -->
+    <string name="balance_updated_at">Balance Updated At</string>
+    <string name="basic_auth">Basic YWRtaW46b2JzQDEyMw==</string><!-- Spark  admin/obs@123 -->
     <string name="cancel"> Cancel </string>
     <string name="cast_crew">Cast &amp; Crew</string>
-    <string name="change_pwd">Change Password</string>
     <string name="channels_updated_at">channels updated at</string>
     <string name="channels_category_updated_at">channels category updated at</string>
     <string name="channels_sub_category_updated_at">channels sub category updated at</string>
     <string name="choose_plan_change">Choose a Plan to Change</string>
     <string name="choose_plan_sub">Choose a Plan to Subscribe</string>
+    <string name="choose_payterm">Choose Payterm</string>
     <string name="client_data">Client Data</string>
     <string name="client_pkg_data">Client Package Data</string>
     <string name="content_type">application/json</string>
@@ -58,18 +56,14 @@
     <string name="my_plans_data">My Plans Data</string>
     <string name="name">Name</string>
     <string name="new_pkg_data">New Package Data</string>
-     <string name="new_plans_data">New Plans Data</string>
-    <string name="next">Next ></string> 
+    <string name="new_plans_data">New Plans Data</string>
+    <string name="next">Next ></string>
+     <string name="next2">Next >></string> 
     <string name="own_buy">Own / Buy :</string>
     <string name="package_name">Package Name</string>
     <string name="password">Password</string>
-    <string name="password_mail">The new passwrod sent to your mail.</string>
-    <string name="profile_new_pwd">New passwrod</string>
-    <string name="profile_pwd_changed">Your Password changed successfully</string> 
     <string name="remind_me">Remind Me</string>
     <string name="reg_existing_user">Existing User? <b><u>Login</u></b> here</string>
-    <string name="reg_forget_pwd"><b><u>Forget Password?</u></b></string>
-    <string name="reg_forget_pwd_prompt_txt">To reset your password, please enter your email address</string>
     <string name="reg_new_user">New User? <b><u>Register</u></b> here</string>
     <string name="reg_acc">Register your account</string>
     <string name="release">Release</string>
@@ -80,11 +74,7 @@
     <string name="sel_country">Select Country </string>
     <string name="sel_pkg">Select Package</string>
     <string name="serialno">Serial No</string>
-    <string name="server_url_____">https://41.76.90.173:8181/obsplatform/api/v1</string><!-- demo server -->
-  	<string name="server_url_yusuf">https://188.138.84.29:8443/obsplatform/api/v1</string><!-- Yusuf -->
-  	<string name="server_url___">https://provisioning.storm-media.net:8443/obsplatform/api/v1</string> <!-- strom -->
-    <string name="server_url_cristi">https://195.154.179.160:8443/obsplatform/api/v1</string><!-- cristi -->
-    <string name="server_url">https://192.168.123.164:8443/obsplatform/api/v1</string><!-- local -->
+     <string name="server_url">https://41.76.90.173:8181/obsplatform/api/v1</string><!-- demo server -->  <!-- Spark -->
     <string name="submit"> Submit </string>
     <string name="subscribe">Subscribe</string>
     <string name="tenent_id">default</string>
@@ -98,14 +88,18 @@
     <string-array name="arrMainMenu">
         <item>Live TV</item>
         <item>VOD</item>
-       <!--  <item>Music</item>
-        <item>Games</item> -->
+        <!--
+        <item>Music</item>
+        <item>Games</item>
+        -->
     </string-array>
     <string-array name="arrMenuImageNames">
         <item>live_tv</item>
         <item>vod</item>
-      <!--   <item>music</item>
-        <item>games</item> -->
+        <!--
+        <item>music</item>
+        <item>games</item>
+        -->
     </string-array>
     <string-array name="arrMyAccMenu">
 
@@ -138,5 +132,4 @@
         <item>COMING</item>
         <item>ALL</item>
     </string-array>
-
 </resources>

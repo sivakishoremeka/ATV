@@ -126,19 +126,6 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/a_reg_tv_forget_pwd"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:layout_marginTop="6dp"
-        android:clickable="true"
-        android:gravity="center_horizontal"
-        android:onClick="textForgetPwd_onClick"
-        android:text="@string/reg_forget_pwd"
-        android:textColor="#0AA4E6"
-        android:textSize="17sp" />
-
-    <TextView
         android:id="@+id/a_reg_tv_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

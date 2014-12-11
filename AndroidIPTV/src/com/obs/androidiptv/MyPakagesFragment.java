@@ -29,7 +29,6 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,9 +36,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnGroupClickListener;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,11 +49,13 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.obs.adapter.PackageAdapter;
+import com.obs.adapter.PaytermAdapter;
 import com.obs.androidiptv.MyApplication.DoBGTasks;
-import com.obs.data.DeviceDatum;
 import com.obs.data.OrderDatum;
+import com.obs.data.Paytermdatum;
 import com.obs.data.PlanDatum;
 import com.obs.data.ResponseObj;
+import com.obs.parser.JSONPaytermConverter;
 import com.obs.retrofit.CustomUrlConnectionClient;
 import com.obs.retrofit.OBSClient;
 import com.obs.service.DoBGTasksService;
@@ -62,7 +66,8 @@ public class MyPakagesFragment extends Fragment {
 	private final static String NETWORK_ERROR = "Network error.";
 	private static String NEW_PLANS_DATA;
 	private static String MY_PLANS_DATA;
-	public static int selectedGroupItem = -1;
+	public static int selGroupId = -1;
+	public static int selPaytermId = -1;
 	public static int orderId = -1;
 	private final static String PREPAID_PLANS = "Prepaid plans";
 	private final static String MY_PLANS = "My plans";
@@ -71,12 +76,16 @@ public class MyPakagesFragment extends Fragment {
 	boolean mIsReqCanceled = false;
 	Activity mActivity;
 	View mRootView;
+	List<Paytermdatum> mPayterms;
 	List<PlanDatum> mPrepaidPlans;
 	List<PlanDatum> mMyPlans;
 	List<PlanDatum> mNewPlans;
 	List<OrderDatum> mMyOrders;
 	PackageAdapter listAdapter;
 	ExpandableListView mExpListView;
+	PaytermAdapter  mListAdapter;
+	ListView mPaytermLv;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -85,7 +94,7 @@ public class MyPakagesFragment extends Fragment {
 		mApplication = ((MyApplication) mActivity.getApplicationContext());
 		// mOBSClient = mApplication.getOBSClient(mActivity);
 		setHasOptionsMenu(true);
-		selectedGroupItem = -1;
+		selGroupId = -1;
 		orderId = -1;
 		super.onCreate(savedInstanceState);
 
@@ -127,6 +136,16 @@ public class MyPakagesFragment extends Fragment {
 	}
 
 	private void buildPlansList() {
+
+		(mRootView.findViewById(R.id.f_my_pkg_exlv_my_plans)).setVisibility(View.VISIBLE);
+		(mRootView.findViewById(R.id.f_my_pkg_payterm_lv)).setVisibility(View.GONE);
+		
+		TextView tv_title = (TextView) mRootView.findViewById(R.id.a_plan_tv_selpkg);
+		tv_title.setText(R.string.sel_pkg);
+		
+		Button btnNext = (Button) mRootView.findViewById(R.id.a_plan_btn_submit);
+		btnNext.setText(R.string.next);
+		
 		if (mMyPlans != null && mMyPlans.size() > 0) {
 			mExpListView = (ExpandableListView) mRootView
 					.findViewById(R.id.f_my_pkg_exlv_my_plans);
@@ -140,9 +159,9 @@ public class MyPakagesFragment extends Fragment {
 					RadioButton rb1 = (RadioButton) v
 							.findViewById(R.id.plan_list_plan_rb);
 					if (null != rb1 && (!rb1.isChecked())) {
-						PlanActivity.selectedGroupItem = groupPosition;
+						selGroupId = groupPosition;
 					} else {
-						PlanActivity.selectedGroupItem = -1;
+						selGroupId = -1;
 					}
 					return false;
 				}
@@ -356,7 +375,7 @@ public class MyPakagesFragment extends Fragment {
 					.findViewById(R.id.a_plan_btn_submit);
 			if (btn.getText().toString()
 					.equalsIgnoreCase(getString(R.string.subscribe))) {
-				selectedGroupItem = -1;
+				selGroupId = -1;
 				TextView tv_title = (TextView) mRootView
 						.findViewById(R.id.a_plan_tv_selpkg);
 				tv_title.setText(R.string.choose_plan_change);
@@ -455,18 +474,18 @@ public class MyPakagesFragment extends Fragment {
 		if (((Button) v).getText().toString()
 				.equalsIgnoreCase(getString(R.string.next))) {
 
-			if (selectedGroupItem == -1) {
+			if (selGroupId == -1) {
 				Toast.makeText(getActivity(), "Select a Plan to Change",
 						Toast.LENGTH_LONG).show();
 			} else {
 				orderId = Integer
-						.parseInt(mMyPlans.get(selectedGroupItem).orderId);
-				selectedGroupItem = -1;
+						.parseInt(mMyPlans.get(selGroupId).orderId);
+				selGroupId = -1;
 				TextView tv_title = (TextView) mRootView
 						.findViewById(R.id.a_plan_tv_selpkg);
 				tv_title.setText(R.string.choose_plan_sub);
 
-				((Button) v).setText(R.string.subscribe);
+				((Button) v).setText(R.string.next2);
 				mExpListView = (ExpandableListView) mRootView
 						.findViewById(R.id.f_my_pkg_exlv_my_plans);
 				listAdapter = null;
@@ -483,9 +502,9 @@ public class MyPakagesFragment extends Fragment {
 									RadioButton rb1 = (RadioButton) v
 											.findViewById(R.id.plan_list_plan_rb);
 									if (null != rb1 && (!rb1.isChecked())) {
-										PlanActivity.selectedGroupItem = groupPosition;
+										selGroupId = groupPosition;
 									} else {
-										PlanActivity.selectedGroupItem = -1;
+										selGroupId = -1;
 									}
 									return false;
 								}
@@ -496,15 +515,139 @@ public class MyPakagesFragment extends Fragment {
 							Toast.LENGTH_LONG).show();
 				}
 			}
-		} else if (((Button) v).getText().toString()
+		}else if (((Button) v).getText().toString()
+				.equalsIgnoreCase(getString(R.string.next2))) {
+			((Button) v).setText(R.string.subscribe);
+			if(selGroupId!=-1){
+				getPaytermsforSelPlan();
+			}
+			else{
+				Toast.makeText(getActivity(), "Choose a Plan to Subscribe", Toast.LENGTH_LONG).show();
+			}
+		} 
+		else if (((Button) v).getText().toString()
 				.equalsIgnoreCase(getString(R.string.subscribe))) {
-			if (selectedGroupItem >= 0) {
-				changePlan(mNewPlans.get(selectedGroupItem).toString());
+			if (selGroupId >= 0) {
+				changePlan(mNewPlans.get(selGroupId).toString());
 			} else {
 				Toast.makeText(getActivity().getApplicationContext(),
 						"Select a Plan", Toast.LENGTH_SHORT).show();
 			}
 		}
+	}
+	
+	private void getPaytermsforSelPlan(){
+		RestAdapter restAdapter = new RestAdapter.Builder()
+					.setEndpoint(MyApplication.API_URL)
+					.setLogLevel(RestAdapter.LogLevel.NONE)
+					.setConverter(new JSONPaytermConverter())
+					.setClient(
+							new CustomUrlConnectionClient(MyApplication.tenentId,
+									MyApplication.basicAuth,
+									MyApplication.contentType)).build();
+			 OBSClient client = restAdapter.create(OBSClient.class);
+			//CLIENT_DATA = mApplication.getResources().getString(
+			//		R.string.client_data);
+			//mPrefs = mActivity.getSharedPreferences(mApplication.PREFS_FILE, 0);
+			//mClinetData = mPrefs.getString(CLIENT_DATA, "");		 
+			 if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+					mProgressDialog = null;
+				}
+				mProgressDialog = new ProgressDialog(getActivity(),
+						ProgressDialog.THEME_HOLO_DARK);
+				mProgressDialog.setMessage("Connecting Server");
+				mProgressDialog.setCanceledOnTouchOutside(false);
+				mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+					public void onCancel(DialogInterface arg0) {
+						if (mProgressDialog.isShowing())
+							mProgressDialog.dismiss();
+						mIsReqCanceled = true;
+					}
+				});
+				mProgressDialog.show();
+				client.getPlanPayterms((mNewPlans.get(selGroupId).getId())+"",getPlanPayterms);	
+		}
+	
+	final Callback<List<Paytermdatum>> getPlanPayterms = new Callback<List<Paytermdatum>>() {
+		@Override
+		public void failure(RetrofitError retrofitError) {
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+					mProgressDialog = null;
+				}
+				if (retrofitError.isNetworkError()) {
+					Toast.makeText(
+							getActivity(),
+							getActivity().getApplicationContext().getString(
+									R.string.error_network), Toast.LENGTH_LONG)
+							.show();
+				} else {
+					Toast.makeText(
+							getActivity(),
+							"Server Error : "
+									+ retrofitError.getResponse().getStatus(),
+							Toast.LENGTH_LONG).show();
+				}
+			} else
+				mIsReqCanceled = false;
+		}
+
+		@Override
+		public void success(List<Paytermdatum> payterms, Response response) {
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+					mProgressDialog = null;
+				}
+				if (payterms != null) {
+					mPayterms = payterms;
+					buildPaytermList();
+				}
+			} else
+				mIsReqCanceled = false;
+		}
+	};
+
+
+	private void buildPaytermList(){
+		
+		(mRootView.findViewById(R.id.f_my_pkg_exlv_my_plans)).setVisibility(View.GONE);
+		(mRootView.findViewById(R.id.f_my_pkg_payterm_lv)).setVisibility(View.VISIBLE);
+		
+		TextView tv_title = (TextView) mRootView.findViewById(R.id.a_plan_tv_selpkg);
+		tv_title.setText(R.string.choose_payterm);
+		
+		Button btnNext = (Button) mRootView.findViewById(R.id.a_plan_btn_submit);
+		btnNext.setText(R.string.subscribe);
+		
+		mPaytermLv = (ListView) mRootView.findViewById(R.id.f_my_pkg_payterm_lv);
+		mListAdapter = null;
+		if (mPayterms != null && mPayterms.size() > 0) {
+			boolean isNewPlan=false;
+			mListAdapter = new PaytermAdapter(getActivity(), mPayterms,isNewPlan);
+			mPaytermLv.setAdapter(mListAdapter);			
+			mPaytermLv.setOnItemClickListener(new OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view,
+						int position, long id) {
+					// TODO Auto-generated method stub
+					RadioButton rb1 = (RadioButton) view
+							.findViewById(R.id.a_plan_payterm_row_rb);
+					if (null != rb1 && (!rb1.isChecked())) {
+						selPaytermId = position;
+					} else {
+						selPaytermId = -1;
+					}
+				}
+			});
+		} else {
+			mPaytermLv.setAdapter(null);
+			Toast.makeText(getActivity(), "No Payterms for this Plan",
+					Toast.LENGTH_LONG).show();
+		}		
 	}
 
 	public void changePlan(String planid) {
@@ -546,7 +689,7 @@ public class MyPakagesFragment extends Fragment {
 
 		@Override
 		protected ResponseObj doInBackground(Void... params) {
-			PlanDatum plan = mNewPlans.get(selectedGroupItem);
+			PlanDatum plan = mNewPlans.get(selGroupId);
 			ResponseObj resObj = new ResponseObj();
 			if (Utilities.isNetworkAvailable(getActivity()
 					.getApplicationContext())) {
@@ -564,14 +707,13 @@ public class MyPakagesFragment extends Fragment {
 				map.put("planCode", plan.getId().toString());
 				map.put("dateFormat", "dd MMMM yyyy");
 				map.put("locale", "en");
-				map.put("contractPeriod", plan.getContractId().toString());
+				map.put("contractPeriod", mPayterms.get(selPaytermId).getId()+"");
 				map.put("isNewplan", "false");
 				map.put("start_date", strStartDate);
 				map.put("disconnectionDate", strDiscDate);
 				map.put("disconnectReason", "Not Interested");
 				map.put("billAlign", "false");
-				map.put("paytermCode", plan.getServices().get(0)
-						.getChargeCode());
+				map.put("paytermCode",  mPayterms.get(selPaytermId).getPaytermtype());
 
 				resObj = Utilities.callExternalApiPutMethod(getActivity()
 						.getApplicationContext(), map);
@@ -605,150 +747,57 @@ public class MyPakagesFragment extends Fragment {
 		}
 	}
 
-	/*private void CheckBalancenGetData() {
-		// Log.d("PlanActivity","CheckBalancenGetData");
-		validateDevice();
-	}
 
-	private void validateDevice() {
-		// Log.d("PlanActivity","validateDevice");
-		boolean showProgressDialog = false;
-		if (mProgressDialog != null)
-			if (mProgressDialog.isShowing()) {
-				// do nothing
-			} else {
-				showProgressDialog = true;
-			}
-		else {
-			showProgressDialog = true;
-		}
-		if (showProgressDialog) {
-			mProgressDialog = new ProgressDialog(getActivity(),
-					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Connecting Server...");
-			mProgressDialog.setCanceledOnTouchOutside(false);
-			mProgressDialog.setOnCancelListener(new OnCancelListener() {
 
-				public void onCancel(DialogInterface arg0) {
-					if (mProgressDialog.isShowing())
-						mProgressDialog.dismiss();
-					mProgressDialog = null;
-					mIsReqCanceled = true;
-				}
-			});
-			mProgressDialog.show();
-		}
-		String androidId = Settings.Secure.getString(getActivity()
-				.getApplicationContext().getContentResolver(),
-				Settings.Secure.ANDROID_ID);
-		OBSClient mOBSClient = mApplication.getOBSClient();
-		mOBSClient.getMediaDevice(androidId, deviceCallBack);
-	}
-
-	final Callback<DeviceDatum> deviceCallBack = new Callback<DeviceDatum>() {
-
-		@Override
-		public void success(DeviceDatum device, Response arg1) {
-			// Log.d("PlanActivity","success");
-			if (!mIsReqCanceled) {
-				if (mProgressDialog != null) {
-					mProgressDialog.dismiss();
-					mProgressDialog = null;
-				}
-				if (device != null) {
-					try {
-						mApplication.setClientId(Long.toString(device
-								.getClientId()));
-						mApplication.setBalance(device.getBalanceAmount());
-						mApplication.setBalanceCheck(device.isBalanceCheck());
-						mApplication.setCurrency(device.getCurrency());
-						boolean isPayPalReq = device.getPaypalConfigData()
-								.getEnabled();
-						mApplication.setPayPalReq(isPayPalReq);
-						if (isPayPalReq) {
-							String value = device.getPaypalConfigData()
-									.getValue();
-							if (value != null && value.length() > 0) {
-								JSONObject json = new JSONObject(value);
-								if (json != null) {
-									mApplication.setPayPalClientID(json.get(
-											"clientId").toString());
-								}
-							} else
-								Toast.makeText(getActivity(),
-										"Invalid Data for PayPal details",
-										Toast.LENGTH_LONG).show();
-						}
-					} catch (JSONException e) {
-						Log.e("PlanActivity",
-								(e.getMessage() == null) ? "Json Exception" : e
-										.getMessage());
-						Toast.makeText(getActivity(),
-								"Invalid Data-Json Error", Toast.LENGTH_LONG)
-								.show();
-					} catch (Exception e) {
-						Log.e("PlanActivity",
-								(e.getMessage() == null) ? "Exception" : e
-										.getMessage());
-						Toast.makeText(getActivity(), "Invalid Data-Error",
-								Toast.LENGTH_LONG).show();
-					}
-				}
-
-				Toast.makeText(mActivity, "Plan Change Success",
-						Toast.LENGTH_LONG).show();
-				Intent intent = new Intent(mActivity, DoBGTasksService.class);
-				intent.putExtra(DoBGTasksService.TASK_ID,
-						DoBGTasks.UPDATESERVICES.ordinal());
-				mActivity.startService(intent);
-				UpdateUI();
-			}
-
-		}
-
-		@Override
-		public void failure(RetrofitError retrofitError) {
-			// Log.d("ChannelsActivity","failure");
-			if (!mIsReqCanceled) {
-				if (mProgressDialog != null) {
-					mProgressDialog.dismiss();
-					mProgressDialog = null;
-				}
-				if (retrofitError.isNetworkError()) {
-					Toast.makeText(mActivity,
-							getString(R.string.error_network),
-							Toast.LENGTH_LONG).show();
-				} else if (retrofitError.getResponse().getStatus() == 403) {
-					String msg = mApplication
-							.getDeveloperMessage(retrofitError);
-					msg = (msg != null && msg.length() > 0 ? msg
-							: "Internal Server Error");
-					Toast.makeText(mActivity, msg, Toast.LENGTH_LONG).show();
-				} else {
-					Toast.makeText(
-							mActivity,
-							"Server Error : "
-									+ retrofitError.getResponse().getStatus(),
-							Toast.LENGTH_LONG).show();
-				}
-				Toast.makeText(mActivity, "Plan Change Failed",
-						Toast.LENGTH_LONG).show();
-				mIsReqCanceled = false;
-			}
-
-		}
-	};
-
-	*/public void onBackPressed() {
+	public void onBackPressed() {
 		Button btn = (Button) mRootView.findViewById(R.id.a_plan_btn_submit);
 		if (btn.getText().toString()
 				.equalsIgnoreCase(getString(R.string.subscribe))) {
-			selectedGroupItem = -1;
+			//selGroupId = -1;
+			selPaytermId = -1;
+			(mRootView.findViewById(R.id.f_my_pkg_exlv_my_plans)).setVisibility(View.VISIBLE);
+			(mRootView.findViewById(R.id.f_my_pkg_payterm_lv)).setVisibility(View.GONE);
+			
+			TextView tv_title = (TextView) mRootView
+					.findViewById(R.id.a_plan_tv_selpkg);
+			tv_title.setText(R.string.choose_plan_change);
+
+			btn.setText(R.string.next2);
+			mExpListView = (ExpandableListView) mRootView
+					.findViewById(R.id.f_my_pkg_exlv_my_plans);
+
+			if (mNewPlans != null && mNewPlans.size() > 0) {
+				mExpListView = (ExpandableListView) mRootView
+						.findViewById(R.id.f_my_pkg_exlv_my_plans);
+				listAdapter = new PackageAdapter(mActivity, mNewPlans);
+				mExpListView.setAdapter(listAdapter);
+				mExpListView
+						.setOnGroupClickListener(new OnGroupClickListener() {
+							@Override
+							public boolean onGroupClick(
+									ExpandableListView parent, View v,
+									int groupPosition, long id) {
+
+								RadioButton rb1 = (RadioButton) v
+										.findViewById(R.id.plan_list_plan_rb);
+								if (null != rb1 && (!rb1.isChecked())) {
+									selGroupId = groupPosition;
+								} else {
+									selGroupId = -1;
+								}
+								return false;
+							}
+						});
+			}
+		}else if (btn.getText().toString()
+				.equalsIgnoreCase(getString(R.string.next2))) {
+			selGroupId = -1;
 			TextView tv_title = (TextView) mRootView
 					.findViewById(R.id.a_plan_tv_selpkg);
 			tv_title.setText(R.string.choose_plan_change);
 
 			btn.setText(R.string.next);
+			
 			mExpListView = (ExpandableListView) mRootView
 					.findViewById(R.id.f_my_pkg_exlv_my_plans);
 
@@ -767,20 +816,21 @@ public class MyPakagesFragment extends Fragment {
 								RadioButton rb1 = (RadioButton) v
 										.findViewById(R.id.plan_list_plan_rb);
 								if (null != rb1 && (!rb1.isChecked())) {
-									PlanActivity.selectedGroupItem = groupPosition;
+									selGroupId = groupPosition;
 								} else {
-									PlanActivity.selectedGroupItem = -1;
+									selGroupId = -1;
 								}
 								return false;
 							}
 						});
 			}
-		} else
+		}
+		else
 			getActivity().finish();
 	}
 
 	protected void UpdateUI() {
-		selectedGroupItem = -1;
+		selGroupId = -1;
 		TextView tv_title = (TextView) mRootView
 				.findViewById(R.id.a_plan_tv_selpkg);
 		tv_title.setText(R.string.choose_plan_change);

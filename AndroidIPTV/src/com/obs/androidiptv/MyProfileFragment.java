@@ -26,7 +26,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,16 +38,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.obs.androidiptv.ChangePwdDialogFragment.ChgPwdSubmitClickListener;
 import com.obs.data.ClientDatum;
 import com.obs.data.ConfigurationProperty;
-import com.obs.data.ResForgetPwd;
-import com.obs.data.ResetPwdDatum;
 import com.obs.retrofit.CustomUrlConnectionClient;
 import com.obs.retrofit.OBSClient;
 
-public class MyProfileFragment extends Fragment implements
-ChgPwdSubmitClickListener {
+public class MyProfileFragment extends Fragment {
 	//public static String TAG = MyProfileFragment.class.getName();
 	private ProgressDialog mProgressDialog;
 	MyApplication mApplication = null;
@@ -337,89 +332,6 @@ ChgPwdSubmitClickListener {
 		}
 
 		return client;
-	}
-
-	public void ChangePwd_onClick(View v) {
-		// Create the fragment and show it as a dialog for pwd change.
-		ChangePwdDialogFragment newFragment = new ChangePwdDialogFragment();
-		newFragment.show(getFragmentManager(), "ChgPwdDialog");
-	}
-	
-	@Override
-	public void onChgPwdSubmitClickListener(ResetPwdDatum data) {
-		new ChangePwdTask().execute(data);
-	}
-
-	private class ChangePwdTask extends
-			AsyncTask<ResetPwdDatum, Void, ResForgetPwd> {
-
-		retrofit.RetrofitError error = null;
-		int status = -1;
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			if (mProgressDialog != null) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}
-			mProgressDialog = new ProgressDialog(getActivity(),
-					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Please wait...");
-			mProgressDialog.setCanceledOnTouchOutside(false);
-			mProgressDialog.setOnCancelListener(new OnCancelListener() {
-
-				public void onCancel(DialogInterface arg0) {
-					if (mProgressDialog.isShowing())
-						mProgressDialog.dismiss();
-					cancel(true);
-				}
-			});
-			mProgressDialog.show();
-		}
-
-		@Override
-		protected ResForgetPwd doInBackground(ResetPwdDatum... arg) {
-
-			ResetPwdDatum data = arg[0];
-			ResForgetPwd result = null;
-			if (mApplication.isNetworkAvailable()) {
-				OBSClient mOBSClient = mApplication.getOBSClient();
-				try {
-					result = mOBSClient.resetPassword(data);
-				} catch (Exception e) {
-					error = ((retrofit.RetrofitError) e);
-					status = error.getResponse().getStatus();
-				}
-
-			} else {
-				Toast.makeText(getActivity(), "Communication Error.",
-						Toast.LENGTH_LONG).show();
-			}
-
-			return result;
-		}
-
-		@Override
-		protected void onPostExecute(ResForgetPwd result) {
-			if (mProgressDialog != null) {
-				if (mProgressDialog.isShowing())
-					mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}
-			if (result != null || status == -1) {
-
-				Toast.makeText(getActivity(),
-						getResources().getString(R.string.profile_pwd_changed),
-						Toast.LENGTH_LONG).show();
-			} else {
-				final String toastMsg = (status == 403 ? mApplication
-						.getDeveloperMessage(error)
-						: "Server Communication Error");// errMsg;
-				Toast.makeText(getActivity(), toastMsg, Toast.LENGTH_LONG)
-						.show();
-			}
-		}
 	}
 
 }
