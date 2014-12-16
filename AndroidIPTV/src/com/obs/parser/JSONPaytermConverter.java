@@ -65,9 +65,12 @@ public class JSONPaytermConverter implements Converter {
 
 					for (Subscriptiondatum subdata : subscriptionList) {
 
-						if (data.getDuration().equalsIgnoreCase(
-								subdata.getContractdata())) {
-							data.setId(subdata.getId());
+						if (data.getDuration() != null
+								&& subdata.getContractdata() != null) {
+							if (data.getDuration().equalsIgnoreCase(
+									subdata.getContractdata())) {
+								data.setId(subdata.getId());
+							}
 						}
 					}
 				}
