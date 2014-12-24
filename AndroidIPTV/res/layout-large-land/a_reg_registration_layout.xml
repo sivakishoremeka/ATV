@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="240dp"
+    android:layout_width="300dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal"
     android:background="@drawable/img_bg_reg_forum"
@@ -15,13 +15,38 @@
         android:layout_marginTop="10dp"
         android:text="@string/user_reg"
         android:textColor="#5A5A5A"
-        android:textSize="16sp"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
     <EditText
+        android:id="@+id/a_reg_et_full_name"
+        android:layout_width="260dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="13dp"
+        android:background="@drawable/img_et_reg"
+        android:ems="10"
+        android:hint="@string/reg_full_name"
+        android:inputType="text"
+        android:paddingLeft="10dp"
+        android:textSize="18sp" >
+
+        <requestFocus />
+    </EditText>
+
+    <Spinner
+        android:id="@+id/a_reg_sp_city"
+        android:layout_width="260dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="13dp"
+        android:spinnerMode="dropdown"
+        android:textSize="18sp" />
+
+    <EditText
         android:id="@+id/a_reg_et_mobile_no"
-        android:layout_width="200dp"
-        android:layout_height="25dp"
+        android:layout_width="260dp"
+        android:layout_height="30dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="13dp"
         android:background="@drawable/img_et_reg"
@@ -29,41 +54,12 @@
         android:inputType="phone"
         android:maxLength="16"
         android:paddingLeft="10dp"
-        android:textSize="14sp" >
-
-        <requestFocus />
-    </EditText>
-
-    <EditText
-        android:id="@+id/a_reg_et_first_name"
-        android:layout_width="200dp"
-        android:layout_height="25dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="13dp"
-        android:background="@drawable/img_et_reg"
-        android:ems="10"
-        android:hint="@string/first_name"
-        android:inputType="text"
-        android:paddingLeft="10dp"
-        android:textSize="14sp" />
-
-    <EditText
-        android:id="@+id/a_reg_et_last_name"
-        android:layout_width="200dp"
-        android:layout_height="25dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="13dp"
-        android:background="@drawable/img_et_reg"
-        android:ems="10"
-        android:hint="@string/last_name"
-        android:inputType="text"
-        android:paddingLeft="10dp"
-        android:textSize="14sp" />
+        android:textSize="18sp" />
 
     <EditText
         android:id="@+id/a_reg_et_email_id"
-        android:layout_width="200dp"
-        android:layout_height="25dp"
+        android:layout_width="260dp"
+        android:layout_height="30dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="13dp"
         android:background="@drawable/img_et_reg"
@@ -71,12 +67,12 @@
         android:hint="@string/email_id"
         android:inputType="text"
         android:paddingLeft="10dp"
-        android:textSize="14sp" />
+        android:textSize="18sp" />
 
     <EditText
         android:id="@+id/a_reg_et_pwd"
-        android:layout_width="200dp"
-        android:layout_height="25dp"
+        android:layout_width="260dp"
+        android:layout_height="30dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="13dp"
         android:background="@drawable/img_et_reg"
@@ -84,7 +80,7 @@
         android:hint="@string/password"
         android:inputType="textPassword"
         android:paddingLeft="10dp"
-        android:textSize="14sp" />
+        android:textSize="18sp" />
 
     <LinearLayout
         android:layout_width="200dp"
@@ -128,7 +124,7 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <TextView
+  <TextView
         android:id="@+id/a_reg_tv_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -139,7 +135,7 @@
         android:onClick="textLogin_onClick"
         android:text="@string/reg_existing_user"
         android:textColor="#0AA4E6"
-        android:textSize="15sp" />
+        android:textSize="17sp" />
 
     <TextView
         android:id="@+id/a_reg_tv_note"
@@ -152,6 +148,6 @@
         android:gravity="center_horizontal"
         android:text="@string/reg_note"
         android:textColor="#5A5A5A"
-        android:textSize="10sp" />
+        android:textSize="12sp" />
 
 </LinearLayout>

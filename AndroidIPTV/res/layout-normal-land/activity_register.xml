@@ -15,8 +15,8 @@
 
             <ImageView
                 android:id="@+id/a_reg_iv_img_acc"
-                android:layout_width="50dp"
-                android:layout_height="35dp"
+                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="3dp"
                 android:layout_marginTop="3dp"
@@ -24,13 +24,13 @@
 
             <LinearLayout
                 android:id="@+id/a_reg_ll_container"
-                android:layout_width="230dp"
+                android:layout_width="260dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:orientation="vertical" >
 
                 <LinearLayout
-                    android:layout_width="230dp"
+                    android:layout_width="260dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:background="@drawable/img_bg_reg_forum"
@@ -43,46 +43,46 @@
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="6dp"
                         android:layout_marginTop="6dp"
-                        android:text="User Login"
+                        android:text="@string/user_login"
                         android:textColor="#5A5A5A"
-                        android:textSize="12sp"
+                        android:textSize="14sp"
                         android:textStyle="bold" />
 
                     <EditText
                         android:id="@+id/a_reg_et_login_email_id"
-                        android:layout_width="220dp"
+                        android:layout_width="240dp"
                         android:layout_height="26dp"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="8dp"
                         android:background="@drawable/img_et_reg"
-                        android:hint="Email Id"
+                        android:hint="@string/email_id"
                         android:inputType="textEmailAddress"
                         android:paddingLeft="12dp"
-                        android:textSize="12sp" />
+                        android:textSize="13sp" />
 
                     <EditText
                         android:id="@+id/a_reg_et_password"
-                        android:layout_width="220dp"
+                        android:layout_width="240dp"
                         android:layout_height="26dp"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="8dp"
                         android:background="@drawable/img_et_reg"
-                        android:hint="Password"
+                        android:hint="@string/password"
                         android:inputType="textPassword"
                         android:paddingLeft="12dp"
-                        android:textSize="12sp" />
+                        android:textSize="13sp" />
 
                     <LinearLayout
-                        android:layout_width="220dp"
+                        android:layout_width="240dp"
                         android:layout_height="26dp"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="4dp"
-                        android:layout_marginTop="4dp" >
+                        android:layout_marginTop="5dp" >
 
                         <Button
                             android:id="@+id/a_reg_btn_cancel"
-                            android:layout_width="60dp"
-                            android:layout_height="19dp"
+                            android:layout_width="100dp"
+                            android:layout_height="26dp"
                             android:layout_marginLeft="3dp"
                             android:layout_marginRight="3dp"
                             android:layout_weight="1"
@@ -94,13 +94,13 @@
                             android:onClick="btnCancel_onClick"
                             android:text="@string/cancel"
                             android:textColor="@color/white"
-                            android:textSize="10sp"
+                            android:textSize="12sp"
                             android:textStyle="bold" />
 
                         <Button
                             android:id="@+id/a_reg_btn_submit"
-                            android:layout_width="60dp"
-                            android:layout_height="19dp"
+                            android:layout_width="100dp"
+                            android:layout_height="26dp"
                             android:layout_marginLeft="3dp"
                             android:layout_marginRight="3dp"
                             android:layout_weight="1"
@@ -110,22 +110,73 @@
                             android:onClick="btnLogin_onClick"
                             android:text="@string/submit"
                             android:textColor="@color/white"
-                            android:textSize="10sp"
+                            android:textSize="12sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
                     <TextView
-                        android:id="@+id/a_reg_tv_register"
+                        android:id="@+id/a_reg_tv_forget_pwd"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="2dp"
+                        android:layout_marginTop="3dp"
                         android:clickable="true"
                         android:gravity="center_horizontal"
-                        android:onClick="textRegister_onClick"
-                        android:text="@string/reg_new_user"
+                        android:onClick="textForgetPwd_onClick"
+                        android:text="@string/reg_forget_pwd"
                         android:textColor="#0AA4E6"
-                        android:textSize="14sp" />
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/a_reg_tv_new_user"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="2dp"
+                        android:layout_marginTop="6dp"
+                        android:gravity="center_horizontal"
+                        android:text="@string/reg_new_user"
+                        android:textSize="11sp" />
+
+                    <LinearLayout
+                        android:layout_width="240dp"
+                        android:layout_height="26dp"
+                        android:gravity="center_horizontal" >
+
+                        <TextView
+                            android:id="@+id/a_reg_tv_register"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:layout_marginRight="4dp"
+                            android:clickable="true"
+                            android:gravity="center_horizontal"
+                            android:onClick="textRegister_onClick"
+                            android:text="@string/reg_new_user_register"
+                            android:textColor="#0AA4E6"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/a_reg_tv_new_user_or"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:layout_marginLeft="4dp"
+                            android:layout_marginRight="4dp"
+                            android:text="@string/reg_new_user_or"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/a_reg_tv_link"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:layout_marginLeft="4dp"
+                            android:clickable="true"
+                            android:onClick="textLinkUser_onClick"
+                            android:text="@string/reg_new_user_link"
+                            android:textColor="#0AA4E6"
+                            android:textSize="13sp" />
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/a_reg_tv_note"
@@ -134,11 +185,11 @@
                         android:layout_marginBottom="6dp"
                         android:layout_marginLeft="4dp"
                         android:layout_marginRight="4dp"
-                        android:layout_marginTop="6dp"
+                        android:layout_marginTop="4dp"
                         android:gravity="center_horizontal"
                         android:text="@string/reg_note"
                         android:textColor="#5A5A5A"
-                        android:textSize="10sp" />
+                        android:textSize="11sp" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

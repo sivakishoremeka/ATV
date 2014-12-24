@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="account">Account</string>
     <string name="account_no">Account No</string>
     <string name="action_account">Account</string>
@@ -19,10 +20,11 @@
     <string name="active_from">Active From</string>
     <string name="actvtd_on">Activated On</string>
     <string name="app_name">AndroidIPTV</string>
-      <string name="back"> &lt; Back</string>
+    <string name="back"> &lt; Back</string>
     <string name="balance">Balance</string>
     <string name="balance_updated_at">Balance Updated At</string>
-    <string name="basic_auth">Basic YWRtaW46b2JzQDEyMw==</string><!-- Spark  admin/obs@123 -->
+ <string name="basic_auth_">Basic YWRtaW46b2JzQDEyMw==</string><!-- Spark  admin/obs@123 -->
+    <string name="basic_auth">Basic YmlsbGluZzpwYXNzd29yZA==</string><!-- Peter  billing/password -->
     <string name="cancel"> Cancel </string>
     <string name="cast_crew">Cast &amp; Crew</string>
     <string name="channels_updated_at">channels updated at</string>
@@ -58,23 +60,31 @@
     <string name="new_pkg_data">New Package Data</string>
     <string name="new_plans_data">New Plans Data</string>
     <string name="next">Next ></string>
-     <string name="next2">Next >></string> 
+    <string name="next2">Next >></string>
     <string name="own_buy">Own / Buy :</string>
     <string name="package_name">Package Name</string>
     <string name="password">Password</string>
     <string name="remind_me">Remind Me</string>
-    <string name="reg_existing_user">Existing User? <b><u>Login</u></b> here</string>
-    <string name="reg_new_user">New User? <b><u>Register</u></b> here</string>
     <string name="reg_acc">Register your account</string>
-    <string name="release">Release</string>
-    <string name="rental">Rental :</string>
+    <string name="reg_existing_user">Existing User? <b><u>Login</u></b> here</string>
+    <string name="reg_forget_pwd"><b><u>Forget Password?</u></b></string>
+    <string name="reg_forget_pwd_prompt_txt">To reset your password, please enter your email address</string>
+    <string name="reg_full_name">Full Name</string>
+    <string name="reg_link_user">Link User</string>
+    <string name="reg_new_user">New User?</string>
+    <string name="reg_new_user_register"><b><u>Register</u></b></string>
+    <string name="reg_new_user_or">or</string>
+    <string name="reg_new_user_link"><b><u>Link</u></b></string>
     <string name="reg_note">Mobile TV allows user with Mobile Phones, Smart Phones &amp; Tablets
          to enjoy premium digital TV signals on their devices.</string>
+    <string name="release">Release</string>
+    <string name="rental">Rental :</string>
     <string name="search">Search</string>
     <string name="sel_country">Select Country </string>
     <string name="sel_pkg">Select Package</string>
     <string name="serialno">Serial No</string>
-     <string name="server_url">https://41.76.90.173:8181/obsplatform/api/v1</string><!-- demo server -->  <!-- Spark -->
+     <string name="server_url_">https://41.76.90.173:8181/obsplatform/api/v1</string><!-- demo server --> <!-- Spark -->
+    <string name="server_url">https://192.168.1.211/obsplatform/api/v1</string><!-- demo server --> <!-- Spark -->
     <string name="submit"> Submit </string>
     <string name="subscribe">Subscribe</string>
     <string name="tenent_id">default</string>
@@ -90,7 +100,7 @@
         <item>VOD</item>
         <!--
         <item>Music</item>
-        <item>Games</item>
+        <item>Games</item>
         -->
     </string-array>
     <string-array name="arrMenuImageNames">
@@ -98,7 +108,7 @@
         <item>vod</item>
         <!--
         <item>music</item>
-        <item>games</item>
+        <item>games</item>
         -->
     </string-array>
     <string-array name="arrMyAccMenu">
@@ -132,4 +142,5 @@
         <item>COMING</item>
         <item>ALL</item>
     </string-array>
+
 </resources>

@@ -19,7 +19,7 @@ public class ClientDatum {
 	private String country;
 	private String flag;
 	private String email;
-	public  String password;
+	private String password;
 	private String zipCode;
 	private String active;
 	private String dateFormat;
@@ -55,6 +55,7 @@ public class ClientDatum {
 	public void setCategoryType(String categoryType) {
 		this.categoryType = categoryType;
 	}
+
 	public String getAccountNo() {
 		return accountNo;
 	}
@@ -230,6 +231,7 @@ public class ClientDatum {
 	public void setFullname(String fullname) {
 		this.fullname = fullname;
 	}
+
 	public boolean isBalanceCheck() {
 		return balanceCheck;
 	}
@@ -250,10 +252,17 @@ public class ClientDatum {
 		return configurationProperty;
 	}
 
-	public void setConfigurationProperty(ConfigurationProperty configurationProperty) {
+	public void setConfigurationProperty(
+			ConfigurationProperty configurationProperty) {
 		this.configurationProperty = configurationProperty;
 	}
 
+	public String getPassword() {
+		return password;
+	}
 
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
 }

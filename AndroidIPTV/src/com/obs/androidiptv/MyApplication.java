@@ -69,7 +69,7 @@ public class MyApplication extends Application {
 	private static String payPalClientID = null;
 	//private static String payPalSecret = null;
 //	public static boolean D = false; // need to delete this variable
-	public static Player player = Player.NATIVE_PLAYER;
+	public static Player player = Player.MXPLAYER;
 	public static PayPalConfiguration config = null;
 	
 	/** PayPal configurations */

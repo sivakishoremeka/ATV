@@ -7,48 +7,33 @@
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/a_reg_tv_user_login"
+        android:id="@+id/a_reg_tv_user_reg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp"
-        android:text="@string/user_login"
+        android:text="@string/reg_link_user"
         android:textColor="#5A5A5A"
         android:textSize="18sp"
         android:textStyle="bold" />
 
     <EditText
-        android:id="@+id/a_reg_et_login_email_id"
+        android:id="@+id/a_reg_et_link_user_email_id"
         android:layout_width="260dp"
         android:layout_height="30dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="13dp"
         android:background="@drawable/img_et_reg"
-        android:hint="@string/email_id"
-        android:inputType="textEmailAddress"
-        android:paddingLeft="10dp"
-        android:textSize="16sp" >
-
-        <requestFocus />
-    </EditText>
-
-    <EditText
-        android:id="@+id/a_reg_et_password"
-        android:layout_width="260dp"
-        android:layout_height="30dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="9dp"
-        android:background="@drawable/img_et_reg"
         android:ems="10"
-        android:hint="@string/password"
-        android:inputType="textPassword"
+        android:hint="@string/email_id"
+        android:inputType="text"
         android:paddingLeft="10dp"
-        android:textSize="16sp" />
+        android:textSize="18sp" />
 
     <LinearLayout
         android:layout_width="260dp"
-        android:layout_height="32dp"
+        android:layout_height="30dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="13dp"
         android:layout_marginTop="5dp" >
@@ -69,7 +54,7 @@
             android:text="@string/cancel"
             android:textColor="@color/white"
             android:textSize="15sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/a_reg_btn_submit"
@@ -89,73 +74,22 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/a_reg_tv_forget_pwd"
+        android:id="@+id/a_reg_tv_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="2dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginBottom="3dp"
+        android:layout_marginTop="3dp"
         android:clickable="true"
         android:gravity="center_horizontal"
-        android:onClick="textForgetPwd_onClick"
-        android:text="@string/reg_forget_pwd"
+        android:onClick="textLogin_onClick"
+        android:text="@string/reg_existing_user"
         android:textColor="#0AA4E6"
         android:textSize="17sp" />
 
     <TextView
-        android:id="@+id/a_reg_tv_new_user"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="2dp"
-        android:layout_marginTop="6dp"
-        android:gravity="center_horizontal"
-        android:text="@string/reg_new_user"
-        android:textSize="15sp" />
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="32dp"
-        android:gravity="center_horizontal" >
-
-        <TextView
-            android:id="@+id/a_reg_tv_register"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:layout_marginRight="4dp"
-            android:clickable="true"
-            android:gravity="center_horizontal"
-            android:onClick="textRegister_onClick"
-            android:text="@string/reg_new_user_register"
-            android:textColor="#0AA4E6"
-            android:textSize="17sp" />
-
-        <TextView
-            android:id="@+id/a_reg_tv_new_user_or"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="2dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginRight="4dp"
-            android:text="@string/reg_new_user_or"
-            android:textSize="15sp" />
-
-        <TextView
-            android:id="@+id/a_reg_tv_link"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="2dp"
-            android:layout_marginLeft="4dp"
-            android:clickable="true"
-            android:onClick="textLinkUser_onClick"
-            android:text="@string/reg_new_user_link"
-            android:textColor="#0AA4E6"
-            android:textSize="17sp" />
-    </LinearLayout>
-
-    <TextView
         android:id="@+id/a_reg_tv_note"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="58dp"
         android:layout_marginBottom="6dp"
         android:layout_marginLeft="3dp"
         android:layout_marginRight="3dp"
